@@ -25,7 +25,7 @@ tasks:
   - id: T-03.01
     titulo: Pagina Atividade e item de menu
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Rota /atividade em (sistema) que exige admin no servidor, tabela rolavel com Quando, Quem, Acao e Detalhe em portugues, estado vazio, paginacao por links, item Atividade na barra lateral so para admin, so tokens de cor
     arquivos:
       cria: [src/app/(sistema)/atividade/page.tsx, src/componentes/TabelaDeAtividade.tsx, tests/atividade-tela.test.ts]
@@ -35,6 +35,8 @@ tasks:
     criterio_aceite: tests/atividade-tela.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-02.02]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (234 testes)
   - id: T-03.02
     titulo: Seed de demonstracao e prova de rotas
     fase: F-03.1

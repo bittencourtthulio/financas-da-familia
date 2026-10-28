@@ -17,6 +17,11 @@ export function Navegacao({ ehAdmin }: { ehAdmin: boolean }) {
       <Link href="/" {...marca('/')}>
         Painel
       </Link>
+      {ehAdmin && (
+        <Link href="/atividade" {...marca('/atividade')}>
+          Atividade
+        </Link>
+      )}
 
       <h2>Configurações</h2>
       {ehAdmin && (
