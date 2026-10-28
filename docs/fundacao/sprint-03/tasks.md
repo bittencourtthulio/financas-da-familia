@@ -9,14 +9,14 @@ sprint_id: sprint-03
 atualizado_em: 2026-10-28
 sprint:
   titulo: Celular, estados e formato brasileiro
-  status: em_andamento
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed, a gaveta abre e fecha no celular, ha estados carregando erro e nao encontrado em portugues e o formato brasileiro existe
   riscos: [Componente cliente com estado precisa funcionar na renderizacao do servidor e no vitest sem navegador]
   fora_de_escopo: [Telas de dominio, qualquer data ou valor exibido ao usuario]
 fases:
   - id: F-03.1
     titulo: Gaveta, estados e formato
-    status: em_andamento
+    status: concluido
     criterio_saida: Os tres conjuntos de testes da sprint passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -55,7 +55,7 @@ tasks:
   - id: T-03.03
     titulo: Formato brasileiro de valor e data
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Prover formatacao de valor em centavos e de data no formato e no fuso brasileiros para as features seguintes
     arquivos:
       cria: [src/lib/formato.ts, tests/formato.test.ts]
@@ -65,8 +65,8 @@ tasks:
     criterio_aceite: tests/formato.test.ts termina com 0 failed
     depende_de: [T-03.02]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
 ---
 
 # Plano — Sprint 03 — Celular, estados e formato brasileiro
@@ -129,3 +129,5 @@ Os campos de cada task estão no frontmatter acima (fonte única).
 - **T-03.01** concluída em 2026-10-28 · suíte: 104 passed, 0 failed · real: 0,8 h (aprox.)
 - **T-03.02** concluída em 2026-10-28 · suíte: 113 passed, 0 failed · real: 0,8 h (aprox.)
 - Divergência da T-03.02: o `loading.tsx` do sistema coloca as páginas dentro de um limite de streaming; a negação de `/configuracoes/usuarios` para o adulto deixou de ser um 307 e passou a ser um `meta refresh` para `/` no corpo (status 200), sem nenhum dado de administração. O teste de rotas foi reescrito para afirmar o que importa (redirecionamento sem vazamento). Registrado como D-17 e como risco residual no FECHAMENTO.
+- **T-03.03** concluída em 2026-10-28 · suíte: 121 passed, 0 failed · real: 0,4 h (aprox.)
+- Fechamento da sprint 03 em 2026-10-28: `npm run build` + `npm test` → 13 arquivos, 121 passed, 0 failed.
