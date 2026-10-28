@@ -1,0 +1,25 @@
+# Fluxo de exemplo (PR-23). A verificação de verdade é o comando do projeto,
+# `npm run verificar`; este arquivo só o dispara a cada mudança. Se o
+# repositório morar fora do GitHub, troque apenas este gatilho.
+name: verificar
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Preparar o ambiente de verificação
+        run: |
+          echo "DATABASE_URL=file:./ci.db" >> "$GITHUB_ENV"
+          echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+      - run: npx prisma generate
+      - run: npm run verificar

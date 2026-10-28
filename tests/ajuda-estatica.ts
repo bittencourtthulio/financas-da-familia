@@ -120,3 +120,21 @@ export function corpoDe(css: string, seletor: string): string {
   }
   throw new Error(`Bloco sem fechamento: ${seletor}`)
 }
+
+/**
+ * As dependências cuja versão não é exata (circunflexo, til, intervalo,
+ * `latest`, `*`). Versão fixada é exigência da PR-12; o lock já trava a
+ * instalação, mas o package.json é o que o humano lê e atualiza.
+ */
+export function versoesNaoFixadas(
+  pacote: Partial<Record<'dependencies' | 'devDependencies', Record<string, string>>>,
+): string[] {
+  const exata = /^\d+\.\d+\.\d+(?:-[\w.]+)?$/
+  const achados: string[] = []
+  for (const grupo of ['dependencies', 'devDependencies'] as const) {
+    for (const [nome, versao] of Object.entries(pacote[grupo] ?? {})) {
+      if (!exata.test(versao)) achados.push(`${nome}@${versao}`)
+    }
+  }
+  return achados.sort()
+}
