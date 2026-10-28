@@ -9,21 +9,21 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-03
 sprint:
   titulo: Seed, premissas e convencoes
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; a seed cria movimentos ficticios para os dois filhos sem duplicar; PR-01, PR-32 e PR-33 realizadas; CONVENCOES.md com evidencia conferida; quatro comandos verdes
   riscos: [citacoes de linha deslocadas por linhas novas, saldo da seed dependente do relogio]
   fora_de_escopo: [Exportar e apagar dados do filho]
 fases:
   - id: F-03.1
     titulo: Seed de demonstracao
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
     tasks: [T-03.01]
   - id: F-03.2
     titulo: Premissas, convencoes e README
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-03.01
     titulo: "Seed de demonstracao com movimentos de mesada"
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Estender prisma/demonstracao.ts com movimentos ficticios de credito e gasto para Ana (saldo positivo) e Pedro (saldo negativo), ids fixos, upsert sem sobrescrever, e prisma/seed.ts se preciso
     arquivos:
       cria: []
@@ -42,13 +42,13 @@ tasks:
     criterio_aceite: tests/demonstracao.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-02.03]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1182 testes)
 
   - id: T-03.02
     titulo: "Premissas realizadas, convencoes com evidencia, README e mapa"
     fase: F-03.2
-    status: pendente
+    status: concluida
     objetivo: Marcar PR-01, PR-32 e PR-33 como realizadas em FT-06, documentar no CONVENCOES.md a mesada com evidencia arquivo:linha (dinheiro, autorizacao, dados, auditoria, nota para a FT-07), atualizar README, MAPA e PROJETO, e reconferir todas as citacoes de linha
     arquivos:
       cria: []
@@ -58,8 +58,8 @@ tasks:
     criterio_aceite: tests/premissas.test.ts e tests/convencoes.test.ts terminam com 0 failed e npm run verificar termina com codigo 0
     depende_de: [T-03.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1193 testes)
 
 ---
 

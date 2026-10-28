@@ -9,28 +9,28 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-02
 sprint:
   titulo: Acoes, telas do responsavel e pagina do filho
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o responsavel registra, edita e apaga movimentos e ve o saldo de cada filho pelas telas; o filho ve saldo em destaque e extrato paginado so dele; as acoes de escrita sao barradas para filho, adulto e visitante; o servidor real prova as rotas
   riscos: [regra de CSS so com token, tabela de acoes sensiveis ampliada, citacoes de linha de acoes.ts, caixa de formulario que reinicia apos o envio]
   fora_de_escopo: [Seed, documentacao final]
 fases:
   - id: F-02.1
     titulo: Apresentacao pura e acoes
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
     tasks: [T-02.01]
   - id: F-02.2
     titulo: Telas do responsavel
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
     tasks: [T-02.02]
   - id: F-02.3
     titulo: Pagina do filho e prova no servidor
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -39,7 +39,7 @@ tasks:
   - id: T-02.01
     titulo: "Apresentacao do saldo, leitor de formulario e acoes de servidor"
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Criar src/lib/mesada.ts (situacao do saldo em texto, rotulo do movimento, enderecos do extrato), o leitor lerFormularioDeMovimento e as acoes registrarMovimentoDeMesada, salvarMovimentoDeMesada e excluirMovimentoDeMesada com a guarda do responsavel fora do try, avisando quando o gasto deixou o saldo negativo
     arquivos:
       cria: ["src/lib/mesada.ts", "tests/mesada-lib.test.ts", "tests/mesada-acoes.test.ts"]
@@ -49,13 +49,13 @@ tasks:
     criterio_aceite: tests/mesada-lib.test.ts, tests/mesada-acoes.test.ts e tests/filhos-acoes.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.02]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1126 testes)
 
   - id: T-02.02
     titulo: "Telas do responsavel: extrato, formulario rapido, edicao e saldo na lista"
     fase: F-02.2
-    status: pendente
+    status: concluida
     objetivo: Criar as paginas /filhos/[id]/mesada e /filhos/[id]/mesada/[movimentoId], os componentes CamposDeMovimento, ExtratoDeMesada, SaldoDaMesada, ApagarMovimento e PaginacaoDoExtrato, o link na pagina do filho e o saldo no cartao da lista de filhos, com estilos so de tokens e a skill frontend-design
     arquivos:
       cria: ["src/app/(sistema)/filhos/[id]/mesada/page.tsx", "src/app/(sistema)/filhos/[id]/mesada/[movimentoId]/page.tsx", "src/componentes/CamposDeMovimento.tsx", "src/componentes/ExtratoDeMesada.tsx", "src/componentes/SaldoDaMesada.tsx", "src/componentes/ApagarMovimento.tsx", "src/componentes/PaginacaoDoExtrato.tsx", "tests/mesada-tela.test.ts"]
@@ -65,13 +65,13 @@ tasks:
     criterio_aceite: tests/mesada-tela.test.ts e tests/filhos-tela.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1164 testes)
 
   - id: T-02.03
     titulo: "Pagina /mesada do filho preenchida e prova no servidor real"
     fase: F-02.3
-    status: pendente
+    status: concluida
     objetivo: Preencher a pagina /mesada com o saldo em destaque e o extrato paginado por ?pagina=, mantendo o combinado como referencia e a pagina sem id, formulario nem botao; provar no servidor de producao real o isolamento entre irmaos, a negacao ao adulto e o responsavel registrando e vendo
     arquivos:
       cria: ["tests/mesada-rotas.test.ts"]
@@ -81,8 +81,8 @@ tasks:
     criterio_aceite: tests/mesada-rotas.test.ts e tests/filhos-mesada.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.02]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1175 testes)
 
 ---
 

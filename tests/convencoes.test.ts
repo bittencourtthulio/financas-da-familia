@@ -293,6 +293,78 @@ describe('o papel filho e os filhos no CONVENCOES.md (FT-05)', () => {
   })
 })
 
+describe('a mesada dos filhos no CONVENCOES.md (FT-06)', () => {
+  const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
+  const trecho = (titulo: string) => {
+    const i = secao7.indexOf(`### ${titulo}`)
+    const j = secao7.indexOf('\n### ', i + 5)
+    return secao7.slice(i, j === -1 ? undefined : j)
+  }
+
+  it('cada citação nova da mesada aponta para a linha que contém o nome citado', () => {
+    const esperado: Array<[string, number, RegExp]> = [
+      ['prisma/schema.prisma', 117, /model MovimentoDeMesada/],
+      ['prisma/schema.prisma', 121, /valorCentavos\s+Int/],
+      ['prisma/schema.prisma', 127, /onDelete: Cascade/],
+      ['prisma/migrations/20261028190000_mesada/migration.sql', 2, /CREATE TABLE "movimentos_de_mesada"/],
+      ['prisma/migrations/20261028190000_mesada/migration.sql', 6, /"valorCentavos" INTEGER/],
+      ['src/servicos/mesada.ts', 94, /totaisDoFilho/],
+      ['src/servicos/mesada.ts', 95, /groupBy/],
+      ['src/servicos/mesada.ts', 116, /registrarMovimento/],
+      ['src/servicos/mesada.ts', 121, /exigirAdmin/],
+      ['src/servicos/mesada.ts', 139, /registrarAtividade/],
+      ['src/servicos/mesada.ts', 319, /meuExtrato/],
+      ['src/servicos/mesada.ts', 323, /exigirFilho/],
+      ['src/lib/atividade.ts', 21, /mesada\.registrada/],
+      ['src/app/acoes.ts', 311, /registrarMovimentoDeMesada/],
+      ['tests/mesada-dados.test.ts', 87, /Cascade/],
+      ['tests/mesada-saldo.test.ts', 25, /0,10 \+ 0,20/],
+      ['tests/mesada.test.ts', 353, /PR-02 no serviço de mesada/],
+      ['tests/mesada-papeis.test.ts', 33, /todas as funções do serviço de mesada negam/],
+      ['tests/mesada-isolamento.test.ts', 86, /IDOR/],
+      ['tests/mesada-acoes.test.ts', 170, /não grava nada em nenhuma ação da mesada/],
+      ['tests/mesada-rotas.test.ts', 161, /não vê nem alcança o irmão/],
+    ]
+    for (const [arquivo, linha, padrao] of esperado) {
+      expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
+      const conteudo = readFileSync(path.join(RAIZ, arquivo), 'utf8').split('\n')[linha - 1]
+      expect(conteudo, `${arquivo}:${linha}`).toMatch(padrao)
+    }
+  })
+
+  it('a regra de dinheiro diz onde o saldo do filho é somado: no servidor, em inteiros, sem corte por data', () => {
+    const dinheiro = trecho('Dinheiro')
+    for (const termo of ['saldo do filho', 'groupBy', 'PR-32', 'negativo', 'nunca no cliente']) {
+      expect(dinheiro, termo).toContain(termo)
+    }
+  })
+
+  it('a autorização diz que só o responsável escreve, o adulto não vê e o filho lê sem id', () => {
+    const autorizacao = trecho('Autorização')
+    for (const termo of ['meuExtrato', 'exigirAdmin', 'PR-33', 'tests/mesada-papeis.test.ts']) {
+      expect(autorizacao, termo).toContain(termo)
+    }
+    expect(autorizacao).toMatch(/adulto[^.]*não/)
+  })
+
+  it('os dados citam MovimentoDeMesada, o Cascade e a nota para a FT-07 exportar e apagar por filho', () => {
+    const dados = trecho('Dados do domínio')
+    for (const termo of ['MovimentoDeMesada', 'Cascade', 'FT-07', 'filhoId']) expect(dados, termo).toContain(termo)
+  })
+
+  it('a auditoria cita as três ações da mesada e diz que nunca entram valor, saldo nem descrição', () => {
+    const auditoria = trecho('Auditoria')
+    for (const acao of ['mesada.registrada', 'mesada.alterada', 'mesada.apagada']) {
+      expect(auditoria, acao).toContain(acao)
+    }
+    expect(auditoria).toMatch(/nunca o valor, o saldo nem a descrição/)
+  })
+
+  it('o histórico registra a revisão da FT-06', () => {
+    expect(convencoes).toMatch(/\| FT-06 \|/)
+  })
+})
+
 describe('comandos do CONVENCOES.md', () => {
   const pacote = JSON.parse(readFileSync(path.join(RAIZ, 'package.json'), 'utf8')) as {
     scripts: Record<string, string>

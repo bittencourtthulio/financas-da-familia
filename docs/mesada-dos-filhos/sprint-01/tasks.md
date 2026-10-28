@@ -9,21 +9,21 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-01
 sprint:
   titulo: Dados e servico da mesada
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o responsavel registra, edita, apaga e consulta movimentos e o saldo em centavos inteiros, com a trilha sem valor; adulto e filho sao negados nas funcoes do responsavel; o filho le so o proprio extrato sem informar id
   riscos: [migration em banco SQLite, citacoes de linha do CONVENCOES.md deslocadas por linhas novas em ajuda.ts e atividade.ts, soma em ponto flutuante]
   fora_de_escopo: [Telas, acoes de servidor, seed]
 fases:
   - id: F-01.1
     titulo: Entidade, migration e trilha
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
     tasks: [T-01.01]
   - id: F-01.2
     titulo: Servico de mesada
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-01.01
     titulo: "Entidade MovimentoDeMesada, migration e acoes da trilha"
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Criar o modelo MovimentoDeMesada (tabela movimentos_de_mesada, valorCentavos Int, filhoId com Cascade, indice por filho e data) com migration, incluir a tabela em limparBanco e acrescentar as tres acoes mesada.registrada, mesada.alterada e mesada.apagada ao catalogo da trilha com a descricao delas
     arquivos:
       cria: ["prisma/migrations/20261028190000_mesada/migration.sql", "tests/mesada-dados.test.ts"]
@@ -42,13 +42,13 @@ tasks:
     criterio_aceite: tests/mesada-dados.test.ts e tests/atividade-dados.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (973 testes)
 
   - id: T-01.02
     titulo: "Servico de mesada: movimentos, extrato, saldo e leitura do filho"
     fase: F-01.2
-    status: pendente
+    status: concluida
     objetivo: Criar src/servicos/mesada.ts com registrarMovimento, editarMovimento, apagarMovimento, obterMovimento, extratoDoFilho e saldosDosFilhos (so admin) e meuExtrato (so filho, sem id), validados com zod, saldo por groupBy de inteiros, rastro na mesma transacao
     arquivos:
       cria: ["src/servicos/mesada.ts", "tests/mesada.test.ts", "tests/mesada-saldo.test.ts", "tests/mesada-papeis.test.ts", "tests/mesada-isolamento.test.ts"]
@@ -58,8 +58,8 @@ tasks:
     criterio_aceite: tests/mesada.test.ts, tests/mesada-saldo.test.ts, tests/mesada-papeis.test.ts e tests/mesada-isolamento.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1085 testes)
 
 ---
 

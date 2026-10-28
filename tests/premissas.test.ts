@@ -223,3 +223,46 @@ describe('premissas que a FT-05 realiza (MAPA.md)', () => {
     }
   })
 })
+
+describe('premissas que a FT-06 realiza (MAPA.md)', () => {
+  const bloco = /### FT-06 [\s\S]*?\*\*Premissas que realiza:\*\*\s*\[([^\]]*)\]/.exec(mapa)
+  const realizadas = (bloco?.[1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+
+  it('o MAPA lista a PR-01 para a FT-06', () => {
+    expect(realizadas).toContain('PR-01')
+  })
+
+  it('a PR-01 e as premissas PR-32 e PR-33 (criadas na F2 da FT-06) estão Realizada em FT-06', () => {
+    for (const id of ['PR-01', 'PR-32', 'PR-33']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).toBe('FT-06')
+    }
+  })
+
+  it('a PR-32 e a PR-33 são f2_autonoma, provisórias, e dizem o que as invalidaria e a pendência', () => {
+    for (const id of ['PR-32', 'PR-33']) {
+      const p = lista.find((x) => x.id === id)
+      expect(p?.origem, id).toBe('f2_autonoma')
+      expect(p?.invalida.length, id).toBeGreaterThan(10)
+    }
+    const bloco32 = premissas.slice(premissas.indexOf('### PR-32'), premissas.indexOf('### PR-33'))
+    const bloco33 = premissas.slice(premissas.indexOf('### PR-33'))
+    for (const b of [bloco32, bloco33]) {
+      expect(b).toMatch(/\*\*Provisória:\*\* true/)
+      expect(b).toMatch(/decisao_humana/)
+    }
+    expect(bloco32).toMatch(/negativo/)
+    expect(bloco33).toMatch(/onDelete: Cascade/)
+  })
+
+  it('o frontmatter total e por origem bate com 33 premissas', () => {
+    expect(lista).toHaveLength(33)
+  })
+
+  it('as premissas de outras features não foram marcadas por engano', () => {
+    expect(lista.find((p) => p.id === 'PR-06')?.realizadaEm).toBe('FT-05')
+    expect(lista.find((p) => p.id === 'PR-30')?.realizadaEm).toBe('FT-05')
+    for (const id of ['PR-09', 'PR-11', 'PR-13', 'PR-14']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).not.toBe('FT-06')
+    }
+  })
+})
