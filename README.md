@@ -108,6 +108,94 @@ fictícios (abra **Lançamentos**). As categorias são só dado de demonstraçã
 | `npm run verificar` | lint, tipos, build, testes e auditoria de dependência |
 | `npm run setup` | prepara o banco do zero |
 | `npm run db:seed` | só a seed |
+| `npm run backup` | gera um backup do banco em `backups/` (veja o runbook abaixo) |
+| `npm run restaurar -- <arquivo>` | restaura o banco de um backup, preservando uma cópia do atual |
+| `npm run log:limpar` | descarta os arquivos de log com mais de 90 dias |
+
+## Operação: backup, restauração, saúde e log
+
+O histórico financeiro da família é **um arquivo SQLite só** (`DATABASE_URL`).
+Sem backup, um disco ruim apaga tudo. Esta seção é o runbook de quem opera o
+sistema.
+
+### Gerar um backup
+
+```bash
+npm run backup
+```
+
+Cria `backups/backup-AAAA-MM-DD-HHMMSS.db` (horário de São Paulo), uma cópia
+consistente do banco feita com `VACUUM INTO`, que pode ser gerada com o sistema
+no ar. Nunca sobrescreve um backup anterior. A pasta é `backups/` na raiz do
+projeto, ou a indicada em `BACKUP_DIR`.
+
+**Guarde o arquivo com cuidado.** Ele leva tudo o que o banco tem: os hashes de
+senha de todos os usuários, o nome e a mesada dos filhos e todo o dinheiro da
+casa. A pasta `backups/` fica **fora do git** (`.gitignore`) e o comando a cria
+só para o dono (0700, arquivos 0600). Não a versione, não a mande por canal
+aberto e apague a cópia que não for mais precisar. O backup **não é
+criptografado** (pendência registrada, veja abaixo).
+
+### Restaurar
+
+1. **Pare o sistema** (`next start` ou `npm run dev`). Restaurar com o sistema no
+   ar deixa o servidor lendo o arquivo antigo.
+2. Rode:
+
+   ```bash
+   npm run restaurar -- backups/backup-2026-10-28-120405.db
+   ```
+
+3. O comando só aceita um arquivo SQLite íntegro que tenha as tabelas do sistema
+   (`usuarios`, `atividades`, `categorias`, `lancamentos`, `filhos`,
+   `movimentos_de_mesada`); qualquer outra coisa é recusada com uma mensagem, e o
+   banco atual **não é tocado**.
+4. Antes de trocar, o banco atual é guardado em
+   `backups/antes-da-restauracao-AAAA-MM-DD-HHMMSS.db`: se a restauração foi um
+   engano, restaure este arquivo.
+5. Suba o sistema de novo e confira `GET /api/saude`.
+
+Num computador novo, aponte `DATABASE_URL` para o caminho desejado e rode o mesmo
+comando: sem banco anterior, não há cópia a preservar.
+
+### Saúde
+
+`GET /api/saude` é pública (um monitor precisa perguntar sem entrar) e não leva
+dado pessoal, versão, caminho nem pilha:
+
+| Resposta | Significa |
+|---|---|
+| `200 {"status":"ok","banco":"ok"}` | o sistema e o banco respondem |
+| `503 {"status":"indisponivel","banco":"falha"}` | o sistema está de pé, mas o banco não responde (ou demorou mais de 3 s) |
+
+### Log
+
+Uma linha JSON por evento, com `nivel`, `instante`, `evento` e `contexto`, na
+saída padrão e no arquivo `logs/app-AAAA-MM-DD.log` (dia UTC; pasta em
+`LOG_DIR`, vazio desliga o arquivo). Nunca vão para o log senha, hash, token,
+e-mail nem valor em dinheiro: o que parece isso vira `[removido]`.
+
+**Os arquivos de log com mais de 90 dias são descartados** quando o servidor sobe
+e quando você roda `npm run log:limpar`. Quem redireciona a saída padrão para
+outro lugar cuida da retenção desse lugar.
+
+Um erro inesperado mostra ao usuário a frase "Não foi possível concluir" com um
+**código** de 12 caracteres; a linha `erro.inesperado` do log tem o mesmo código
+(`ref`), o nome e o código do erro, e nunca a mensagem nem a pilha. Peça o código
+a quem viu o erro.
+
+### Configuração que falha no start
+
+O servidor confere `DATABASE_URL`, `JWT_SECRET` e `JWT_TTL_SEGUNDOS` ao subir. Se
+algo estiver ausente ou inválido, imprime tudo o que está errado, sem repetir o
+valor, e **encerra com código 1**.
+
+### O que ficou de fora, de propósito
+
+Agendamento automático do backup (use o `cron` do sistema com `npm run backup`),
+rotação dos arquivos de backup antigos, backup remoto ou em nuvem, criptografia
+do backup e restauração pela interface. Cada um depende de decisão ou de recurso
+que o sistema não tem; estão em `docs/backup-e-saude/00-BLOQUEIOS.md`.
 
 ## O que esta fundação não traz, de propósito
 
