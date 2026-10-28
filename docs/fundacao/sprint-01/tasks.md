@@ -9,14 +9,14 @@ sprint_id: sprint-01
 atualizado_em: 2026-10-28
 sprint:
   titulo: Guardas e harness de teste
-  status: nao_iniciado
+  status: em_andamento
   criterio_saida: A suite inteira (npm test) termina com 0 failed e existem guardas executaveis de camadas e de tokens e um harness que testa componentes .tsx
   riscos: [O esbuild do vitest nao transforma JSX sem configuracao (base/03-testes-seed-e-qualidade.md)]
   fora_de_escopo: [Qualquer mudanca de texto ou de comportamento da interface]
 fases:
   - id: F-01.1
     titulo: Guardas e harness
-    status: nao_iniciado
+    status: em_andamento
     criterio_saida: Os tres testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -25,18 +25,18 @@ tasks:
   - id: T-01.01
     titulo: Guarda de camadas
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Transformar a regra de camadas da PR-17 em teste que falha quando a apresentacao importa o Prisma ou o servico importa a apresentacao
     arquivos:
       cria: [tests/ajuda-estatica.ts, tests/camadas.test.ts]
-      altera: []
+      altera: [src/lib/sessao-servidor.ts, src/app/sessao-servidor.ts, src/app/acoes.ts, src/app/(sistema)/layout.tsx, src/app/(sistema)/page.tsx, src/app/(sistema)/perfil/page.tsx, src/app/(sistema)/perfil/senha/page.tsx, src/app/(sistema)/configuracoes/usuarios/page.tsx, src/app/entrar/page.tsx]
     teste_integracao: Varre o src real e afirma que src/app e src/componentes nao importam o cliente do Prisma e que src/servicos e src/lib nao importam src/app
     teste_funcional: Dado um diretorio temporario com um componente que importa @/lib/prisma a checagem devolve essa violacao, e sem violacao devolve lista vazia
     criterio_aceite: tests/camadas.test.ts termina com 0 failed e a checagem aponta o arquivo e o import do fixture violador
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-01.02
     titulo: Guarda de tokens, temas e celular
     fase: F-01.1
@@ -128,3 +128,4 @@ Os campos de cada task estão no frontmatter acima (fonte única; YAML e prosa d
 - **T-01.01** — Guarda de camadas: a PR-17 deixa de ser prescrição e vira teste.
 - **T-01.02** — Guarda de tokens, temas e celular: corrige o único literal de cor (`rgb(255 255 255 / 0.12)` em `src/estilos/global.css:92`) criando o token `--statusbar-hover`.
 - **T-01.03** — Harness de componentes `.tsx`: habilita as sprints 02 e 03.
+- **T-01.01** concluída em 2026-10-28 · suíte: 65 passed, 0 failed · real: 0,4 h (aprox.)
