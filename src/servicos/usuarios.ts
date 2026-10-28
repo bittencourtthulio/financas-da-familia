@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { hashDeSenha } from '@/lib/senha'
 import { conflito, entradaInvalida, naoEncontrado } from '@/lib/erros'
 import { exigirAdmin, type UsuarioAutenticado } from '@/servicos/autenticacao'
+import { registrarAtividade } from '@/servicos/atividade'
 
 // Sem regra de complexidade teatral (L3): tamanho mínimo e nada mais.
 const senhaValida = z.string().min(8, 'A senha precisa de ao menos 8 caracteres.')
@@ -73,14 +74,26 @@ export async function criar(
     throw conflito('Já existe um usuário com este e-mail.')
   }
 
-  return prisma.usuario.create({
-    data: {
-      nome: dados.data.nome,
-      email,
-      papel: dados.data.papel,
-      senhaHash: await hashDeSenha(dados.data.senha),
-    },
-    select: camposListados,
+  const senhaHash = await hashDeSenha(dados.data.senha)
+
+  // O usuário e o rastro nascem juntos (PR-10): se o registro falha, a
+  // criação é desfeita. O detalhe leva o nome e o papel, nunca a senha.
+  return prisma.$transaction(async (tx) => {
+    const criado = await tx.usuario.create({
+      data: { nome: dados.data.nome, email, papel: dados.data.papel, senhaHash },
+      select: camposListados,
+    })
+    await registrarAtividade(
+      {
+        ator: autor,
+        acao: 'usuario.criado',
+        entidade: 'usuario',
+        entidadeId: criado.id,
+        detalhe: { alvoNome: criado.nome, papel: criado.papel },
+      },
+      tx,
+    )
+    return criado
   })
 }
 

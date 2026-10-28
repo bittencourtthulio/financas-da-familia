@@ -25,7 +25,7 @@ tasks:
   - id: T-02.01
     titulo: Criar usuario registra a atividade
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: criar grava o usuario e o registro usuario.criado (alvoNome, papel) na mesma transacao
     arquivos:
       cria: [tests/usuarios-atividade.test.ts]
@@ -35,6 +35,8 @@ tasks:
     criterio_aceite: Os casos novos de tests/usuarios-atividade.test.ts passam e a suite inteira esta verde
     depende_de: [T-01.03]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (213 testes)
   - id: T-02.02
     titulo: Mudar papel e desativar registram a atividade
     fase: F-02.1

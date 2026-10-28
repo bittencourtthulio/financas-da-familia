@@ -116,7 +116,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 
 | Tipo | Pasta | Arquivo exemplar |
 | ---- | ----- | ---------------- |
-| Caso de uso | `src/servicos` | `src/servicos/usuarios.ts:53` |
+| Caso de uso | `src/servicos` | `src/servicos/usuarios.ts:54` |
 | Utilitário puro / acesso a dados | `src/lib` | `src/lib/formato.ts:12` |
 | Ação de formulário | `src/app/acoes.ts` | `src/app/acoes.ts:1` |
 | Rota de API | `src/app/api/<assunto>/<ação>/route.ts` | `src/app/api/sessao/renovar/route.ts:11` |
@@ -137,7 +137,7 @@ Serviço sinaliza erro lançando `ErroDeAplicacao` pelos construtores `naoAutent
 
 ### Validação de entrada
 Esquema `zod` no servidor, na camada de aplicação, antes de tocar o banco.
-**Evidência:** `src/servicos/usuarios.ts:20`, `src/servicos/autenticacao.ts:22`
+**Evidência:** `src/servicos/usuarios.ts:21`, `src/servicos/autenticacao.ts:22`
 
 ### Log
 Apenas `console.error` na ação de formulário; não há biblioteca, formato estruturado nem correlação de requisição.
@@ -167,10 +167,10 @@ Variável obrigatória ausente falha na leitura, com mensagem em português, nã
 Todo valor monetário é inteiro em centavos (BRL); a formatação recusa não inteiro e não passa por ponto flutuante — `src/lib/formato.ts:13`, `tests/formato.test.ts:29`. Nunca `Float` no esquema: `decidido_pelo_buildx` (PR-02, evidência na FT-03), porque o esquema ainda não tem coluna de dinheiro.
 
 ### Autorização
-Papéis gravados `admin` e `usuario` (interface: Responsável e Adulto); a checagem acontece no servidor, em serviço ou ação, nunca só na interface — `src/app/sessao-servidor.ts:31`, `src/servicos/autenticacao.ts:127`, `src/servicos/usuarios.ts:53`, `tests/rotas.test.ts:147`. O papel `filho`: `decidido_pelo_buildx` (PR-06, evidência na FT-05).
+Papéis gravados `admin` e `usuario` (interface: Responsável e Adulto); a checagem acontece no servidor, em serviço ou ação, nunca só na interface — `src/app/sessao-servidor.ts:31`, `src/servicos/autenticacao.ts:127`, `src/servicos/usuarios.ts:54`, `tests/rotas.test.ts:147`. O papel `filho`: `decidido_pelo_buildx` (PR-06, evidência na FT-05).
 
 ### Dados do domínio
-Toda entidade de domínio nasce numa feature do B4, sob TDD, com migration, e entrada validada com `zod` no servidor — validação: `src/servicos/usuarios.ts:20`; migration: `prisma/migrations/20260830193658_esquema_inicial/migration.sql:2`. Primeira entidade de domínio nova sob esta regra: `decidido_pelo_buildx` (evidência na FT-03).
+Toda entidade de domínio nasce numa feature do B4, sob TDD, com migration, e entrada validada com `zod` no servidor — validação: `src/servicos/usuarios.ts:21`; migration: `prisma/migrations/20260830193658_esquema_inicial/migration.sql:2`. Primeira entidade de domínio nova sob esta regra: `decidido_pelo_buildx` (evidência na FT-03).
 
 ### Versionamento
 Uma branch por feature, `feat/ft-NN-<slug>`, na árvore principal, um commit por task, sem push forçado nem merge no fluxo automático — `docs/projeto/PREMISSAS.md:326` (PR-24). Mensagens de commit seguem Conventional Commits em português (`git log`).
