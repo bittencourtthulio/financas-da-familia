@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 33
+total: 35
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 13
+  f2_autonoma: 15
   recursao: 0
   template: 5
 ---
@@ -450,3 +450,29 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** true
 **Realizada em:** FT-06
+
+---
+
+### PR-34 — Forma da exportação dos dados da família
+
+**Assunto:** FT-07, o que o arquivo exportado contém, como é versionado e quem o baixa
+**Decisão:** o responsável (`admin`) baixa um arquivo JSON em UTF-8, nome `dados-da-familia-AAAA-MM-DD.json` (data de São Paulo), por uma rota que só aceita POST, verificada no servidor, com `Content-Disposition: attachment` e `Cache-Control: no-store`. O documento tem `versao_do_formato` (hoje `1`), `gerado_em` (ISO) e as listas `usuarios` (id, nome, e-mail, papel, ativo, criado_em), `categorias`, `lancamentos`, `filhos` (nome, nascimento, mesada combinada, periodicidade, id do usuário de login, saldo), `movimentos_de_mesada` e `atividade` (a trilha, como está gravada). Todo valor é inteiro em centavos (`*_centavos`, PR-02), sem texto formatado; toda data civil é `AAAA-MM-DD` e todo instante é ISO 8601 em UTC. O arquivo nunca leva hash de senha, token, JWT, segredo, o corte de sessão (`sessoesValidasDesde`) nem contador de tentativas de login; um teste varre o arquivo procurando esses campos e os valores reais. A exportação grava `familia.exportada` na trilha (ator, id opaco, versão do formato), sem conteúdo, antes de entregar o arquivo; se o rastro falha, não há arquivo. A trilha entra no arquivo porque é dado da família e já nasce sem valor, senha, token nem e-mail (PR-25). Sem CSV, PDF, importação nem exportação parcial. Pendência `decisao_humana` não bloqueante: a família quer o arquivo também em planilha (CSV), o texto formatado dos valores, ou importar o arquivo de volta?
+**Por quê:** a PR-09 manda o responsável exportar os dados da família; a PR-02 manda centavos inteiros, e o texto formatado duplicaria o dado e convidaria a ler o texto em vez do inteiro. Só POST porque a rota grava na trilha e o cookie `sameSite: lax` seguiria um link de outro site. Um arquivo versionado deixa a importação, se vier, saber o que lê. Incluir a trilha segue a recomendação de fechar o ciclo do dado da família sem nada sensível a mais.
+**O que invalida:** se a família quiser outro formato (planilha, PDF), importação do arquivo, exportação por filho ou por período, ou se o arquivo for guardado fora da máquina do responsável sem cuidado (ele leva nome e e-mail de menores e todo o dinheiro da casa).
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** null
+
+---
+
+### PR-35 — Exclusão da conta do filho: o que apaga e o que anonimiza
+
+**Assunto:** FT-07, exclusão de verdade do filho com o histórico dele (LGPD art. 14, PR-09)
+**Decisão:** só o responsável (`admin`) apaga a conta de um filho, e só depois de digitar o nome do filho (confirmação em dois passos; o servidor confere o nome, a tela não basta). Numa única transação o sistema remove o registro do filho, os movimentos de mesada dele (a chave estrangeira `Cascade` da PR-33 faz isso) e o usuário de login `filho` ligado a ele; o estado de tentativas de login desse e-mail é esquecido. Não há tabela de sessão: o token emitido antes deixa de abrir qualquer página porque o usuário deixa de existir. A trilha de atividade não é apagada: as linhas que citam o filho (as de entidade `filho` com o id dele, as de mesada com o id dele no `detalhe` e as que tenham o usuário de login como entidade ou ator) são anonimizadas, com o nome substituído por "filho removido", e fica registrado `filho.excluido` (ator, quando, id opaco do filho, sem nome, e-mail, valor nem saldo). O id opaco do filho e os tipos (crédito ou gasto) ficam na trilha; nenhum nome, e-mail, nascimento, valor ou descrição do filho sobra em tabela alguma, e um teste inspeciona o banco inteiro. Apagar é definitivo: sem lixeira, sem desfazer, sem exigir consentimento registrado; a tela avisa para baixar a exportação antes. Pendências `decisao_humana` não bloqueantes: exclusão da família inteira ou de usuário adulto, prazo legal de resposta, termo de consentimento assinado e versionado, anonimizar em vez de excluir, lixeira ou desfazer.
+**Por quê:** a PR-09 diz que a exclusão apaga de fato; "apagar" mantendo o nome do filho em registro da trilha não cumpriria o pedido, e apagar a trilha inteira apagaria a prova de que a exclusão ocorreu e de quem a fez. Anonimizar a linha preserva o fato (PR-10) sem dado pessoal (PR-25 já previa que a FT-07 decidiria). Digitar o nome é a barreira contra o clique errado em algo irreversível, como o dois passos da PR-28.
+**O que invalida:** se a família quiser guardar o histórico financeiro sem o nome (anonimizar em vez de apagar), poder desfazer, apagar a família inteira ou um adulto, ou se um prazo legal exigir etapa que o sistema não tem.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** null

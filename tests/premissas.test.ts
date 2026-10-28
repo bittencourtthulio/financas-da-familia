@@ -254,8 +254,8 @@ describe('premissas que a FT-06 realiza (MAPA.md)', () => {
     expect(bloco33).toMatch(/onDelete: Cascade/)
   })
 
-  it('o frontmatter total e por origem bate com 33 premissas', () => {
-    expect(lista).toHaveLength(33)
+  it('o frontmatter total e por origem bate com 35 premissas', () => {
+    expect(lista).toHaveLength(35)
   })
 
   it('as premissas de outras features não foram marcadas por engano', () => {
