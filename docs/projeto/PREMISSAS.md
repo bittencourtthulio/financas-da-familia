@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 29
+total: 31
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 9
+  f2_autonoma: 11
   recursao: 0
   template: 5
 ---
@@ -398,3 +398,29 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** true
 **Realizada em:** FT-04
+
+---
+
+### PR-30 — Forma do cadastro do filho
+
+**Assunto:** FT-05, o que se guarda do filho e o que a mesada combinada significa
+**Decisão:** o registro do filho tem nome (1 a 80 caracteres, obrigatório), data de nascimento (opcional, dia civil AAAA-MM-DD, não pode ser futura), valor de mesada combinado (obrigatório, inteiro positivo de centavos até R$ 1.000.000,00, lido pelo mesmo leitor em formato brasileiro do lançamento) e periodicidade (obrigatória, `semanal` ou `mensal`). O valor e a periodicidade são só informativos: não geram crédito, não disparam cálculo e não alimentam saldo (isso é a FT-06). Nada além disso é guardado do filho: nenhum CPF, RG, telefone, endereço nem foto (PR-09). Só o responsável (`admin`) cadastra, lê a lista e edita; o adulto (`usuario`) não. Não há idade mínima ou máxima, limite de filhos nem mais de um responsável por filho. Apagar de fato o filho é da FT-07. Pendência `decisao_humana` não bloqueante: a família quer mesada opcional (filho sem valor combinado) ou periodicidade além de semanal e mensal?
+**Por quê:** o MAPA lista nome, valor e periodicidade como o cadastro, e a PR-09 limita o dado de menor a nome, nascimento opcional e e-mail de login opcional; a descrição só pede nascimento como opcional, então os outros dois são obrigatórios. Exigir menos seria inventar um filho sem mesada, e exigir mais (idade, limite) seria inventar regra de negócio. A data futura é recusada por ser dado impossível, não por regra de idade.
+**O que invalida:** se a família quiser filho sem mesada combinada, outras periodicidades (quinzenal, por tarefa), mais de um responsável por filho, ou o adulto cadastrando filhos.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-05
+
+---
+
+### PR-31 — Login do filho ligado ao registro
+
+**Assunto:** FT-05, como o papel `filho` nasce e o que ele alcança
+**Decisão:** o login do filho é um usuário de papel `filho` ligado ao registro do filho, um para um, criado só pelo responsável na página do filho (e-mail de login e senha provisória de ao menos 8 caracteres); o nome do usuário é o do filho. O papel `filho` nasce somente aí: a tela Usuários não cria, não oferece e não muda papel para `filho`, e recusa mudar o papel de quem já é `filho`. O responsável pode desativar o login (a conta e o vínculo ficam; reativar e redefinir senha esquecida não existem nesta feature). O filho acessa apenas o painel neutro, a própria página de mesada, o perfil e a troca de senha; o servidor nega todo o resto, e um filho nunca recebe a página, o dado nem a confirmação de existência de outro filho. Cadastro, edição, criação e desativação de login entram na trilha (PR-10) só com ids, nomes e os nomes dos campos alterados, nunca valor, saldo, e-mail nem data de nascimento (PR-25). Pendência `decisao_humana` não bloqueante: a família quer reativar o login ou redefinir a senha esquecida de um filho pelo responsável?
+**Por quê:** a PR-06 manda o filho ler só o que é dele, checado no servidor; ligar o login ao registro por chave única impede dois logins por filho e torna impossível ler outro irmão sem um id que a página não aceita. Impedir que a tela Usuários crie ou mude `filho` evita login órfão (sem registro) e escalada de papel por outro caminho. Reativação e redefinição são regra de operação que a descrição não traz: o mais simples e reversível é não oferecê-las agora.
+**O que invalida:** se os filhos não forem ter login (PR-06), se o adulto também gerir filhos, se um filho puder ter mais de um login ou se a família quiser reativar e redefinir senha.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-05
