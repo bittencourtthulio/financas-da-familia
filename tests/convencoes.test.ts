@@ -88,7 +88,7 @@ describe('auditoria no CONVENCOES.md (FT-02)', () => {
       ['src/servicos/atividade.ts', 40, /CHAVE_PROIBIDA/],
       ['src/servicos/atividade.ts', 142, /listarAtividade/],
       ['src/servicos/usuarios.ts', 86, /registrarAtividade/],
-      ['src/servicos/usuarios.ts', 155, /registrarAtividade/],
+      ['src/servicos/usuarios.ts', 161, /registrarAtividade/],
       ['src/lib/atividade.ts', 9, /ACOES/],
       ['prisma/schema.prisma', 36, /model Atividade/],
       ['tests/atividade.test.ts', 122, /somente acréscimo/],

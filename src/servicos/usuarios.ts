@@ -112,6 +112,12 @@ export async function editar(
   const alvo = await prisma.usuario.findUnique({ where: { id } })
   if (!alvo) throw naoEncontrado('Usuário não encontrado.')
 
+  // O papel do filho é do cadastro do filho (PR-31): trocá-lo aqui deixaria
+  // um login sem registro, ou elevaria um filho a adulto por outro caminho.
+  if (alvo.papel === 'filho' && dados.data.papel !== undefined) {
+    throw conflito('O papel de um filho só muda na página do filho.')
+  }
+
   // Um admin que se rebaixa ou se desativa tranca a si mesmo para fora, e
   // se for o último admin tranca todo mundo. As duas guardas abaixo são o
   // que impede o sistema de ficar sem administrador.

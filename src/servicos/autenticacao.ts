@@ -145,3 +145,11 @@ export function exigirAdultoOuResponsavel(usuario: UsuarioAutenticado): void {
 export function papelPodeLancar(papel: string): boolean {
   return PAPEIS_DOS_LANCAMENTOS.includes(papel)
 }
+
+/**
+ * Exige que o usuário seja um filho (PR-06, PR-31): é a guarda da página de
+ * mesada. Qualquer outro papel é negado (403); a verificação é aqui, no servidor.
+ */
+export function exigirFilho(usuario: UsuarioAutenticado): void {
+  if (usuario.papel !== 'filho') throw naoAutorizado()
+}

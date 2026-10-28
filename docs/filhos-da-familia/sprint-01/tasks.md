@@ -16,7 +16,7 @@ sprint:
 fases:
   - id: F-01.1
     titulo: Papel filho e guardas
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-01.01
     titulo: "Papel filho: rotulo, guarda e negacao nos servicos existentes"
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Dar ao papel filho o rotulo Filho em src/lib/papeis.ts, a guarda exigirFilho em src/servicos/autenticacao.ts, e fazer usuarios.editar recusar com 409 a mudanca de papel de quem ja e filho; provar com um usuario filho real que todas as funcoes exportadas de lancamentos, resumo, atividade e usuarios o negam com 403
     arquivos:
       cria: ["tests/papel-filho.test.ts"]
@@ -42,8 +42,8 @@ tasks:
     criterio_aceite: tests/papel-filho.test.ts e tests/papeis.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: pendente
+    concluida_em: 2026-10-28
+    suite: verde (727 testes)
 
   - id: T-01.02
     titulo: Entidade Filho, migration, trilha e servico de cadastro
