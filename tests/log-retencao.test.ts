@@ -23,7 +23,7 @@ beforeEach(() => {
 })
 afterEach(() => {
   rmSync(pasta, { recursive: true, force: true })
-  delete process.env.LOG_DIR
+  process.env.LOG_DIR = ''
   definirDestinoDoLog(null)
 })
 
@@ -102,9 +102,11 @@ describe('gravação no arquivo do dia', () => {
     expect(statSync(dir).mode & 0o777).toBe(0o700)
   })
 
-  it('sem LOG_DIR, no teste, nada é gravado em disco', () => {
+  it('com a gravação em arquivo desligada, nada é gravado em disco', () => {
+    const logs = path.join(process.cwd(), 'logs')
+    const antes = existsSync(logs) ? readdirSync(logs) : null
     registrar('info', 'um.evento', {}, AGORA)
-    expect(existsSync(path.join(process.cwd(), 'logs'))).toBe(false)
+    expect(existsSync(logs) ? readdirSync(logs) : null).toEqual(antes)
   })
 
   it('falha ao gravar o arquivo não propaga', () => {

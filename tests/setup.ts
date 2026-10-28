@@ -11,6 +11,9 @@ const arquivo = path.resolve(process.cwd(), 'prisma/test.db')
 process.env.DATABASE_URL = `file:${arquivo}`
 process.env.JWT_SECRET = 'segredo-de-teste-nao-usar-em-producao'
 process.env.JWT_TTL_SEGUNDOS = '900'
+// Log em arquivo desligado nos testes (FT-08): os servidores de produção que os
+// testes sobem herdam isto e não escrevem em logs/ na raiz do projeto.
+process.env.LOG_DIR = ''
 // NODE_ENV é somente-leitura nos tipos do Node; o vitest já o define como
 // 'test', e a atribuição direta não compila.
 Object.assign(process.env, { NODE_ENV: 'test' })
