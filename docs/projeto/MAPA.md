@@ -4,10 +4,10 @@ expx_tool: buildx
 kind: mapa
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total_features: 8
+total_features: 9
 pendentes: 0
 em_andamento: 0
-entregues: 8
+entregues: 9
 bloqueadas: 0
 ---
 
@@ -27,6 +27,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 | FT-06 | Mesada dos filhos | entregue | — (branch feat/ft-06-mesada-dos-filhos, sem remote) |
 | FT-07 | Privacidade dos dados da família | entregue | — (branch feat/ft-07-privacidade-dos-dados, sem remote) |
 | FT-08 | Backup, restauração e saúde | entregue | — (branch feat/ft-08-backup-e-saude, sem remote) |
+| FT-09 | Login do filho acompanha o cadastro | entregue | — (branch feat/ft-09-login-do-filho-em-sincronia, sem remote) |
 
 ---
 
@@ -163,6 +164,23 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 **PR:** — (branch `feat/ft-08-backup-e-saude`, sem remoto; descrição pronta em `docs/backup-e-saude/PR.md`)
 **Sprints:** 3
 **Testes:** 120 novos (1444 na suíte)
+
+---
+
+### FT-09 — Login do filho acompanha o cadastro
+
+**Slug:** `login-do-filho-em-sincronia` → `docs/login-do-filho-em-sincronia/`
+**Entrega:** ao editar o nome de um filho, o nome do usuário de login ligado a ele muda na mesma transação (menu, perfil, trilha e exportação passam a mostrar o nome novo); sem login nada muda, o e-mail do login nunca é alterado e a trilha registra a alteração sem dado pessoal.
+**Depende de:** [FT-05, FT-07]
+**Paralelizável:** false
+**Origem:** recursao
+**Premissas que realiza:** [PR-39]
+**Módulo disponível:** -
+**Fatias candidatas:** -
+**Status:** entregue
+**PR:** — (branch `feat/ft-09-login-do-filho-em-sincronia`, sem remote; empilhada sobre `feat/ft-08-backup-e-saude`; descrição pronta em `docs/login-do-filho-em-sincronia/PR.md`)
+**Sprints:** 1
+**Testes:** 24 novos (1468 na suíte) — PEND-18
 
 ---
 

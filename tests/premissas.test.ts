@@ -345,18 +345,55 @@ describe('premissas que a FT-08 realiza (MAPA.md)', () => {
     expect(lista.filter((p) => p.realizadaEm === 'FT-08').map((p) => p.id)).toEqual(realizadas)
   })
 
-  it('o frontmatter diz 38 premissas, 18 f2_autonoma, e bate com os blocos', () => {
-    expect(lista).toHaveLength(38)
-    expect(lista.filter((p) => p.origem === 'f2_autonoma')).toHaveLength(18)
-    expect(/^total:\s*38$/m.test(frontmatter(premissas))).toBe(true)
+  it('até a PR-38 eram 38 premissas e 18 f2_autonoma (a FT-09 acrescenta a PR-39, testada na seção dela)', () => {
+    const ate38 = lista.slice(0, 38)
+    expect(ate38.map((p) => p.id)).toEqual(Array.from({ length: 38 }, (_, i) => `PR-${String(i + 1).padStart(2, '0')}`))
+    expect(ate38.filter((p) => p.origem === 'f2_autonoma')).toHaveLength(18)
   })
 
-  it('o MAPA e o PROJETO dizem que as oito features estão entregues', () => {
+  it('o MAPA diz que a FT-08 está entregue', () => {
+    expect(mapa).toMatch(/\| FT-08 \| Backup, restauração e saúde \| entregue \|/)
+  })
+})
+
+describe('premissas e mapa da FT-09 (recursão, PEND-18)', () => {
+  const bloco = /### FT-09 [\s\S]*?(?=\n---|$)/.exec(mapa)?.[0] ?? ''
+
+  it('o MAPA tem a FT-09 entregue, de origem recursão, depende de FT-05 e FT-07', () => {
+    expect(bloco).toMatch(/\*\*Slug:\*\* `login-do-filho-em-sincronia` → `docs\/login-do-filho-em-sincronia\/`/)
+    expect(bloco).toMatch(/\*\*Depende de:\*\* \[FT-05, FT-07\]/)
+    expect(bloco).toMatch(/\*\*Origem:\*\* recursao/)
+    expect(bloco).toMatch(/\*\*Premissas que realiza:\*\* \[PR-39\]/)
+    expect(bloco).toMatch(/\*\*Status:\*\* entregue/)
+    expect(bloco).toMatch(/\*\*PR:\*\* —/)
+    expect(mapa).toMatch(/\| FT-09 \| Login do filho acompanha o cadastro \| entregue \|/)
+  })
+
+  it('a PR-39 é f2_autonoma, provisória, realizada em FT-09 e diz o que a invalidaria', () => {
+    const p = lista.find((x) => x.id === 'PR-39')
+    expect(p?.origem).toBe('f2_autonoma')
+    expect(p?.realizadaEm).toBe('FT-09')
+    expect(p?.invalida.length).toBeGreaterThan(10)
+    const texto = premissas.slice(premissas.indexOf('### PR-39 '))
+    expect(texto).toMatch(/\*\*Provisória:\*\* true/)
+    expect(texto).toMatch(/e-mail/)
+    expect(texto).toMatch(/decisao_humana/)
+    expect(lista.filter((x) => x.realizadaEm === 'FT-09').map((x) => x.id)).toEqual(['PR-39'])
+  })
+
+  it('o frontmatter diz 39 premissas, 19 f2_autonoma, e bate com os blocos', () => {
+    expect(lista).toHaveLength(39)
+    expect(lista.filter((p) => p.origem === 'f2_autonoma')).toHaveLength(19)
+    expect(/^total:\s*39$/m.test(frontmatter(premissas))).toBe(true)
+  })
+
+  it('o MAPA e o PROJETO dizem que as nove features estão entregues', () => {
     const projeto = readFileSync(path.join(RAIZ, 'docs/projeto/PROJETO.md'), 'utf8')
     const fmMapa = frontmatter(mapa)
-    expect(/^entregues:\s*8$/m.test(fmMapa)).toBe(true)
+    expect(/^total_features:\s*9$/m.test(fmMapa)).toBe(true)
+    expect(/^entregues:\s*9$/m.test(fmMapa)).toBe(true)
     expect(/^pendentes:\s*0$/m.test(fmMapa)).toBe(true)
-    expect(/^features_entregues:\s*8$/m.test(frontmatter(projeto))).toBe(true)
-    expect(mapa).toMatch(/\| FT-08 \| Backup, restauração e saúde \| entregue \|/)
+    expect(/^total_features:\s*9$/m.test(frontmatter(projeto))).toBe(true)
+    expect(/^features_entregues:\s*9$/m.test(frontmatter(projeto))).toBe(true)
   })
 })

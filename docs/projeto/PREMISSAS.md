@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 38
+total: 39
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 18
+  f2_autonoma: 19
   recursao: 0
   template: 5
 ---
@@ -515,3 +515,16 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** true
 **Realizada em:** FT-08
+
+---
+
+### PR-39 — O login do filho acompanha o nome do cadastro
+
+**Assunto:** FT-09, o que a edição do filho faz com o usuário de login ligado a ele (PEND-18, defeito achado na FT-07)
+**Decisão:** ao editar o filho, o `nome` do usuário de login ligado passa a ser o nome do cadastro, na mesma transação da edição e do rastro: se qualquer parte falha, nada muda. A comparação é com o nome atual do usuário, não com o nome antigo do filho, então o login que já divergia (dado de antes da correção) é curado na próxima edição, sem script de migração. Sem login ligado, nada mais muda. O e-mail do login é credencial e nunca é alterado pela edição do filho; o papel, a situação ativo/desativado e a senha também não. A trilha continua em `filho.alterado`, com `alvoNome` e `campos`; quando o nome do login foi mesmo reescrito, `campos` ganha `login` (a tela diz "nome do login"). O detalhe nunca leva o e-mail nem o nome antigo. Só o `admin` edita (PR-06). Pendências `decisao_humana` não bloqueantes: trocar o e-mail de login de um filho (hoje é fixo) e o sentido contrário, em que a tela Usuários renomeia o usuário de um filho sem mudar o cadastro (hoje livre; a próxima edição do filho reescreve o nome do login).
+**Por quê:** o filho tem dois registros que mostram a mesma pessoa, o cadastro e o usuário; o menu, o perfil, a trilha e a exportação leem o usuário, então o nome velho aparecia em tudo que o filho e a família veem. O e-mail é o que o filho digita para entrar: mudá-lo sozinho trancaria o filho para fora, e escolher o novo e-mail é decisão da família. Comparar com o nome do usuário e não com o antigo do filho repara os dados já tortos sem migração. Gravar o nome de antes e o de depois na trilha reabriria o que a PR-35 anonimiza.
+**O que invalida:** se a família quiser que o login tenha nome próprio, diferente do cadastro, se quiser que o e-mail acompanhe algo, ou se a tela Usuários passar a poder renomear o filho (e o sentido contrário precisar de regra).
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-09

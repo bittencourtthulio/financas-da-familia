@@ -8,8 +8,8 @@ modo: autonomo
 criado_em: 2026-10-28
 atualizado_em: 2026-10-28
 etapa: b4
-total_features: 8
-features_entregues: 8
+total_features: 9
+features_entregues: 9
 features_bloqueadas: 0
 ciclos_recursao: 0
 ---

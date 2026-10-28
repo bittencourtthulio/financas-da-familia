@@ -521,3 +521,40 @@ describe('backup, restauração, saúde e log no CONVENCOES.md (FT-08)', () => {
     expect(convencoes).toMatch(/\| FT-08 \|/)
   })
 })
+
+describe('o login do filho acompanha o cadastro no CONVENCOES.md (FT-09)', () => {
+  const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
+  const trecho = (titulo: string) => {
+    const i = secao7.indexOf(`### ${titulo}`)
+    const j = secao7.indexOf('\n### ', i + 5)
+    return secao7.slice(i, j === -1 ? undefined : j)
+  }
+
+  it('cada citação nova aponta para a linha que contém o nome citado', () => {
+    const esperado: Array<[string, number, RegExp]> = [
+      ['src/servicos/filhos.ts', 185, /renomeiaLogin/],
+      ['src/servicos/filhos.ts', 190, /tx\.usuario\.update/],
+      ['src/lib/atividade.ts', 69, /nome do login/],
+      ['tests/filhos-sincronia.test.ts', 33, /editarFilho renomeia o login vinculado/],
+    ]
+    for (const [arquivo, linha, padrao] of esperado) {
+      expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
+      const conteudo = readFileSync(path.join(RAIZ, arquivo), 'utf8').split('\n')[linha - 1]
+      expect(conteudo, `${arquivo}:${linha}`).toMatch(padrao)
+    }
+  })
+
+  it('"Auditoria" diz que o campo login entra sem e-mail nem nome antigo, e o histórico registra a FT-09', () => {
+    const auditoria = trecho('Auditoria')
+    expect(auditoria).toMatch(/nome do login/)
+    expect(auditoria).toMatch(/nem o nome antigo/)
+    expect(convencoes).toMatch(/\| FT-09 \|/)
+  })
+
+  it('"Dados do domínio" diz que o login acompanha o nome do filho e que o e-mail nunca muda', () => {
+    const dados = trecho('Dados do domínio')
+    expect(dados).toMatch(/FT-09/)
+    expect(dados).toMatch(/PR-39/)
+    expect(dados).toMatch(/e-mail/)
+  })
+})
