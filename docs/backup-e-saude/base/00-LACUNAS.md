@@ -1,0 +1,9 @@
+# Lacunas da base — backup-e-saude
+
+- Log estruturado — procurado em `src/lib`, `src/app/acoes.ts`: NÃO ENCONTRADO (só `console.error(erro)` em `src/app/acoes.ts`, que imprime a pilha). Implica: módulo novo `src/lib/log.ts`; a lista de chaves proibidas da trilha (`src/servicos/atividade.ts`) sobe para `src/lib` para ser compartilhada (lib não importa serviço).
+- Retenção de log (PR-11) — procurado em `src/`, `package.json`: NÃO ENCONTRADO. Implica: arquivo de log por dia (`app-AAAA-MM-DD.log`) e rotina `descartarLogsAntigos` com data injetada.
+- Configuração que falha no start (L20) — procurado em `src/lib/ambiente.ts`, `src/lib/prisma.ts`: PARCIAL. `ambiente.ts` falha com mensagem em português, mas só quando o getter é lido; `prisma.ts` só falha no primeiro import. Implica: `validarAmbiente()` completa e `src/instrumentation.ts` que a chama quando o servidor sobe.
+- Rota de saúde — procurado em `src/app/api`: NÃO ENCONTRADO. Não há middleware nem proxy (cada página e rota guarda a si mesma), então uma rota nova sem guarda é pública.
+- Backup e restauração — procurado em `package.json`, `prisma/`, `scripts/`: NÃO ENCONTRADO. `better-sqlite3` 12.11.1 existe só como dependência transitiva do adaptador do Prisma. Implica: declará-lo no manifesto com versão exata (e os tipos como dependência de desenvolvimento).
+- Erro sem pilha ao usuário — procurado em `src/app/acoes.ts`, `src/componentes/EstadoDeErro.tsx`: ENCONTRADO na interface (frase genérica), mas o `console.error(erro)` grava a pilha e a mensagem sem identificador. Implica: o log passa a gravar só nome e código do erro mais um identificador de correlação que a tela mostra.
+- Agendamento, nuvem, criptografia do backup, restauração pela interface — procurado em `docs/projeto/`: NÃO DOCUMENTADO. Implica: não inventar; pendências `decisao_humana` ou `recurso_externo`.

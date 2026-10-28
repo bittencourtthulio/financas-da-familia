@@ -15,7 +15,10 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "setup": "prisma generate && prisma db push && npm run db:seed"
+    "setup": "prisma generate && prisma db push && npm run db:seed",
+    "backup": "tsx scripts/backup.ts",
+    "restaurar": "tsx scripts/restaurar.ts",
+    "log:limpar": "tsx scripts/limpar-logs.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -24,6 +27,7 @@
     "@prisma/adapter-better-sqlite3": "7.10.0",
     "@prisma/client": "7.10.1",
     "bcryptjs": "3.0.3",
+    "better-sqlite3": "12.11.1",
     "dotenv": "17.4.2",
     "jose": "6.2.10",
     "next": "16.4.3",
@@ -32,6 +36,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "9.6.0",
     "@types/node": "26.4.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
