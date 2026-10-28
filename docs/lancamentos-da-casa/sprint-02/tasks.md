@@ -57,7 +57,7 @@ tasks:
   - id: T-02.03
     titulo: Editar e apagar lancamento
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: editarLancamento (mesmas validacoes, 404 para id inexistente, registro lancamento.alterado so se algo mudou) e apagarLancamento (remove a linha e registra lancamento.apagado com tipo e categoria), cada um na mesma transacao do registro
     arquivos:
       cria: [tests/lancamentos-edicao.test.ts]
@@ -67,6 +67,9 @@ tasks:
     criterio_aceite: tests/lancamentos-edicao.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-02.02]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (486 testes)
+
   - id: T-02.04
     titulo: Listagem por mes e tipo, paginada
     fase: F-02.1

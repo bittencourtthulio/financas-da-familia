@@ -29,6 +29,17 @@ const chamadas: Array<[string, Chamada]> = [
       }),
   ],
   ['obterLancamento', (a) => servico.obterLancamento(a, 'qualquer')],
+  [
+    'editarLancamento',
+    (a) =>
+      servico.editarLancamento(a, 'qualquer', {
+        tipo: 'despesa',
+        valor: '10,00',
+        data: '2026-10-27',
+        categoriaId: 'qualquer',
+      }),
+  ],
+  ['apagarLancamento', (a) => servico.apagarLancamento(a, 'qualquer')],
 ]
 
 const PAPEIS_NEGADOS = ['filho', 'visitante', '', 'ADMIN', 'Admin', 'administrador', 'superusuario']

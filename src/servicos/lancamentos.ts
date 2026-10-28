@@ -223,3 +223,82 @@ export async function obterLancamento(
   if (!lancamento) throw naoEncontrado('Lançamento não encontrado.')
   return lancamento
 }
+
+export async function editarLancamento(
+  autor: UsuarioAutenticado,
+  id: string,
+  entrada: unknown,
+): Promise<LancamentoListado> {
+  exigirAdultoOuResponsavel(autor)
+
+  const dados = validarLancamento(entrada)
+  const atual = await prisma.lancamento.findUnique({ where: { id } })
+  if (!atual) throw naoEncontrado('Lançamento não encontrado.')
+  await exigirCategoriaDoTipo(dados.categoriaId, dados.tipo)
+
+  const mudou =
+    atual.tipo !== dados.tipo ||
+    atual.valorCentavos !== dados.valor ||
+    atual.data !== dados.data ||
+    atual.descricao !== dados.descricao ||
+    atual.categoriaId !== dados.categoriaId
+
+  // Reenviar o que já está gravado não é mudança: não grava nada nem deixa
+  // rastro (o formulário sempre reenvia todos os campos).
+  if (!mudou) {
+    return prisma.lancamento.findUniqueOrThrow({ where: { id }, include: incluirCategoria })
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const atualizado = await tx.lancamento.update({
+      where: { id },
+      data: {
+        tipo: dados.tipo,
+        valorCentavos: dados.valor,
+        data: dados.data,
+        descricao: dados.descricao,
+        categoriaId: dados.categoriaId,
+      },
+      include: incluirCategoria,
+    })
+    await registrarAtividade(
+      {
+        ator: autor,
+        acao: 'lancamento.alterado',
+        entidade: 'lancamento',
+        entidadeId: id,
+        detalhe: { tipo: atualizado.tipo, categoriaId: atualizado.categoriaId },
+      },
+      tx,
+    )
+    return atualizado
+  })
+}
+
+/**
+ * Apaga de verdade (PR-28): a linha some do banco. O rastro guarda quem
+ * apagou, o id, o tipo e a categoria, nunca o valor (PR-25).
+ */
+export async function apagarLancamento(
+  autor: UsuarioAutenticado,
+  id: string,
+): Promise<void> {
+  exigirAdultoOuResponsavel(autor)
+
+  await prisma.$transaction(async (tx) => {
+    const existente = await tx.lancamento.findUnique({ where: { id } })
+    if (!existente) throw naoEncontrado('Lançamento não encontrado.')
+
+    await tx.lancamento.delete({ where: { id } })
+    await registrarAtividade(
+      {
+        ator: autor,
+        acao: 'lancamento.apagado',
+        entidade: 'lancamento',
+        entidadeId: id,
+        detalhe: { tipo: existente.tipo, categoriaId: existente.categoriaId },
+      },
+      tx,
+    )
+  })
+}
