@@ -9,14 +9,14 @@ sprint_id: sprint-01
 atualizado_em: 2026-10-28
 sprint:
   titulo: Guardas e harness de teste
-  status: em_andamento
+  status: concluido
   criterio_saida: A suite inteira (npm test) termina com 0 failed e existem guardas executaveis de camadas e de tokens e um harness que testa componentes .tsx
   riscos: [O esbuild do vitest nao transforma JSX sem configuracao (base/03-testes-seed-e-qualidade.md)]
   fora_de_escopo: [Qualquer mudanca de texto ou de comportamento da interface]
 fases:
   - id: F-01.1
     titulo: Guardas e harness
-    status: em_andamento
+    status: concluido
     criterio_saida: Os tres testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -55,18 +55,18 @@ tasks:
   - id: T-01.03
     titulo: Harness de componentes tsx
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Permitir que o vitest importe e renderize componentes .tsx para testar a interface sem navegador
     arquivos:
       cria: [tests/renderizar.ts, tests/harness-componentes.test.ts]
-      altera: [vitest.config.ts]
+      altera: []
     teste_integracao: Importa o componente Campo de src/componentes/Formulario.tsx dentro do vitest e o renderiza para HTML
     teste_funcional: Campo com nome email rotulo E-mail e tipo email renderiza um label com o texto E-mail e um input type email obrigatorio
     criterio_aceite: tests/harness-componentes.test.ts termina com 0 failed
     depende_de: [T-01.02]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
 ---
 
 # Plano — Sprint 01 — Guardas e harness de teste
@@ -130,3 +130,6 @@ Os campos de cada task estão no frontmatter acima (fonte única; YAML e prosa d
 - **T-01.03** — Harness de componentes `.tsx`: habilita as sprints 02 e 03.
 - **T-01.01** concluída em 2026-10-28 · suíte: 65 passed, 0 failed · real: 0,4 h (aprox.)
 - **T-01.02** concluída em 2026-10-28 · suíte: 75 passed, 0 failed · real: 0,5 h (aprox.)
+- **T-01.03** concluída em 2026-10-28 · suíte: 78 passed, 0 failed · real: 0,2 h (aprox.)
+- Divergência da sprint 01: `vitest.config.ts` não precisou mudar. O `tsconfig.json:19` já declara `jsx: react-jsx`, que o vitest respeita; a hipótese da base (esbuild exigir `jsx: automatic`) era falsa. O teste do harness passou sem vermelho prévio porque a capacidade já existia; ele discrimina porque falha se o `Campo` ou o `tsconfig` mudarem.
+- Fechamento da sprint 01 em 2026-10-28: suíte inteira `npm test` → 7 passed (arquivos), 78 passed (testes), 0 failed.
