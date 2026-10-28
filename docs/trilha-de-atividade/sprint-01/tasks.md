@@ -41,7 +41,7 @@ tasks:
   - id: T-01.02
     titulo: Servico registrarAtividade
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Gravar o registro com validacao zod, catalogo fechado e barreira contra senha, hash, token, segredo, valor, saldo, e-mail e CPF no detalhe; aceitar o cliente de uma transacao
     arquivos:
       cria: [src/servicos/atividade.ts, tests/atividade.test.ts]
@@ -51,6 +51,8 @@ tasks:
     criterio_aceite: tests/atividade.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (202 testes)
   - id: T-01.03
     titulo: Leitura do registro so para admin
     fase: F-01.1
