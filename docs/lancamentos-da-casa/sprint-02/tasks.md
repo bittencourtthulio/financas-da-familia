@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-02
 sprint:
   titulo: Servico de lancamentos e categorias
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; categorias e lancamentos se criam, leem, editam, apagam e listam pelo servico, cada mudanca deixa o registro da trilha sem valor, e todo papel que nao e admin nem usuario e negado
   riscos: [A guarda por lista de permitidos precisa de teste para papel desconhecido, A listagem por mes depende do relogio no fuso de Sao Paulo]
   fora_de_escopo: [Tela, seed, componentes]
 fases:
   - id: F-02.1
     titulo: Servico
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -73,7 +73,7 @@ tasks:
   - id: T-02.04
     titulo: Listagem por mes e tipo, paginada
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: listarLancamentos(autor, {mes, tipo, pagina}) com mes padrao o corrente em Sao Paulo, filtro por tipo, ordem de data decrescente, 50 por pagina, pagina fora do intervalo na ultima valida, sem total monetario
     arquivos:
       cria: [tests/lancamentos-listagem.test.ts]
@@ -83,6 +83,9 @@ tasks:
     criterio_aceite: tests/lancamentos-listagem.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-02.03]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (513 testes)
+
 ---
 
 # Plano — Sprint 02 — Servico de lancamentos e categorias

@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { conflito, entradaInvalida, naoEncontrado } from '@/lib/erros'
 import { lerValorEmReais } from '@/lib/dinheiro'
-import { dataCivilValida } from '@/lib/datas'
+import { dataCivilValida, intervaloDoMes, mesAtualEmSaoPaulo, mesValido } from '@/lib/datas'
 import {
   exigirAdultoOuResponsavel,
   type UsuarioAutenticado,
@@ -301,4 +301,53 @@ export async function apagarLancamento(
       tx,
     )
   })
+}
+
+export const POR_PAGINA_DE_LANCAMENTOS = 50
+
+export interface PaginaDeLancamentos {
+  itens: LancamentoListado[]
+  total: number
+  pagina: number
+  paginas: number
+  /** O mês listado, "AAAA-MM". */
+  mes: string
+  /** O filtro de tipo, ou `null` para receitas e despesas juntas. */
+  tipo: TipoDeLancamento | null
+}
+
+const ehTipo = (valor: unknown): valor is TipoDeLancamento =>
+  (TIPOS as readonly unknown[]).includes(valor)
+
+/**
+ * Os lançamentos de um mês, do dia mais recente para o mais antigo, 50 por
+ * página. Sem mês (ou com mês inválido) lista o mês corrente em São Paulo; o
+ * relógio é injetável. Sem somas: saldo e resumo são da FT-04.
+ */
+export async function listarLancamentos(
+  autor: UsuarioAutenticado,
+  opcoes: { mes?: string; tipo?: string; pagina?: number } = {},
+  agora: Date = new Date(),
+): Promise<PaginaDeLancamentos> {
+  exigirAdultoOuResponsavel(autor)
+
+  const mes = mesValido(opcoes.mes) ? opcoes.mes : mesAtualEmSaoPaulo(agora)
+  const tipo = ehTipo(opcoes.tipo) ? opcoes.tipo : null
+  const { de, ate } = intervaloDoMes(mes)
+  const where = { data: { gte: de, lt: ate }, ...(tipo && { tipo }) }
+
+  const total = await prisma.lancamento.count({ where })
+  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA_DE_LANCAMENTOS))
+  const pedida = Number.isInteger(opcoes.pagina) ? (opcoes.pagina as number) : 1
+  const pagina = Math.min(Math.max(1, pedida), paginas)
+
+  const itens = await prisma.lancamento.findMany({
+    where,
+    include: incluirCategoria,
+    orderBy: [{ data: 'desc' }, { criadoEm: 'desc' }, { id: 'desc' }],
+    skip: (pagina - 1) * POR_PAGINA_DE_LANCAMENTOS,
+    take: POR_PAGINA_DE_LANCAMENTOS,
+  })
+
+  return { itens, total, pagina, paginas, mes, tipo }
 }

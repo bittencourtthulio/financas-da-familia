@@ -40,6 +40,7 @@ const chamadas: Array<[string, Chamada]> = [
       }),
   ],
   ['apagarLancamento', (a) => servico.apagarLancamento(a, 'qualquer')],
+  ['listarLancamentos', (a) => servico.listarLancamentos(a, { mes: '2026-10' })],
 ]
 
 const PAPEIS_NEGADOS = ['filho', 'visitante', '', 'ADMIN', 'Admin', 'administrador', 'superusuario']
