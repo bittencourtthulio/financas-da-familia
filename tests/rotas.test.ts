@@ -113,6 +113,12 @@ describe('com sessão de usuário comum', () => {
     expect(html).not.toContain('As telas do projeto aparecem')
   })
 
+  it('o painel traz o botão Menu da gaveta, ligado à barra lateral', async () => {
+    const html = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
+    expect(html).toMatch(/<button[^>]*aria-controls="barra-lateral"[^>]*aria-expanded="false"/)
+    expect(html).toContain('id="barra-lateral"')
+  })
+
   it('a barra lateral traz o nome do sistema', async () => {
     const html = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
     expect(html).toMatch(/class="marca"[^>]*>Finanças da Família</)
@@ -174,6 +180,13 @@ describe('com sessão de admin', () => {
     const comum = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
     expect(admin).toMatch(/<span>Responsável<\/span>/)
     expect(comum).toMatch(/<span>Adulto<\/span>/)
+  })
+
+  it('a tabela de usuários fica num envoltório rolável para o celular', async () => {
+    const html = await (
+      await pedir('/configuracoes/usuarios', await cookieDe('admin.rota@teste.local'))
+    ).text()
+    expect(html).toMatch(/<div class="tabela-rolavel"><table>/)
   })
 
   it('o item Usuários aparece na navegação', async () => {

@@ -20,22 +20,24 @@ export default async function Usuarios() {
         Quem tem acesso ao sistema, e com qual papel.
       </p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>E-mail</th>
-            <th>Papel</th>
-            <th>Situação</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((u) => (
-            <LinhaDeUsuario key={u.id} usuario={{ ...u, ehVoce: u.id === admin.id }} />
-          ))}
-        </tbody>
-      </table>
+      <div className="tabela-rolavel">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Papel</th>
+              <th>Situação</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {usuarios.map((u) => (
+              <LinhaDeUsuario key={u.id} usuario={{ ...u, ehVoce: u.id === admin.id }} />
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <h2 style={{ marginTop: 32, fontSize: 15 }}>Novo usuário</h2>
       <Formulario acao={criarUsuario} rotulo="Criar usuário">

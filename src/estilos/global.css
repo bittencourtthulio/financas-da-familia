@@ -168,6 +168,11 @@ th {
 td { padding: 0 8px; height: var(--altura-linha); border-bottom: 1px solid var(--border); }
 tbody tr:hover { background: var(--bg-hover); }
 
+/* ---------- gaveta e tabela no celular ---------- */
+
+.botao-gaveta { display: none; }
+.tabela-rolavel { overflow-x: auto; }
+
 /* ---------- mensagens ---------- */
 
 .aviso {
@@ -198,4 +203,6 @@ tbody tr:hover { background: var(--bg-hover); }
   .aplicacao.gaveta-aberta .barra-lateral { display: block; }
   .aplicacao.gaveta-aberta .conteudo { display: none; }
   .navegacao a, input, button.primario, button.secundario { min-height: 44px; }
+  .barra-de-status .botao-gaveta { display: inline-block; min-height: var(--altura-statusbar); }
+  .conteudo { padding: 16px; }
 }

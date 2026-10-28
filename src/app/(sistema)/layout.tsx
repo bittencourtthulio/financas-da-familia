@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { exigirUsuario } from '@/app/sessao-servidor'
 import { Navegacao } from '@/componentes/Navegacao'
 import { AlternadorDeTema } from '@/componentes/AlternadorDeTema'
+import { CascaDoSistema } from '@/componentes/CascaDoSistema'
+import { BotaoDaGaveta } from '@/componentes/BotaoDaGaveta'
 import { sair } from '@/app/acoes'
 import { NOME_DO_SISTEMA } from '@/lib/marca'
 import { rotuloDoPapel } from '@/lib/papeis'
@@ -18,10 +20,10 @@ export default async function LayoutDoSistema({
   const usuario = await exigirUsuario()
 
   return (
-    <div className="aplicacao">
+    <CascaDoSistema>
       <div className="barra-de-atividade" role="presentation" />
 
-      <aside className="barra-lateral">
+      <aside className="barra-lateral" id="barra-lateral">
         <div className="marca">{NOME_DO_SISTEMA}</div>
         <Navegacao ehAdmin={usuario.papel === 'admin'} />
       </aside>
@@ -29,6 +31,7 @@ export default async function LayoutDoSistema({
       <main className="conteudo">{children}</main>
 
       <footer className="barra-de-status">
+        <BotaoDaGaveta />
         <Link href="/perfil" style={{ color: 'inherit', textDecoration: 'none' }}>
           {usuario.nome}
         </Link>
@@ -39,6 +42,6 @@ export default async function LayoutDoSistema({
           <button type="submit">Sair</button>
         </form>
       </footer>
-    </div>
+    </CascaDoSistema>
   )
 }

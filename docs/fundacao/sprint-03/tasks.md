@@ -9,14 +9,14 @@ sprint_id: sprint-03
 atualizado_em: 2026-10-28
 sprint:
   titulo: Celular, estados e formato brasileiro
-  status: nao_iniciado
+  status: em_andamento
   criterio_saida: A suite inteira termina com 0 failed, a gaveta abre e fecha no celular, ha estados carregando erro e nao encontrado em portugues e o formato brasileiro existe
   riscos: [Componente cliente com estado precisa funcionar na renderizacao do servidor e no vitest sem navegador]
   fora_de_escopo: [Telas de dominio, qualquer data ou valor exibido ao usuario]
 fases:
   - id: F-03.1
     titulo: Gaveta, estados e formato
-    status: nao_iniciado
+    status: em_andamento
     criterio_saida: Os tres conjuntos de testes da sprint passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -25,7 +25,7 @@ tasks:
   - id: T-03.01
     titulo: Gaveta de navegacao no celular
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Dar ao celular um botao Menu que abre e fecha a barra lateral e fecha ao navegar, e deixar a tabela de usuarios rolavel
     arquivos:
       cria: [src/lib/gaveta.ts, src/componentes/CascaDoSistema.tsx, src/componentes/BotaoDaGaveta.tsx, tests/gaveta.test.ts]
@@ -35,8 +35,8 @@ tasks:
     criterio_aceite: tests/gaveta.test.ts e tests/rotas.test.ts terminam com 0 failed e global.css so mostra o botao Menu dentro da regra max-width 768px
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-03.02
     titulo: Estados carregando, erro e nao encontrado
     fase: F-03.1
@@ -126,3 +126,4 @@ flowchart LR
 Os campos de cada task estão no frontmatter acima (fonte única).
 
 - **T-03.01** — D-06. **T-03.02** — D-07. **T-03.03** — D-08.
+- **T-03.01** concluída em 2026-10-28 · suíte: 104 passed, 0 failed · real: 0,8 h (aprox.)
