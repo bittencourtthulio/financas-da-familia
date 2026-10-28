@@ -3,6 +3,7 @@
 // (mesma lista de chaves da trilha, PR-25) e nunca derruba quem o chamou.
 
 import { CHAVE_PROIBIDA, VALOR_PROIBIDO } from '@/lib/chaves-proibidas'
+import { gravarLinha, pastaDeLog } from '@/lib/log-arquivo'
 
 export type NivelDoLog = 'info' | 'aviso' | 'erro'
 export type DestinoDoLog = (linha: string) => void
@@ -71,10 +72,16 @@ export function definirDestinoDoLog(destino: DestinoDoLog | null): void {
   destinoDefinido = destino
 }
 
-function destinoPadrao(linha: string): void {
-  // Nos testes o log não sai em lugar nenhum, a não ser que o teste capture.
-  if (process.env.NODE_ENV === 'test') return
-  process.stdout.write(`${linha}\n`)
+function destinoPadrao(linha: string, instante: Date): void {
+  // Nos testes o log não sai no terminal, a não ser que o teste capture.
+  if (process.env.NODE_ENV !== 'test') process.stdout.write(`${linha}\n`)
+  const pasta = pastaDeLog()
+  if (!pasta) return
+  try {
+    gravarLinha(pasta, linha, instante)
+  } catch {
+    // Disco cheio ou sem permissão: o terminal ainda tem a linha.
+  }
 }
 
 /** Registra um evento. Nunca lança: o log não pode derrubar a requisição. */
@@ -86,7 +93,8 @@ export function registrar(
 ): void {
   try {
     const linha = montarLinha(nivel, evento, contexto, agora)
-    ;(destinoDefinido ?? destinoPadrao)(linha)
+    if (destinoDefinido) destinoDefinido(linha)
+    else destinoPadrao(linha, agora)
   } catch {
     // Sem lugar melhor para avisar: engolir é o contrato.
   }

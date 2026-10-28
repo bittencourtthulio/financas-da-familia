@@ -26,3 +26,8 @@ docs/eventos/
 .expx/estado.json
 # indice derivado do memox: reconstruivel, nao versionado
 .expx/memoria/
+
+# log da aplicacao (PR-11, FT-08): descartado apos 90 dias, nunca versionado
+logs/
+# backups do banco (PR-13, FT-08): levam hash de senha e todo o dinheiro da casa
+backups/
