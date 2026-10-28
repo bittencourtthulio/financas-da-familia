@@ -84,9 +84,9 @@ describe('auditoria no CONVENCOES.md (FT-02)', () => {
 
   it('cada citação da auditoria aponta para a linha que contém o nome citado', () => {
     const esperado: Array<[string, number, RegExp]> = [
-      ['src/servicos/atividade.ts', 83, /registrarAtividade/],
-      ['src/servicos/atividade.ts', 40, /CHAVE_PROIBIDA/],
-      ['src/servicos/atividade.ts', 142, /listarAtividade/],
+      ['src/servicos/atividade.ts', 75, /registrarAtividade/],
+      ['src/lib/chaves-proibidas.ts', 8, /CHAVE_PROIBIDA/],
+      ['src/servicos/atividade.ts', 134, /listarAtividade/],
       ['src/servicos/usuarios.ts', 86, /registrarAtividade/],
       ['src/servicos/usuarios.ts', 161, /registrarAtividade/],
       ['src/lib/atividade.ts', 9, /ACOES/],
@@ -143,7 +143,7 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
       ['src/app/sessao-servidor.ts', 43, /exigirUsuarioDeLancamentos/],
       ['src/lib/atividade.ts', 13, /lancamento\.criado/],
       ['src/app/acoes.ts', 55, /mensagemDe/],
-      ['src/app/acoes.ts', 57, /console\.error/],
+      ['src/app/acoes.ts', 57, /mensagemSegura|Erro de aplicação/],
       ['tests/ajuda.ts', 39, /limparBanco/],
       ['tests/rotas.test.ts', 108, /spawn/],
       ['tests/rotas.test.ts', 207, /cadastro de usuários é negado/],

@@ -33,7 +33,7 @@ import {
 import { mesDaData } from '@/lib/datas'
 import { enderecoDaLista } from '@/lib/lancamentos-links'
 import { avisoDeSaldoNegativo, enderecoDoExtratoDoFilho } from '@/lib/mesada'
-import { ErroDeAplicacao } from '@/lib/erros'
+import { mensagemSegura } from '@/lib/erros'
 import {
   exigirUsuario,
   exigirUsuarioAdmin,
@@ -49,13 +49,13 @@ export interface EstadoDoFormulario {
 
 /**
  * Converte o erro em mensagem para a tela. Erro de aplicação carrega
- * mensagem segura; qualquer outro vira uma frase genérica — rastro de
- * pilha não chega ao usuário (L17).
+ * mensagem segura; qualquer outro vira uma frase genérica com um código de
+ * correlação e vai para o log sem mensagem nem pilha (L17, PR-14).
  */
 function mensagemDe(erro: unknown): string {
-  if (erro instanceof ErroDeAplicacao) return erro.message
-  console.error(erro)
-  return 'Não foi possível concluir. Tente de novo.'
+  // Nome, código e identificador vão ao log; mensagem e pilha, a nenhum lugar.
+  // Erro de aplicação volta com a mensagem própria; o resto, a frase e o código.
+  return mensagemSegura(erro)
 }
 
 export async function autenticar(
