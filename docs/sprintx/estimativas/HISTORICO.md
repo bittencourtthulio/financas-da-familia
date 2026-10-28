@@ -160,6 +160,94 @@ entradas:
     real: 1.0
     desvio: null
     registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-01.01
+    tipo_task: dados
+    area: entidade e migration
+    sinais: [arquivo_novo_isolado]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.5
+    desvio: null
+    registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-01.02
+    tipo_task: servico
+    area: registro com barreira
+    sinais: [regra_de_seguranca]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.6
+    desvio: null
+    registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-01.03
+    tipo_task: servico
+    area: leitura paginada
+    sinais: [arquivo_existente]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.3
+    desvio: null
+    registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-02.01
+    tipo_task: servico
+    area: criar com transacao
+    sinais: [toca_autorizacao]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.4
+    desvio: null
+    registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-02.02
+    tipo_task: servico
+    area: editar com transacao
+    sinais: [toca_autorizacao]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.4
+    desvio: null
+    registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-03.01
+    tipo_task: ui
+    area: tela Atividade
+    sinais: [arquivo_novo_isolado]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.6
+    desvio: null
+    registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-03.02
+    tipo_task: infra
+    area: seed e rotas
+    sinais: [toca_seed]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.5
+    desvio: null
+    registrado_em: 2026-10-28
+  - trabalho_id: trilha-de-atividade
+    task_id: T-03.03
+    tipo_task: infra
+    area: convencoes e premissas
+    sinais: [documentacao]
+    estimado_min: null
+    estimado_max: null
+    estimado_media: null
+    real: 0.4
+    desvio: null
+    registrado_em: 2026-10-28
 calibracao: []
 ---
 
