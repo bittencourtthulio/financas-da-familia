@@ -19,6 +19,7 @@ type Chamada = (autor: UsuarioAutenticado, ids: { filho: string }) => Promise<un
 
 const chamadas: Array<[string, Chamada]> = [
   ['exportarDadosDaFamilia', (a) => servico.exportarDadosDaFamilia(a)],
+  ['excluirFilho', (a, ids) => servico.excluirFilho(a, ids.filho, { confirmacao: 'Existente' })],
 ]
 
 const PAPEIS_NEGADOS = ['usuario', 'filho', 'visitante', '', 'ADMIN', 'Admin', 'administrador']
@@ -58,6 +59,8 @@ describe('toda função do serviço de privacidade nega quem não é admin', () 
         filhos: await prisma.filho.count(),
         usuarios: await prisma.usuario.count(),
       }).toEqual({ ...antes, usuarios: antes.usuarios + 1 })
+      // O filho segue lá, com o nome certo digitado: a negação vem do papel.
+      expect(await prisma.filho.findUnique({ where: { id: filho.id } })).not.toBeNull()
     })
 
     it('nega um filho real, com login ligado ao registro', async () => {
@@ -70,6 +73,9 @@ describe('toda função do serviço de privacidade nega quem não é admin', () 
         chamar({ id: login.id, nome: login.nome, email: login.email, papel: login.papel }, { filho: filho.id }),
       ).rejects.toMatchObject({ status: 403 })
       expect(await prisma.atividade.count()).toBe(antes)
+      // O filho não apaga nem a si mesmo.
+      expect(await prisma.filho.findUnique({ where: { id: filho.id } })).not.toBeNull()
+      expect(await prisma.usuario.findUnique({ where: { id: login.id } })).not.toBeNull()
     })
   })
 })

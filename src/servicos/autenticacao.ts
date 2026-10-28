@@ -153,3 +153,11 @@ export function papelPodeLancar(papel: string): boolean {
 export function exigirFilho(usuario: UsuarioAutenticado): void {
   if (usuario.papel !== 'filho') throw naoAutorizado()
 }
+
+/**
+ * Esquece o contador de tentativas de um e-mail (FT-07, PR-35): a exclusão da
+ * conta de um filho não deixa na memória do processo o estado de login dele.
+ */
+export function esquecerTentativasDeLogin(email: string): void {
+  limiteDeLogin.registrarSucesso(email.trim().toLowerCase())
+}

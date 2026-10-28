@@ -1,9 +1,20 @@
 import { randomUUID } from 'node:crypto'
+import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { exigirAdmin, type UsuarioAutenticado } from '@/servicos/autenticacao'
+import { entradaInvalida, naoEncontrado } from '@/lib/erros'
+import {
+  esquecerTentativasDeLogin,
+  exigirAdmin,
+  type UsuarioAutenticado,
+} from '@/servicos/autenticacao'
 import { registrarAtividade } from '@/servicos/atividade'
 import { saldosDosFilhos } from '@/servicos/mesada'
-import { nomeDoArquivoDeExportacao, VERSAO_DO_FORMATO } from '@/lib/privacidade'
+import {
+  MARCADOR_DO_FILHO_REMOVIDO,
+  nomeDoArquivoDeExportacao,
+  VERSAO_DO_FORMATO,
+} from '@/lib/privacidade'
+import type { PrismaClient } from '@/gerado/prisma/client'
 
 /**
  * Privacidade dos dados da família (FT-07, PR-09). Só o responsável (`admin`)
@@ -133,4 +144,126 @@ export async function exportarDadosDaFamilia(
     nomeDoArquivo: nomeDoArquivoDeExportacao(agora),
     conteudo: JSON.stringify(documento, null, 2),
   }
+}
+
+const entradaDeExclusao = z.object(
+  {
+    confirmacao: z
+      .string({ message: 'Digite o nome do filho para confirmar.' })
+      .trim(),
+  },
+  { message: 'Digite o nome do filho para confirmar.' },
+)
+
+export interface ResultadoDaExclusao {
+  /** O id opaco do filho apagado: é o que a trilha guarda. */
+  filhoId: string
+  tinhaLogin: boolean
+  linhasAnonimizadas: number
+}
+
+type ClienteDaTrilha = Pick<PrismaClient, 'atividade'>
+
+/**
+ * Troca o nome do filho por um marcador neutro em toda linha da trilha que o
+ * cita (PR-35). As linhas se acham pelo id, nunca pelo nome: o filho pode ter
+ * mudado de nome e as linhas antigas levam o nome antigo. São as do próprio
+ * filho (entidade `filho`), as de mesada (o `filhoId` está no detalhe) e as do
+ * usuário de login, como alvo ou como autor. O resto do registro fica: quem, o
+ * quê e quando.
+ */
+async function anonimizarTrilha(
+  tx: ClienteDaTrilha,
+  filhoId: string,
+  usuarioId: string | null,
+): Promise<number> {
+  const linhas = await tx.atividade.findMany({
+    where: {
+      OR: [
+        { entidade: 'filho', entidadeId: filhoId },
+        { detalhe: { contains: `"filhoId":"${filhoId}"` } },
+        ...(usuarioId
+          ? [{ entidade: 'usuario', entidadeId: usuarioId }, { atorId: usuarioId }]
+          : []),
+      ],
+    },
+  })
+  for (const linha of linhas) {
+    let detalhe: Record<string, unknown> = {}
+    try {
+      const lido: unknown = linha.detalhe ? JSON.parse(linha.detalhe) : {}
+      if (lido && typeof lido === 'object' && !Array.isArray(lido)) {
+        detalhe = lido as Record<string, unknown>
+      }
+    } catch {
+      // detalhe corrompido: o registro segue sem ele
+    }
+    // Quem só aparece como autor não é o alvo: o `alvoNome` dela é de outra pessoa.
+    const ehAlvo =
+      (linha.entidade === 'filho' && linha.entidadeId === filhoId) ||
+      (usuarioId !== null && linha.entidade === 'usuario' && linha.entidadeId === usuarioId) ||
+      linha.detalhe?.includes(`"filhoId":"${filhoId}"`) === true
+    if (ehAlvo && 'alvoNome' in detalhe) detalhe.alvoNome = MARCADOR_DO_FILHO_REMOVIDO
+    await tx.atividade.update({
+      where: { id: linha.id },
+      data: {
+        detalhe: linha.detalhe === null ? null : JSON.stringify(detalhe),
+        ...(usuarioId && linha.atorId === usuarioId ? { atorNome: MARCADOR_DO_FILHO_REMOVIDO } : {}),
+      },
+    })
+  }
+  return linhas.length
+}
+
+/**
+ * Apaga de verdade a conta de um filho com o histórico dele (PR-09, PR-35).
+ * Só o responsável, e só depois de digitar o nome do filho: o servidor confere,
+ * a tela não basta. Numa transação só: anonimiza a trilha, apaga o filho (os
+ * movimentos de mesada saem pela chave estrangeira `Cascade`, PR-33), apaga o
+ * usuário de login e registra `filho.excluido` sem dado pessoal. Falha no meio
+ * desfaz tudo. Não há tabela de sessão: o token emitido antes deixa de abrir
+ * qualquer página porque o usuário deixa de existir. Depois do commit, o estado
+ * de tentativas de login do e-mail é esquecido.
+ */
+export async function excluirFilho(
+  autor: UsuarioAutenticado,
+  id: string,
+  entrada: unknown,
+): Promise<ResultadoDaExclusao> {
+  exigirAdmin(autor)
+
+  const dados = entradaDeExclusao.safeParse(entrada)
+  if (!dados.success) {
+    throw entradaInvalida(dados.error.issues[0]?.message ?? 'Digite o nome do filho para confirmar.')
+  }
+
+  const filho = await prisma.filho.findUnique({
+    where: { id },
+    include: { usuario: { select: { id: true, email: true } } },
+  })
+  if (!filho) throw naoEncontrado('Filho não encontrado.')
+  if (dados.data.confirmacao !== filho.nome) {
+    throw entradaInvalida('O nome digitado não confere com o do filho. Nada foi apagado.')
+  }
+
+  const usuarioId = filho.usuario?.id ?? null
+  const resultado = await prisma.$transaction(async (tx) => {
+    const linhasAnonimizadas = await anonimizarTrilha(tx, filho.id, usuarioId)
+    await tx.filho.delete({ where: { id: filho.id } })
+    if (usuarioId) await tx.usuario.delete({ where: { id: usuarioId } })
+    await registrarAtividade(
+      {
+        ator: autor,
+        acao: 'filho.excluido',
+        entidade: 'filho',
+        entidadeId: filho.id,
+        detalhe: { tinhaLogin: usuarioId !== null, linhasAnonimizadas },
+      },
+      tx,
+    )
+    return { filhoId: filho.id, tinhaLogin: usuarioId !== null, linhasAnonimizadas }
+  })
+
+  if (filho.usuario) esquecerTentativasDeLogin(filho.usuario.email)
+  return resultado
 }

@@ -9,7 +9,7 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-01
 sprint:
   titulo: Servico de exportacao e de exclusao
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o responsavel exporta os dados da familia sem nenhum campo secreto e apaga a conta de um filho com o historico, a trilha anonimizada e o login encerrado; usuario e filho sao negados nas duas funcoes
   riscos: [migration nao ha, nome do filho espalhado na trilha em texto JSON, exportacao vazar hash ou segredo, citacoes de linha do CONVENCOES.md deslocadas por linhas novas em autenticacao.ts e atividade.ts]
   fora_de_escopo: [Rota, acao, telas, seed]
@@ -23,7 +23,7 @@ fases:
     tasks: [T-01.01]
   - id: F-01.2
     titulo: Exclusao do filho
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -48,7 +48,7 @@ tasks:
   - id: T-01.02
     titulo: "Servico de exclusao do filho: transacao, trilha anonimizada, login e tentativas"
     fase: F-01.2
-    status: pendente
+    status: concluida
     objetivo: Acrescentar a src/servicos/privacidade.ts excluirFilho (so admin; confere o nome digitado; uma transacao remove filho, movimentos por Cascade e usuario de login, anonimiza a trilha e grava filho.excluido) e esquecerTentativasDeLogin em autenticacao.ts, chamada apos o commit
     arquivos:
       cria: ["tests/privacidade-exclusao.test.ts", "tests/privacidade-banco.test.ts"]
@@ -58,8 +58,8 @@ tasks:
     criterio_aceite: tests/privacidade-exclusao.test.ts, tests/privacidade-banco.test.ts e tests/privacidade-papeis.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1256 testes)
 
 ---
 
