@@ -24,3 +24,5 @@ tsconfig.tsbuildinfo
 # rastro e estado de exibição do sprintx (locais da máquina)
 docs/eventos/
 .expx/estado.json
+# indice derivado do memox: reconstruivel, nao versionado
+.expx/memoria/
