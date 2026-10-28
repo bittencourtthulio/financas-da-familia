@@ -25,7 +25,7 @@ tasks:
   - id: T-02.01
     titulo: Componentes do resumo, seletor de mes e estilos
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Criar src/lib/resumo-links.ts (endereco do painel por mes e vizinhos validos), src/componentes/SeletorDeMes.tsx, src/componentes/ResumoDoMes.tsx (tres cartoes, saldo com frase, despesas por categoria com barra em inteiros, estado vazio com atalho para Lancamentos) e os estilos em src/estilos/global.css, usando a skill frontend-design e a dataviz so com tokens
     arquivos:
       cria: [src/lib/resumo-links.ts, src/componentes/SeletorDeMes.tsx, src/componentes/ResumoDoMes.tsx, tests/resumo-tela.test.ts]
@@ -35,8 +35,8 @@ tasks:
     criterio_aceite: tests/resumo-tela.test.ts termina com 0 failed, tests/ajuda-estatica nao acha cor literal nos arquivos novos e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde (675 testes)
 
   - id: T-02.02
     titulo: Painel inicial com o resumo e prova no servidor real

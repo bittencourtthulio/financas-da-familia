@@ -273,6 +273,78 @@ input[type='date'] { color-scheme: dark; }
 .zona-de-perigo { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); max-width: 380px; }
 button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 1px solid var(--danger); }
 
+/* ---------- resumo do mês (FT-04) ---------- */
+
+.seletor-do-resumo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.seletor-sem-vizinho { display: inline-block; min-width: 6em; }
+.atalho-mes-atual {
+  padding: 3px 12px;
+  border-radius: var(--raio);
+  background: var(--secondary);
+  color: var(--secondary-fg);
+  text-decoration: none;
+}
+.atalho-mes-atual:hover { background: var(--secondary-hover); }
+
+.cartoes-do-resumo {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.cartao-do-resumo {
+  padding: 14px 16px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-radius: var(--raio);
+}
+.rotulo-do-cartao { margin: 0 0 6px; font-size: var(--texto-base); font-weight: 400; color: var(--fg-muted); }
+.valor-do-cartao {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+/* O saldo é o destaque da tela: maior, e a borda à esquerda leva o estado por
+   token. A frase abaixo diz o mesmo em palavras, então a cor nunca é o único
+   sinal. */
+.cartao-do-saldo { border-left: 4px solid var(--border-focus); }
+.cartao-do-saldo[data-saldo='positivo'] { border-left-color: var(--success); }
+.cartao-do-saldo[data-saldo='negativo'] { border-left-color: var(--danger); background: var(--danger-bg); }
+.cartao-do-saldo .valor-do-cartao { font-size: 30px; line-height: 1.15; }
+.frase-do-saldo { margin: 6px 0 0; color: var(--fg-default); }
+
+.titulo-da-secao { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
+.lista-de-categorias { list-style: none; margin: 0; padding: 0; max-width: 640px; }
+.linha-de-categoria {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  gap: 2px 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.quantidade-da-categoria { color: var(--fg-muted); }
+.barra-de-categoria {
+  grid-column: 1 / -1;
+  display: block;
+  height: 4px;
+  background: var(--bg-badge);
+  border-radius: var(--raio);
+  overflow: hidden;
+}
+.barra-de-categoria > span { display: block; height: 100%; background: var(--accent); }
+
 /* ---------- celular ---------- */
 
 @media (max-width: 768px) {
@@ -293,4 +365,7 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
   .campo-de-opcao label { min-height: 44px; }
   .barra-de-status .botao-gaveta { display: inline-block; min-height: var(--altura-statusbar); }
   .conteudo { padding: 16px; }
+  .cartoes-do-resumo { grid-template-columns: 1fr; }
+  .seletor-do-resumo a { display: inline-flex; align-items: center; }
+  .seletor-sem-vizinho { display: none; }
 }
