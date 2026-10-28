@@ -180,7 +180,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 **Status:** entregue
 **PR:** — (branch `feat/ft-09-login-do-filho-em-sincronia`, sem remote; empilhada sobre `feat/ft-08-backup-e-saude`; descrição pronta em `docs/login-do-filho-em-sincronia/PR.md`)
 **Sprints:** 1
-**Testes:** 24 novos (1468 na suíte) — PEND-18
+**Testes:** 31 novos (1475 na suíte), PEND-18
 
 ---
 
