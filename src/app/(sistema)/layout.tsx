@@ -33,6 +33,7 @@ export default async function LayoutDoSistema({
         <Navegacao
           ehAdmin={usuario.papel === 'admin'}
           podeLancar={papelPodeLancar(usuario.papel)}
+          ehFilho={usuario.papel === 'filho'}
         />
       </aside>
 

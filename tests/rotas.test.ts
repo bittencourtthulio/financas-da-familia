@@ -60,8 +60,8 @@ beforeAll(async () => {
         papel: 'usuario',
       },
       {
-        // O papel filho só nasce na FT-05; aqui basta um papel que não é
-        // admin nem usuario para provar que o servidor real nega.
+        // Filho sem registro ligado: prova que o servidor real nega o papel;
+        // o filho com registro e o isolamento ficam em filhos-mesada.test.ts.
         nome: 'Filho de Rota',
         email: 'filho.rota@teste.local',
         senhaHash: await hashDeSenha('senha-de-rota-123'),

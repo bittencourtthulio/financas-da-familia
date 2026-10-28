@@ -10,9 +10,11 @@ import { usePathname } from 'next/navigation'
 export function Navegacao({
   ehAdmin,
   podeLancar = false,
+  ehFilho = false,
 }: {
   ehAdmin: boolean
   podeLancar?: boolean
+  ehFilho?: boolean
 }) {
   const atual = usePathname()
   const marca = (href: string) =>
@@ -43,6 +45,11 @@ export function Navegacao({
             Categorias
           </Link>
         </>
+      )}
+      {ehFilho && (
+        <Link href="/mesada" {...marca('/mesada')}>
+          Minha mesada
+        </Link>
       )}
       {ehAdmin && (
         <Link

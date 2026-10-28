@@ -9,7 +9,7 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-02
 sprint:
   titulo: Login do filho, telas do responsavel e pagina do filho
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o responsavel cria e desativa o login do filho; o filho entra e ve so a propria mesada; um filho nao le o irmao; o servidor real nega o filho em todas as outras rotas; a navegacao muda por papel
   riscos: [acao de servidor depende de cookies do Next, id de irmao vazando existencia, tela quebrando em celular ou no tema claro]
   fora_de_escopo: [Movimentos, extrato e saldo de mesada, reativar login, redefinir senha, apagar filho, seed]
@@ -30,7 +30,7 @@ fases:
     tasks: [T-02.02]
   - id: F-02.3
     titulo: Pagina do filho e prova no servidor real
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -71,7 +71,7 @@ tasks:
   - id: T-02.03
     titulo: Pagina Minha mesada, painel neutro do filho e prova no servidor real
     fase: F-02.3
-    status: pendente
+    status: concluida
     objetivo: Criar a pagina /mesada (so o papel filho) com nome, valor combinado, periodicidade e o estado vazio de movimentos, a navegacao do filho (Painel, Minha mesada, Meu perfil), o link no painel neutro e a prova no servidor de producao real de que o filho e negado em todas as outras rotas e nao le o irmao
     arquivos:
       cria: ["src/app/(sistema)/mesada/page.tsx", "src/componentes/MesadaDoFilho.tsx", "tests/filhos-mesada.test.ts"]
@@ -81,8 +81,8 @@ tasks:
     criterio_aceite: tests/filhos-mesada.test.ts e tests/rotas.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.02]
     paralelizavel: false
-    concluida_em: null
-    suite: pendente
+    concluida_em: 2026-10-28
+    suite: verde (946 testes)
 
 ---
 

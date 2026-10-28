@@ -192,7 +192,7 @@ describe('saldo e resumo do mês no CONVENCOES.md (FT-04)', () => {
       ['src/servicos/resumo.ts', 61, /exigirAdultoOuResponsavel/],
       ['src/servicos/resumo.ts', 66, /groupBy/],
       ['src/servicos/resumo.ts', 113, /saldoCentavos/],
-      ['src/app/(sistema)/page.tsx', 33, /papelPodeLancar/],
+      ['src/app/(sistema)/page.tsx', 34, /papelPodeLancar/],
       ['src/componentes/ResumoDoMes.tsx', 74, /data-saldo/],
       ['tests/resumo.test.ts', 45, /0,10 \+ 0,20/],
       ['tests/resumo.test.ts', 381, /não usa ponto flutuante/],

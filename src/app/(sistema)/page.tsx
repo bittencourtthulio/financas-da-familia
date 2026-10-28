@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { exigirUsuario } from '@/app/sessao-servidor'
 import { mesAtualEmSaoPaulo } from '@/lib/datas'
 import { papelPodeLancar } from '@/servicos/autenticacao'
@@ -34,7 +35,15 @@ export default async function Painel({
     return (
       <>
         {cabecalho}
-        <p className="vazio">Não há resumo da casa para o seu perfil.</p>
+        <p className="vazio">
+          Não há resumo da casa para o seu perfil.
+          {usuario.papel === 'filho' && (
+            <>
+              {' '}
+              <Link href="/mesada">Ver minha mesada</Link>
+            </>
+          )}
+        </p>
       </>
     )
   }

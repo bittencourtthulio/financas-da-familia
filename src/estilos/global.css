@@ -370,6 +370,17 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
 /* A situação do login é sempre dita em palavras: a cor da borda só reforça. */
 .situacao-do-login { margin: 6px 0 0; color: var(--fg-muted); }
 .nota-do-campo { max-width: 380px; margin: 0 0 12px; color: var(--fg-muted); }
+.mesada-combinada-do-filho {
+  max-width: 480px;
+  margin-bottom: 28px;
+  padding: 16px 18px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border-focus);
+  border-radius: var(--raio);
+}
+.valor-da-mesada { margin: 0 0 6px; font-size: 30px; line-height: 1.15; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mesada-combinada-do-filho .nota-do-campo { margin: 0; }
 .login-do-filho { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); max-width: 380px; }
 
 /* ---------- celular ---------- */
