@@ -25,7 +25,7 @@ tasks:
   - id: T-01.01
     titulo: Leitor de valor em reais e datas civis
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Criar src/lib/dinheiro.ts (texto brasileiro para centavos inteiros, centavos para campo, limites) e src/lib/datas.ts (dia civil AAAA-MM-DD, hoje e mes no fuso de Sao Paulo, intervalo do mes, rotulo do mes) mais formatarDataCivil em formato.ts, tudo sem ponto flutuante
     arquivos:
       cria: [src/lib/dinheiro.ts, src/lib/datas.ts, tests/dinheiro.test.ts, tests/datas.test.ts]
@@ -35,6 +35,9 @@ tasks:
     criterio_aceite: tests/dinheiro.test.ts e tests/datas.test.ts terminam com 0 failed, o codigo novo nao contem parseFloat, Number( nem Math.round sobre valor, e a suite inteira esta verde
     depende_de: []
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (349 testes)
+
   - id: T-01.02
     titulo: Entidades Categoria e Lancamento, migration e catalogo de acoes
     fase: F-01.1

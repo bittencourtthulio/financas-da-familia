@@ -1,3 +1,5 @@
+import { dataCivilValida } from '@/lib/datas'
+
 // Formato brasileiro (PR-16): valor em reais e data no fuso da família.
 // Valor monetário é sempre inteiro em centavos (PR-02); a formatação não
 // passa por ponto flutuante.
@@ -51,4 +53,13 @@ export function formatarData(valor: Date | string | number): string {
 /** "27/10/2026 23:30", no horário de São Paulo. */
 export function formatarDataEHora(valor: Date | string | number): string {
   return dataEHora.format(comoData(valor)).replace(', ', ' ')
+}
+
+/**
+ * "2026-10-27" → "27/10/2026". A data civil (PR-26) já é o dia da família:
+ * não passa por `Date` nem por fuso, só é reescrita.
+ */
+export function formatarDataCivil(dia: string): string {
+  if (!dataCivilValida(dia)) throw new Error('Data inválida.')
+  return `${dia.slice(8, 10)}/${dia.slice(5, 7)}/${dia.slice(0, 4)}`
 }
