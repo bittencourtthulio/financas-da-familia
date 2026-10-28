@@ -127,3 +127,16 @@ export async function renovarSessao(token: string): Promise<{
 export function exigirAdmin(usuario: UsuarioAutenticado): void {
   if (usuario.papel !== 'admin') throw naoAutorizado()
 }
+
+// Quem lança e lê o dinheiro da casa (PR-06, D-08 da FT-03). Lista de
+// permitidos: um papel novo, como o futuro `filho`, nasce sem acesso.
+const PAPEIS_DOS_LANCAMENTOS = ['admin', 'usuario']
+
+/**
+ * Exige que o usuário seja o responsável (`admin`) ou o adulto (`usuario`).
+ * Qualquer outro papel, inclusive vazio ou desconhecido, é negado (403). A
+ * verificação é aqui, no servidor (L2).
+ */
+export function exigirAdultoOuResponsavel(usuario: UsuarioAutenticado): void {
+  if (!PAPEIS_DOS_LANCAMENTOS.includes(usuario.papel)) throw naoAutorizado()
+}

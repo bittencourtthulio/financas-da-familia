@@ -25,7 +25,7 @@ tasks:
   - id: T-02.01
     titulo: Guarda de papel e servico de categorias
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Criar exigirAdultoOuResponsavel (lista de permitidos admin e usuario) em autenticacao.ts e src/servicos/lancamentos.ts com listarCategorias e criarCategoria validadas com zod, gravadas junto da trilha categoria.criada na mesma transacao
     arquivos:
       cria: [src/servicos/lancamentos.ts, tests/categorias.test.ts, tests/lancamentos-papeis.test.ts]
@@ -35,6 +35,9 @@ tasks:
     criterio_aceite: tests/categorias.test.ts e tests/lancamentos-papeis.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.02]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (407 testes)
+
   - id: T-02.02
     titulo: Criar e ler lancamento
     fase: F-02.1

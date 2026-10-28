@@ -44,7 +44,7 @@ tasks:
     status: concluida
     objetivo: Criar os modelos Categoria e Lancamento no Prisma (valorCentavos Int, data texto, categoriaId com chave estrangeira) com migration versionada, limpar as tabelas em limparBanco e acrescentar lancamento.criado, lancamento.alterado, lancamento.apagado e categoria.criada ao catalogo com descricao em portugues na tela
     arquivos:
-      cria: [prisma/migrations/NNNN_lancamentos/migration.sql, tests/lancamentos-dados.test.ts]
+      cria: [prisma/migrations/20261028150000_lancamentos/migration.sql, tests/lancamentos-dados.test.ts]
       altera: [prisma/schema.prisma, src/lib/atividade.ts, tests/ajuda.ts, tests/atividade-tela.test.ts]
     teste_integracao: Com as migrations reais aplicadas, cria Categoria e Lancamento pelo cliente Prisma e le de volta valorCentavos como inteiro, data como texto e categoria; a coluna valor_centavos e INTEGER no SQL; categoria repetida no mesmo tipo e recusada pelo banco e em tipos diferentes e aceita; categoria com lancamento nao pode ser apagada
     teste_funcional: O schema nao tem Float nem Decimal; o catalogo tem as quatro acoes novas com rotulo nao vazio; descreverAtividade diz "Criou o lancamento" com detalhe "Despesa", "Criou a categoria Mercado" com detalhe "Despesa" e nunca mostra codigo tecnico nem valor
