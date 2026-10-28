@@ -4,11 +4,11 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 18
+total: 20
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
-  decisao_de_stack: 0
+  decisao_de_stack: 2
   f2_autonoma: 0
   recursao: 0
   template: 5
@@ -258,7 +258,28 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 
 ---
 
-<!--
-P-8 (suíte Expx instalada) foi realizada no B2: `expx add stackx mergex prodx buildx`
-completou a seleção. Registrada no B2 como premissa PR-19.
--->
+### PR-19 — Suíte Expx instalada no projeto
+
+**Assunto:** P-8
+**Decisão:** `expx add stackx mergex prodx buildx` completou a seleção (sprintx, runx, memox, designx já estavam); lock versionado em `.expx/expx-lock.json`; só o harness do Claude Code, sem OpenCode.
+**Por quê:** o B4 invoca sprintx e mergex; o lock existente só listava o harness `claude`.
+**O que invalida:** se a família ou o time usar OpenCode (aí roda `npx expxdev init` para o segundo harness).
+**Origem:** decisao_de_stack
+**Etapa:** b2
+**Provisória:** false
+**Realizada em:** null
+
+---
+
+### PR-20 — Dependências do template atualizadas na criação
+
+**Assunto:** L9
+**Decisão:** Next.js 16.4.3, Prisma 7.10.1 e Zod 4.6.7 subidos no projeto, mais overrides de `vite`, `source-map-js`, `fast-uri` e `brace-expansion`, para zerar `npm audit --audit-level=high` (o lock do template trazia um achado crítico no Next.js). Resta um aviso `moderate` do vitest, só de ferramenta de teste.
+**Por quê:** auditoria de dependência é portão (P-10); o template estava desatualizado.
+**O que invalida:** se uma versão nova do template da skill já vier limpa (aí recopiar).
+**Origem:** decisao_de_stack
+**Etapa:** b2
+**Provisória:** false
+**Realizada em:** null
+
+---

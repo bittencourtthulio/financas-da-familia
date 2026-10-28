@@ -7,8 +7,8 @@ titulo: Financas da Familia
 modo: autonomo
 criado_em: 2026-10-28
 atualizado_em: 2026-10-28
-etapa: b2
-total_features: null
+etapa: b4
+total_features: 8
 features_entregues: 0
 features_bloqueadas: 0
 ciclos_recursao: 0
