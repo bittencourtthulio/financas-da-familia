@@ -23,7 +23,7 @@ fases:
     tasks: [T-02.01]
   - id: F-02.2
     titulo: Telas
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -55,7 +55,7 @@ tasks:
   - id: T-02.02
     titulo: "Pagina Privacidade, botoes de baixar e de apagar, menu e estilos"
     fase: F-02.2
-    status: pendente
+    status: concluida
     objetivo: Criar a pagina /privacidade e os componentes BaixarDados e ApagarFilho, o item Privacidade no menu do responsavel, o apagar na pagina do filho e os estilos so de tokens, com a skill frontend-design
     arquivos:
       cria: ["src/app/(sistema)/privacidade/page.tsx", "src/componentes/BaixarDados.tsx", "src/componentes/ApagarFilho.tsx", "tests/privacidade-tela.test.ts"]
@@ -65,8 +65,8 @@ tasks:
     criterio_aceite: tests/privacidade-tela.test.ts, tests/atividade-tela.test.ts e tests/filhos-tela.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1294 testes)
 
   - id: T-02.03
     titulo: "Prova no servidor real: download, papeis e token do filho excluido"

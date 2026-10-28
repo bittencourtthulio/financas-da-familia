@@ -35,3 +35,6 @@ export function camposProibidosEm(valor: unknown, caminho = ''): string[] {
   }
   return []
 }
+
+/** Para onde o formulário de download envia o POST (FT-07, PR-34). */
+export const ENDERECO_DA_EXPORTACAO = '/api/privacidade/exportar'

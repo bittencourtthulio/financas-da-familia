@@ -410,6 +410,21 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
 .mesada-referencia { margin: 0 0 20px; color: var(--fg-muted); }
 .extrato-da-mesada td:nth-child(3) { overflow-wrap: anywhere; }
 
+/* ---------- privacidade (FT-07) ---------- */
+
+/* Duas seções, e só a segunda é irreversível: ela ganha a borda de perigo, não a
+   primeira. Tudo em tokens, nos dois temas. */
+.painel-de-privacidade { max-width: 640px; }
+.painel-de-privacidade section { margin-bottom: 32px; }
+.painel-de-privacidade h2 { margin: 0 0 8px; font-size: 18px; }
+.painel-de-privacidade ul { padding-left: 20px; }
+.baixar-dados { margin-top: 16px; }
+.apagar-a-conta { padding: 16px 18px; border: 1px solid var(--border); border-left: 4px solid var(--danger); border-radius: var(--raio); }
+.lista-de-apagar { list-style: none; margin: 0; padding: 0; }
+.apagar-por-filho { padding: 12px 0; border-top: 1px solid var(--border); }
+.apagar-por-filho h3 { margin: 0; font-size: var(--texto-base); }
+.apagar-por-filho .zona-de-perigo { margin-top: 8px; padding-top: 0; border-top: 0; }
+
 /* ---------- celular ---------- */
 
 @media (max-width: 768px) {
@@ -435,6 +450,8 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
   .seletor-sem-vizinho { display: none; }
   .lista-de-filhos { grid-template-columns: 1fr; }
   .saldo-da-mesada { max-width: none; }
+  .apagar-por-filho .zona-de-perigo { max-width: none; }
+  .apagar-a-conta { padding: 12px; }
   .valor-do-saldo { font-size: 30px; }
   .totais-da-mesada { gap: 20px; }
   .paginacao a { display: inline-flex; align-items: center; min-height: 44px; }

@@ -6,6 +6,7 @@ import { salvarFilho } from '@/app/acoes'
 import { Formulario } from '@/componentes/Formulario'
 import { CamposDoFilho } from '@/componentes/CamposDoFilho'
 import { LoginDoFilho } from '@/componentes/LoginDoFilho'
+import { ApagarFilho } from '@/componentes/ApagarFilho'
 import { ErroDeAplicacao } from '@/lib/erros'
 import { centavosParaCampo } from '@/lib/dinheiro'
 
@@ -48,6 +49,8 @@ export default async function EditarFilho({ params }: { params: Promise<{ id: st
       </Formulario>
 
       <LoginDoFilho filhoId={filho.id} login={filho.login} />
+
+      <ApagarFilho filhoId={filho.id} nome={filho.nome} />
     </>
   )
 }

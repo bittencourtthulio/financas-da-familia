@@ -66,6 +66,11 @@ export function Navegacao({
           Atividade
         </Link>
       )}
+      {ehAdmin && (
+        <Link href="/privacidade" {...marca('/privacidade')}>
+          Privacidade
+        </Link>
+      )}
 
       <h2>Configurações</h2>
       {ehAdmin && (
