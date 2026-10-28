@@ -55,7 +55,7 @@ tasks:
   - id: T-04.03
     titulo: Confirmacao da seguranca de base
     fase: F-04.1
-    status: pendente
+    status: concluida
     objetivo: Provar por teste os itens da PR-12 que o codigo cumpre mas nenhum teste afirma - cookie de sessao e variavel de ambiente obrigatoria
     arquivos:
       cria: [tests/seguranca-base.test.ts]
@@ -65,8 +65,8 @@ tasks:
     criterio_aceite: tests/seguranca-base.test.ts termina com 0 failed e nenhum arquivo de src foi alterado por esta task
     depende_de: [T-04.02]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-04.04
     titulo: Pipeline de verificacao e versoes fixadas
     fase: F-04.1
@@ -165,3 +165,4 @@ Os campos de cada task estão no frontmatter acima (fonte única).
 - **T-04.01** concluída em 2026-10-28 · suíte: 131 passed, 0 failed · real: 0,6 h (aprox.)
 - **T-04.02** concluída em 2026-10-28 · suíte: 141 passed, 0 failed · real: 0,9 h (aprox.)
 - Divergência da T-04.02: `src/lib/renovacao.ts` foi acrescentado (a conta do intervalo precisa existir fora do componente cliente, porque o layout, do servidor, a chama); o teste passou a vermelho de verdade quando a função estava dentro do arquivo cliente (500 em todas as páginas).
+- **T-04.03** concluída em 2026-10-28 · suíte: 150 passed, 0 failed · real: 0,4 h (aprox.)
