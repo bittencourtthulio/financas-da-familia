@@ -66,6 +66,7 @@ const CAMPOS_DO_FILHO: Record<string, string> = {
   nascimento: 'data de nascimento',
   mesada: 'mesada',
   periodicidade: 'periodicidade',
+  login: 'nome do login',
 }
 
 /**
