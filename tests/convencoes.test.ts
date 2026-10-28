@@ -146,7 +146,7 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
       ['src/app/acoes.ts', 38, /console\.error/],
       ['tests/ajuda.ts', 39, /limparBanco/],
       ['tests/rotas.test.ts', 108, /spawn/],
-      ['tests/rotas.test.ts', 206, /cadastro de usuários é negado/],
+      ['tests/rotas.test.ts', 207, /cadastro de usuários é negado/],
       ['tests/lancamentos-papeis.test.ts', 68, /todas as funções do serviço negam/],
       ['tests/lancamentos-dados.test.ts', 114, /nenhum modelo usa Float/],
       ['tests/dinheiro.test.ts', 123, /PR-02 no código do leitor/],

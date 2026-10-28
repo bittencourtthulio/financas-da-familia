@@ -14,7 +14,7 @@ import { hashDeSenha } from '@/lib/senha'
 import { prisma } from '@/lib/prisma'
 import { registrarAtividade } from '@/servicos/atividade'
 import { criarCategoria, criarLancamento } from '@/servicos/lancamentos'
-import { hojeEmSaoPaulo } from '@/lib/datas'
+import { hojeEmSaoPaulo, mesAtualEmSaoPaulo, rotuloDoMes } from '@/lib/datas'
 
 const PORTA = 3178
 const BASE = `http://localhost:${PORTA}`
@@ -174,9 +174,10 @@ describe('com sessão de usuário comum', () => {
     expect(html).not.toContain('Esta é a tela inicial do sistema')
   })
 
-  it('o painel vazio explica o que vai aparecer ali, sem texto genérico do template', async () => {
+  it('o painel mostra o resumo do mês, sem texto genérico do template nem o painel vazio de antes', async () => {
     const html = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
-    expect(html).toContain('Ainda não há movimentações para mostrar')
+    expect(html).toContain('Saldo do mês')
+    expect(html).not.toContain('Ainda não há movimentações para mostrar')
     expect(html).not.toContain('As telas do projeto aparecem')
   })
 
@@ -417,6 +418,90 @@ describe('as telas de Lançamentos (FT-03)', () => {
     for (const proibido of ['1.234,56', '1234,56', '123456', '12,34', 'Marcador de']) {
       expect(html).not.toContain(proibido)
     }
+  })
+})
+
+describe('o resumo do mês no painel (FT-04)', () => {
+  const abrir = async (caminho: string, email: string) =>
+    pedir(caminho, await cookieDe(email))
+  // O React separa texto e valor com um comentário no HTML.
+  const texto = async (r: Response) => (await r.text()).replace(/<!-- -->/g, '')
+  const hoje = rotuloDoMes(mesAtualEmSaoPaulo())
+
+  it('o adulto vê receitas, despesas, saldo e a categoria do mês, em reais', async () => {
+    const r = await abrir('/', 'comum.rota@teste.local')
+    const html = await texto(r)
+    expect(r.status).toBe(200)
+    expect(html).toContain('Painel da família')
+    expect(html).toMatch(/Bem-vindo, Comum de Rota/)
+    expect(html).toContain('Receitas')
+    expect(html).toContain('Despesas')
+    expect(html).toContain('Saldo do mês')
+    expect(html).toMatch(/valor-do-cartao valor-receita[^>]*>R\$\s1\.234,56</)
+    expect(html).toMatch(/valor-do-cartao valor-despesa[^>]*>R\$\s12,34</)
+    expect(html).toMatch(/valor-do-cartao valor-receita[^>]*>R\$\s1\.222,22</)
+    expect(html).toContain('Saldo positivo')
+    expect(html).toContain('Despesas por categoria')
+    expect(html).toContain('Mercado de Rota')
+    expect(html).toContain('Mês anterior')
+    expect(html).toContain('Próximo mês')
+  })
+
+  it('o responsável vê o mesmo resumo', async () => {
+    const html = await texto(await abrir('/', 'admin.rota@teste.local'))
+    expect(html).toContain('Saldo do mês')
+    expect(html).toContain('Mercado de Rota')
+  })
+
+  it('mês sem lançamento mostra a mensagem com atalho para Lançamentos e o caminho de volta', async () => {
+    const r = await abrir('/?mes=2020-01', 'comum.rota@teste.local')
+    const html = await texto(r)
+    expect(r.status).toBe(200)
+    expect(html).toContain('Nenhum lançamento em janeiro de 2020')
+    expect(html).toMatch(/<a[^>]*href="\/lancamentos\?mes=2020-01"[^>]*>Lançamentos<\/a>/)
+    expect(html).toMatch(/<a[^>]*href="\/"[^>]*>Mês atual<\/a>/)
+    expect(html).not.toContain('Saldo do mês')
+  })
+
+  it.each(['lixo', '2026-13', '2026-1', '1999-12', '2026-10-05', ''])(
+    'mês inválido "%s" responde 200 com o mês corrente',
+    async (mes) => {
+      const r = await abrir(`/?mes=${mes}`, 'comum.rota@teste.local')
+      const html = await texto(r)
+      expect(r.status).toBe(200)
+      expect(html).toContain('Saldo do mês')
+      expect(html.toLowerCase()).toContain(hoje)
+    },
+  )
+
+  it('mês repetido na URL também cai no mês corrente', async () => {
+    const r = await abrir('/?mes=2020-01&mes=2020-02', 'comum.rota@teste.local')
+    const html = await texto(r)
+    expect(r.status).toBe(200)
+    expect(html).toContain('Saldo do mês')
+  })
+
+  it('o papel filho abre o painel com título e subtítulo e nenhum dado financeiro', async () => {
+    const r = await abrir('/', 'filho.rota@teste.local')
+    const html = await texto(r)
+    expect(r.status).toBe(200)
+    expect(html).toContain('Painel da família')
+    expect(html).toMatch(/Bem-vindo, Filho de Rota/)
+    expect(html).not.toContain('Saldo do mês')
+    expect(html).not.toContain('Despesas por categoria')
+    expect(html).not.toContain('Mercado de Rota')
+    expect(html).not.toMatch(/R\$\s\d/)
+  })
+
+  it('o filho também não recebe dado com ?mes= qualquer', async () => {
+    const html = await texto(await abrir('/?mes=2026-10', 'filho.rota@teste.local'))
+    expect(html).not.toContain('Saldo do mês')
+    expect(html).not.toMatch(/R\$\s\d/)
+  })
+
+  it('o painel mantém o botão Menu da gaveta', async () => {
+    const html = await texto(await abrir('/', 'comum.rota@teste.local'))
+    expect(html).toMatch(/<button[^>]*aria-controls="barra-lateral"/)
   })
 })
 

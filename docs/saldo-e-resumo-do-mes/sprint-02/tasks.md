@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-02
 sprint:
   titulo: Painel com o resumo do mês
-  status: nao_iniciado
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o painel mostra para o responsavel e o adulto receitas, despesas, saldo e despesas por categoria do mes escolhido, com seletor de mes, estados e estilos sobre os tokens; o servidor real prova a tela e a negacao
   riscos: [tests/rotas.test.ts depende do build, saldo negativo legivel sem depender de cor, barra sem cor literal]
   fora_de_escopo: [Saldo acumulado, grafico de evolucao, orcamento, exportacao]
 fases:
   - id: F-02.1
     titulo: Componentes e pagina do painel
-    status: nao_iniciado
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -41,7 +41,7 @@ tasks:
   - id: T-02.02
     titulo: Painel inicial com o resumo e prova no servidor real
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Fazer src/app/(sistema)/page.tsx ler o parametro mes, buscar resumoDoMes para quem pode lancar e renderizar SeletorDeMes e ResumoDoMes sob o titulo e o subtitulo existentes; papel que nao lanca recebe so titulo, subtitulo e frase neutra sem consulta ao servico; atualizar tests/rotas.test.ts
     arquivos:
       cria: []
@@ -51,8 +51,8 @@ tasks:
     criterio_aceite: tests/rotas.test.ts termina com 0 failed depois de npm run build e a suite inteira esta verde
     depende_de: [T-02.01]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde (688 testes)
 
 ---
 
