@@ -12,6 +12,7 @@ import { entrar } from '@/servicos/autenticacao'
 import { COOKIE_SESSAO } from '@/lib/sessao'
 import { hashDeSenha } from '@/lib/senha'
 import { prisma } from '@/lib/prisma'
+import { registrarAtividade } from '@/servicos/atividade'
 
 const PORTA = 3178
 const BASE = `http://localhost:${PORTA}`
@@ -38,6 +39,7 @@ const pedir = (caminho: string, cookie?: string) =>
   })
 
 beforeAll(async () => {
+  await prisma.atividade.deleteMany()
   await prisma.usuario.deleteMany()
   await prisma.usuario.createMany({
     data: [
@@ -54,6 +56,24 @@ beforeAll(async () => {
         papel: 'usuario',
       },
     ],
+  })
+
+  const admin = await prisma.usuario.findUniqueOrThrow({
+    where: { email: 'admin.rota@teste.local' },
+  })
+  await registrarAtividade({
+    ator: admin,
+    acao: 'usuario.criado',
+    entidade: 'usuario',
+    entidadeId: 'alvo-de-rota',
+    detalhe: { alvoNome: 'Alvo Marcador', papel: 'usuario' },
+  })
+  await registrarAtividade({
+    ator: admin,
+    acao: 'usuario.papel_alterado',
+    entidade: 'usuario',
+    entidadeId: 'alvo-de-rota',
+    detalhe: { alvoNome: 'Alvo Marcador', de: 'usuario', para: 'admin' },
   })
 
   servidor = spawn('npx', ['next', 'start', '-p', String(PORTA)], {
@@ -73,7 +93,7 @@ async function cookieDe(email: string): Promise<string> {
 }
 
 describe('sem sessão', () => {
-  it.each(['/', '/perfil', '/perfil/senha', '/configuracoes/usuarios'])(
+  it.each(['/', '/perfil', '/perfil/senha', '/configuracoes/usuarios', '/atividade'])(
     'manda %s para o login',
     async (rota) => {
       const r = await pedir(rota)
@@ -210,6 +230,47 @@ describe('com sessão de admin', () => {
   it('o item Usuários aparece na navegação', async () => {
     const r = await pedir('/', await cookieDe('admin.rota@teste.local'))
     expect(await r.text()).toContain('/configuracoes/usuarios')
+  })
+})
+
+describe('a tela Atividade (FT-02)', () => {
+  it('o responsável abre e vê quem fez cada ação, com data e hora, em português', async () => {
+    const r = await pedir('/atividade', await cookieDe('admin.rota@teste.local'))
+    const html = await r.text()
+    expect(r.status).toBe(200)
+    expect(html).toContain('Atividade')
+    expect(html).toContain('Admin de Rota')
+    expect(html).toContain('Criou o usuário Alvo Marcador')
+    expect(html).toContain('Alterou o papel de Alvo Marcador')
+    expect(html).toContain('De Adulto para Responsável')
+    expect(html).toMatch(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/)
+    expect(html).toMatch(/<div class="tabela-rolavel"><table>/)
+    expect(html).not.toMatch(/usuario\.criado|papel_alterado/)
+  })
+
+  it('o adulto é negado no servidor e nenhum registro chega ao corpo', async () => {
+    const r = await pedir('/atividade', await cookieDe('comum.rota@teste.local'))
+    const html = await r.text()
+    const redirecionou =
+      r.status === 307 ||
+      /<meta[^>]*http-equiv="refresh"[^>]*content="[^"]*url=\/"/.test(html)
+    expect(redirecionou).toBe(true)
+    expect(html).not.toContain('Alvo Marcador')
+    expect(html).not.toContain('Admin de Rota')
+    expect(html).not.toContain('tabela-rolavel')
+  })
+
+  it('o item Atividade aparece no menu do responsável e não no do adulto', async () => {
+    const admin = await (await pedir('/', await cookieDe('admin.rota@teste.local'))).text()
+    const comum = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
+    expect(admin).toMatch(/<a[^>]*href="\/atividade"[^>]*>Atividade<\/a>/)
+    expect(comum).not.toContain('/atividade')
+  })
+
+  it('página que não existe na paginação cai na última válida, sem erro', async () => {
+    const r = await pedir('/atividade?pagina=999', await cookieDe('admin.rota@teste.local'))
+    expect(r.status).toBe(200)
+    expect(await r.text()).toContain('Alvo Marcador')
   })
 })
 

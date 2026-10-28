@@ -40,7 +40,7 @@ tasks:
   - id: T-03.02
     titulo: Seed de demonstracao e prova de rotas
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Estender semearDemonstracao com duas atividades fictícias idempotentes e provar no servidor de producao que o responsavel ve a tela, o adulto e barrado e sem sessao vai ao login
     arquivos:
       cria: []
@@ -50,6 +50,8 @@ tasks:
     criterio_aceite: tests/demonstracao.test.ts e tests/rotas.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-03.01]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (243 testes)
   - id: T-03.03
     titulo: Convenções, premissas e fechamento de registros
     fase: F-03.1

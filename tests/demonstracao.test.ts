@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { prisma } from '@/lib/prisma'
 import { entrar } from '@/servicos/autenticacao'
+import { ACOES } from '@/lib/atividade'
 import { DEMONSTRACAO, semearDemonstracao } from '../prisma/demonstracao'
 import { limparBanco } from './ajuda'
 
@@ -44,6 +45,49 @@ describe('semearDemonstracao', () => {
   })
 })
 
+describe('atividade de demonstração (FT-02, PR-04)', () => {
+  it('cria duas entradas fictícias: o responsável criou o adulto e depois mudou o papel dele', async () => {
+    await semearDemonstracao(prisma)
+
+    const responsavel = await prisma.usuario.findUniqueOrThrow({ where: { email: 'responsavel@exemplo.local' } })
+    const adulto = await prisma.usuario.findUniqueOrThrow({ where: { email: 'adulto@exemplo.local' } })
+    const linhas = await prisma.atividade.findMany({ orderBy: { criadoEm: 'asc' } })
+
+    expect(linhas.map((l) => l.acao)).toEqual(['usuario.criado', 'usuario.papel_alterado'])
+    for (const linha of linhas) {
+      expect(linha.atorId).toBe(responsavel.id)
+      expect(linha.atorNome).toBe(responsavel.nome)
+      expect(linha.entidade).toBe('usuario')
+      expect(linha.entidadeId).toBe(adulto.id)
+      expect(linha.criadoEm.getTime()).toBeLessThan(Date.now())
+    }
+  })
+
+  it('rodar duas vezes não duplica a atividade', async () => {
+    await semearDemonstracao(prisma)
+    await semearDemonstracao(prisma)
+    expect(await prisma.atividade.count()).toBe(2)
+  })
+
+  it('só usa ações do catálogo e não guarda senha, hash nem e-mail', async () => {
+    await semearDemonstracao(prisma)
+    const linhas = await prisma.atividade.findMany()
+    for (const linha of linhas) expect(Object.keys(ACOES)).toContain(linha.acao)
+    const texto = JSON.stringify(linhas)
+    expect(texto).not.toContain('demo1234')
+    expect(texto).not.toContain('exemplo.local')
+    expect(texto).not.toMatch(/\$2[aby]\$/)
+  })
+
+  it('o estado final bate com as contas semeadas (adulto continua adulto)', async () => {
+    await semearDemonstracao(prisma)
+    const ultima = await prisma.atividade.findFirstOrThrow({ orderBy: { criadoEm: 'desc' } })
+    expect(JSON.parse(ultima.detalhe!)).toMatchObject({ de: 'admin', para: 'usuario' })
+    const adulto = await prisma.usuario.findUniqueOrThrow({ where: { email: 'adulto@exemplo.local' } })
+    expect(adulto.papel).toBe('usuario')
+  })
+})
+
 describe('proteção contra produção', () => {
   const anterior = process.env.NODE_ENV
   afterEach(() => {
@@ -55,5 +99,6 @@ describe('proteção contra produção', () => {
 
     await expect(semearDemonstracao(prisma)).rejects.toThrow(/produção/)
     expect(await prisma.usuario.count()).toBe(0)
+    expect(await prisma.atividade.count()).toBe(0)
   })
 })
