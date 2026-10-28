@@ -31,8 +31,8 @@ Contas de demonstração — fictícias, criadas pela seed, que **não roda em
 produção**:
 
 ```
-admin@exemplo.local     demo1234    administrador
-usuario@exemplo.local   demo1234    usuário comum
+responsavel@exemplo.local   demo1234    responsável (admin)
+adulto@exemplo.local        demo1234    adulto (usuario)
 ```
 
 ## Os comandos

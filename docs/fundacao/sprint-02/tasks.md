@@ -9,14 +9,14 @@ sprint_id: sprint-02
 atualizado_em: 2026-10-28
 sprint:
   titulo: Dominio Financas da Familia e demonstracao
-  status: em_andamento
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed, o painel e a navegacao falam Financas da Familia e Responsavel e Adulto, e a seed cria so responsavel e adulto
   riscos: [tests/rotas.test.ts afirma o texto antigo do painel e precisa mudar antes do codigo]
   fora_de_escopo: [Filhos, lancamentos e mesada na seed, papel filho]
 fases:
   - id: F-02.1
     titulo: Textos do dominio e seed
-    status: em_andamento
+    status: concluido
     criterio_saida: Os tres conjuntos de testes da sprint passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -55,7 +55,7 @@ tasks:
   - id: T-02.03
     titulo: Seed de demonstracao testavel
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Extrair a seed para uma funcao testavel que cria so o responsavel e o adulto de demonstracao e nunca roda em producao
     arquivos:
       cria: [prisma/demonstracao.ts, tests/demonstracao.test.ts]
@@ -65,8 +65,8 @@ tasks:
     criterio_aceite: tests/demonstracao.test.ts termina com 0 failed e README.md lista as credenciais de demonstracao novas
     depende_de: [T-02.02]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
 ---
 
 # Plano — Sprint 02 — Domínio Finanças da Família e demonstração
@@ -129,3 +129,5 @@ Os campos de cada task estão no frontmatter acima (fonte única).
 - **T-02.01** — D-03 e D-04. **T-02.02** — D-02. **T-02.03** — D-05 e D-13.
 - **T-02.01** concluída em 2026-10-28 · suíte: 84 passed, 0 failed · real: 0,6 h (aprox.)
 - **T-02.02** concluída em 2026-10-28 · suíte: 90 passed, 0 failed · real: 0,4 h (aprox.)
+- **T-02.03** concluída em 2026-10-28 · suíte: 95 passed, 0 failed · real: 0,5 h (aprox.)
+- Fechamento da sprint 02 em 2026-10-28: `npm run build` + `npm test` → 10 arquivos, 95 passed, 0 failed. Divergência: `src/componentes/Navegacao.tsx` não precisou mudar (o nome do sistema entrou no layout) e `src/estilos/global.css` foi acrescentado à T-02.01.
