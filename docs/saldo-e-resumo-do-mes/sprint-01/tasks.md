@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-01
 sprint:
   titulo: Cálculo do resumo e dados de demonstração
-  status: nao_iniciado
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; resumoDoMes soma receitas, despesas, saldo e despesas por categoria do mes em centavos inteiros, nega papel que nao e admin nem usuario e trata mes limite e fuso; a seed demonstra dois meses
   riscos: [groupBy do Prisma sobre SQLite devolver soma de forma inesperada, relogio e fuso na virada de mes]
   fora_de_escopo: [Tela, componentes, estilos, saldo acumulado]
 fases:
   - id: F-01.1
     titulo: Servico de resumo e seed
-    status: nao_iniciado
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -41,7 +41,7 @@ tasks:
   - id: T-01.02
     titulo: Seed de demonstracao com mes anterior e mais de um lancamento por categoria
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Estender semearLancamentos em prisma/demonstracao.ts com lancamentos do mes anterior e um segundo lancamento em Mercado e em Lazer no mes corrente, com id fixo e upsert sem sobrescrever, sem tocar nos seis lancamentos existentes
     arquivos:
       cria: []
@@ -51,8 +51,8 @@ tasks:
     criterio_aceite: tests/demonstracao.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde (651 testes)
 
 ---
 

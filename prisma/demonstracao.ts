@@ -1,10 +1,10 @@
 // Dados de demonstração (PR-04). Contas fictícias para uso local e para o
 // roteiro do QA. Usuários e a trilha de atividade deles (FT-02) e categorias e
-// lançamentos do mês (FT-03): filhos e mesada nascem nas features FT-05 e
+// lançamentos de três meses (FT-03 e FT-04): filhos e mesada nascem nas features FT-05 e
 // FT-06, e cada uma acrescenta a sua parte aqui.
 import type { PrismaClient } from '../src/gerado/prisma/client.js'
 import { hashDeSenha } from '../src/lib/senha.js'
-import { hojeEmSaoPaulo, mesDaData } from '../src/lib/datas.js'
+import { hojeEmSaoPaulo, mesAnterior, mesDaData } from '../src/lib/datas.js'
 
 export const DEMONSTRACAO = [
   {
@@ -113,7 +113,10 @@ const CATEGORIAS_DA_DEMONSTRACAO = [
   { slug: 'outras-receitas', nome: 'Outras receitas', tipo: 'receita' },
 ] as const
 
-// Valores em centavos inteiros (PR-02); o dia é do mês corrente.
+// Valores em centavos inteiros (PR-02). `meses` é quantos meses antes do
+// corrente: 0 é o mês corrente, 1 o anterior e 2 o retrasado (FT-04, para o
+// resumo ter o que mostrar em mais de uma categoria, em mais de um mês e com
+// um mês de saldo negativo). Os seis primeiros são da FT-03 e não mudam.
 const LANCAMENTOS_DA_DEMONSTRACAO = [
   { n: 1, categoria: 'salario', tipo: 'receita', valorCentavos: 520000, dia: 5, descricao: 'Salário do mês' },
   { n: 2, categoria: 'outras-receitas', tipo: 'receita', valorCentavos: 35000, dia: 12, descricao: 'Venda de móveis usados' },
@@ -121,10 +124,28 @@ const LANCAMENTOS_DA_DEMONSTRACAO = [
   { n: 4, categoria: 'mercado', tipo: 'despesa', valorCentavos: 64235, dia: 9, descricao: 'Compras da semana' },
   { n: 5, categoria: 'transporte', tipo: 'despesa', valorCentavos: 12000, dia: 15, descricao: 'Combustível' },
   { n: 6, categoria: 'lazer', tipo: 'despesa', valorCentavos: 8990, dia: 18, descricao: 'Cinema em família' },
-] as const
+  { n: 7, categoria: 'mercado', tipo: 'despesa', valorCentavos: 31250, dia: 21, descricao: 'Feira do mês' },
+  { n: 8, categoria: 'lazer', tipo: 'despesa', valorCentavos: 6000, dia: 25, descricao: 'Passeio no parque' },
+  { n: 9, categoria: 'salario', tipo: 'receita', valorCentavos: 520000, dia: 5, descricao: 'Salário do mês anterior', meses: 1 },
+  { n: 10, categoria: 'moradia', tipo: 'despesa', valorCentavos: 180000, dia: 6, descricao: 'Aluguel do mês anterior', meses: 1 },
+  { n: 11, categoria: 'mercado', tipo: 'despesa', valorCentavos: 71890, dia: 10, descricao: 'Compras do mês anterior', meses: 1 },
+  { n: 12, categoria: 'saude', tipo: 'despesa', valorCentavos: 23500, dia: 14, descricao: 'Farmácia', meses: 1 },
+  { n: 13, categoria: 'transporte', tipo: 'despesa', valorCentavos: 9800, dia: 20, descricao: 'Combustível do mês anterior', meses: 1 },
+  { n: 14, categoria: 'outras-receitas', tipo: 'receita', valorCentavos: 20000, dia: 8, descricao: 'Venda de bicicleta', meses: 2 },
+  { n: 15, categoria: 'saude', tipo: 'despesa', valorCentavos: 85000, dia: 12, descricao: 'Consulta e exames', meses: 2 },
+] as ReadonlyArray<{
+  n: number
+  categoria: string
+  tipo: string
+  valorCentavos: number
+  dia: number
+  descricao: string
+  meses?: number
+}>
 
 /**
- * Sete categorias e seis lançamentos fictícios do mês corrente em São Paulo.
+ * Sete categorias e quinze lançamentos fictícios: oito no mês corrente em São
+ * Paulo, cinco no anterior e dois no retrasado.
  * `upsert` sem atualizar: rodar de novo não duplica nem desfaz o que a
  * família editou na demonstração.
  */
@@ -132,7 +153,12 @@ async function semearLancamentos(
   prisma: Pick<PrismaClient, 'categoria' | 'lancamento'>,
   agora: Date,
 ): Promise<void> {
-  const mes = mesDaData(hojeEmSaoPaulo(agora))
+  const mesCorrente = mesDaData(hojeEmSaoPaulo(agora))
+  const mesAtras = (meses: number) => {
+    let mes = mesCorrente
+    for (let i = 0; i < meses; i += 1) mes = mesAnterior(mes)
+    return mes
+  }
 
   for (const c of CATEGORIAS_DA_DEMONSTRACAO) {
     await prisma.categoria.upsert({
@@ -150,7 +176,7 @@ async function semearLancamentos(
         id: `demonstracao-lancamento-${l.n}`,
         tipo: l.tipo,
         valorCentavos: l.valorCentavos,
-        data: `${mes}-${String(l.dia).padStart(2, '0')}`,
+        data: `${mesAtras(l.meses ?? 0)}-${String(l.dia).padStart(2, '0')}`,
         descricao: l.descricao,
         categoriaId: `demonstracao-categoria-${l.categoria}`,
       },
