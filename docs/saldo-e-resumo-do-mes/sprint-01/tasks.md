@@ -25,7 +25,7 @@ tasks:
   - id: T-01.01
     titulo: Servico resumoDoMes com soma em centavos, mes validado e guarda de papel
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Criar src/servicos/resumo.ts com resumoDoMes(autor, consulta, agora) que valida o mes com zod e mesValido (invalido cai no corrente de Sao Paulo), soma por groupBy no banco as receitas e as despesas do mes e as despesas por categoria, calcula o saldo por subtracao de inteiros e comeca por exigirAdultoOuResponsavel
     arquivos:
       cria: [src/servicos/resumo.ts, tests/resumo.test.ts, tests/resumo-papeis.test.ts]
@@ -35,8 +35,8 @@ tasks:
     criterio_aceite: tests/resumo.test.ts e tests/resumo-papeis.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde (644 testes)
 
   - id: T-01.02
     titulo: Seed de demonstracao com mes anterior e mais de um lancamento por categoria

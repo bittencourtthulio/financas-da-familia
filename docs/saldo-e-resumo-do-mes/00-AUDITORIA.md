@@ -7,7 +7,7 @@ Data: 2026-10-28 — rodada 1. Auditora: a mesma sessão, sem o agente `auditor-
 | severidade | arquivo | problema | correção sugerida |
 |---|---|---|---|
 | MÉDIA | sprint-02/tasks.md | `tests/rotas.test.ts` afirma o texto do painel vazio antigo ("Ainda não há movimentações para mostrar") para o adulto; a T-02.02 o torna falso. | A T-02.02 reescreve essa afirmação no mesmo commit (já listada em `altera`) |
-| MÉDIA | sprint-03/tasks.md | A T-02.02 e a T-03.01 desloc am linhas citadas no `CONVENCOES.md` (`sessao-servidor.ts`, `acoes.ts` não mudam, mas `rotas.test.ts` e `page.tsx` sim). | A T-03.01 reconfere todas as citações; `tests/convencoes.test.ts` as valida |
+| MÉDIA | sprint-03/tasks.md | A T-02.02 e a T-03.01 deslocam linhas citadas no `CONVENCOES.md` (`sessao-servidor.ts`, `acoes.ts` não mudam, mas `rotas.test.ts` e `page.tsx` sim). | A T-03.01 reconfere todas as citações; `tests/convencoes.test.ts` as valida |
 | MÉDIA | sprint-01/tasks.md | O `groupBy` do Prisma sobre SQLite pode devolver `_sum` como `null` ou `number`; o plano supõe `number`. | A T-01.01 trata `null` como zero e testa mês vazio |
 | BAIXA | sprint-01/tasks.md | O varredor `tests/lancamentos-papeis.test.ts` só enxerga `lancamentos.ts`; o resumo precisa do seu próprio. | Já previsto: `tests/resumo-papeis.test.ts` varre as exportações de `resumo.ts` |
 | BAIXA | sprint-02/tasks.md | A T-02.01 é a maior task (dois componentes, links, estilos). | Aceitável: um só caminho de código e um teste de tela; ordem interna é links, seletor, resumo, estilos |
