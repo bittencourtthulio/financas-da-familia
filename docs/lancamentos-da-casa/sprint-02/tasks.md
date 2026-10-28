@@ -41,7 +41,7 @@ tasks:
   - id: T-02.02
     titulo: Criar e ler lancamento
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: criarLancamento e obterLancamento no servico: valida tipo, valor lido do formato brasileiro, data civil, categoria existente do mesmo tipo e descricao; grava o lancamento e lancamento.criado na mesma transacao, so com tipo e categoriaId no detalhe
     arquivos:
       cria: [tests/lancamentos.test.ts]
@@ -51,6 +51,9 @@ tasks:
     criterio_aceite: tests/lancamentos.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-02.01]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (454 testes)
+
   - id: T-02.03
     titulo: Editar e apagar lancamento
     fase: F-02.1

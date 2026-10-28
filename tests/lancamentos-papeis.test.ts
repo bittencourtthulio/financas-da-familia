@@ -18,6 +18,17 @@ type Chamada = (autor: UsuarioAutenticado) => Promise<unknown>
 const chamadas: Array<[string, Chamada]> = [
   ['listarCategorias', (a) => servico.listarCategorias(a)],
   ['criarCategoria', (a) => servico.criarCategoria(a, { nome: 'Qualquer', tipo: 'despesa' })],
+  [
+    'criarLancamento',
+    (a) =>
+      servico.criarLancamento(a, {
+        tipo: 'despesa',
+        valor: '10,00',
+        data: '2026-10-27',
+        categoriaId: 'qualquer',
+      }),
+  ],
+  ['obterLancamento', (a) => servico.obterLancamento(a, 'qualquer')],
 ]
 
 const PAPEIS_NEGADOS = ['filho', 'visitante', '', 'ADMIN', 'Admin', 'administrador', 'superusuario']

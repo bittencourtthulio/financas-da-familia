@@ -42,3 +42,16 @@ export async function limparBanco(): Promise<void> {
   await prisma.atividade.deleteMany()
   await prisma.usuario.deleteMany()
 }
+
+let contadorDeCategoria = 0
+
+/** Cria uma categoria direto no banco (sem passar pelo serviço nem pela trilha). */
+export async function criarCategoriaNoBanco(
+  tipo: 'receita' | 'despesa' = 'despesa',
+  nome?: string,
+) {
+  contadorDeCategoria += 1
+  return prisma.categoria.create({
+    data: { tipo, nome: nome ?? `Categoria ${contadorDeCategoria}` },
+  })
+}
