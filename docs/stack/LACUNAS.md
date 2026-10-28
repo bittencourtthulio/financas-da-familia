@@ -25,7 +25,7 @@ Companheiro de `docs/stack/CONVENCOES.md`.
 
 | ID | Ponto | Impacto | Proposta registrada? |
 | -- | ----- | ------- | -------------------- |
-| L-01 | Log estruturado, correlação e campos que nunca vão para o log | ALTO | Sim — §6 do CONVENCOES.md, marcada PROPOSTA |
+| L-01 | Log estruturado, correlação e campos que nunca vão para o log | ALTO | Resolvida na FT-08 — §6 do CONVENCOES.md, com evidência |
 | L-02 | Cobertura de teste | MÉDIO | Não |
 | L-03 | Formatador de código | MÉDIO | Não |
 | L-04 | Reversão de migration | BAIXO | Não |
@@ -40,7 +40,7 @@ Companheiro de `docs/stack/CONVENCOES.md`.
 
 **Onde se procurou:** `src/` (busca por `console.`, `logger`, `pino`, `winston`) e `package.json`.
 
-**Proposta registrada?** Sim — §6 do CONVENCOES.md, marcada PROPOSTA (PR-14).
+**Proposta registrada?** Resolvida na FT-08: `src/lib/log.ts`, lista de chaves proibidas em `src/lib/chaves-proibidas.ts` e código de correlação em `mensagemSegura` (PR-14, PR-36); §6 do CONVENCOES.md deixou de ser PROPOSTA.
 
 **Como fecha:** a FT-08 entregar o log estruturado com teste de redação de campos.
 

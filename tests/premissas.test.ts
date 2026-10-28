@@ -254,8 +254,10 @@ describe('premissas que a FT-06 realiza (MAPA.md)', () => {
     expect(bloco33).toMatch(/onDelete: Cascade/)
   })
 
-  it('o frontmatter total e por origem bate com 35 premissas', () => {
-    expect(lista).toHaveLength(35)
+  it('as 35 premissas da época (PR-01 a PR-35) continuam todas presentes', () => {
+    expect(lista.slice(0, 35).map((p) => p.id)).toEqual(
+      Array.from({ length: 35 }, (_, i) => `PR-${String(i + 1).padStart(2, '0')}`),
+    )
   })
 
   it('as premissas de outras features não foram marcadas por engano', () => {
@@ -288,7 +290,7 @@ describe('premissas que a FT-07 realiza (MAPA.md)', () => {
       expect(p?.invalida.length, id).toBeGreaterThan(10)
     }
     const bloco34 = premissas.slice(premissas.indexOf('### PR-34'), premissas.indexOf('### PR-35'))
-    const bloco35 = premissas.slice(premissas.indexOf('### PR-35'))
+    const bloco35 = premissas.slice(premissas.indexOf('### PR-35'), premissas.indexOf('### PR-36'))
     for (const b of [bloco34, bloco35]) {
       expect(b).toMatch(/\*\*Provisória:\*\* true/)
       expect(b).toMatch(/decisao_humana/)
@@ -299,9 +301,10 @@ describe('premissas que a FT-07 realiza (MAPA.md)', () => {
     expect(bloco35).toMatch(/Cascade/)
   })
 
-  it('o frontmatter total e por origem bate com os blocos (35 premissas, 15 f2_autonoma)', () => {
-    expect(lista).toHaveLength(35)
-    expect(lista.filter((p) => p.origem === 'f2_autonoma')).toHaveLength(15)
+  it('até a PR-35 eram 15 f2_autonoma (a FT-08 acrescenta mais três, testadas na seção dela)', () => {
+    const ate35 = lista.slice(0, 35)
+    expect(ate35).toHaveLength(35)
+    expect(ate35.filter((p) => p.origem === 'f2_autonoma')).toHaveLength(15)
   })
 
   it('as premissas de outras features não foram marcadas por engano', () => {
@@ -309,5 +312,51 @@ describe('premissas que a FT-07 realiza (MAPA.md)', () => {
     for (const id of ['PR-11', 'PR-13', 'PR-14']) {
       expect(lista.find((p) => p.id === id)?.realizadaEm, id).not.toBe('FT-07')
     }
+  })
+})
+
+describe('premissas que a FT-08 realiza (MAPA.md)', () => {
+  const bloco = /### FT-08 [\s\S]*?\*\*Premissas que realiza:\*\*\s*\[([^\]]*)\]/.exec(mapa)
+  const realizadas = (bloco?.[1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+
+  it('o MAPA lista PR-11, PR-13 e PR-14 para a FT-08, e mais as três criadas na F2', () => {
+    expect(realizadas).toEqual(['PR-11', 'PR-13', 'PR-14', 'PR-36', 'PR-37', 'PR-38'])
+  })
+
+  it('todas estão Realizada em FT-08', () => {
+    for (const id of realizadas) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).toBe('FT-08')
+    }
+  })
+
+  it('PR-36 a PR-38 são f2_autonoma, provisórias e dizem o que as invalidaria', () => {
+    for (const id of ['PR-36', 'PR-37', 'PR-38']) {
+      const p = lista.find((x) => x.id === id)
+      expect(p?.origem, id).toBe('f2_autonoma')
+      expect(p?.invalida.length, id).toBeGreaterThan(10)
+      const bloco = premissas.slice(premissas.indexOf(`### ${id} `))
+      expect(/\*\*Provisória:\*\*\s*true/.exec(bloco), id).not.toBeNull()
+    }
+  })
+
+  it('as premissas de outras features não foram marcadas por engano', () => {
+    expect(lista.find((p) => p.id === 'PR-09')?.realizadaEm).toBe('FT-07')
+    expect(lista.find((p) => p.id === 'PR-10')?.realizadaEm).toBe('FT-02')
+    expect(lista.filter((p) => p.realizadaEm === 'FT-08').map((p) => p.id)).toEqual(realizadas)
+  })
+
+  it('o frontmatter diz 38 premissas, 18 f2_autonoma, e bate com os blocos', () => {
+    expect(lista).toHaveLength(38)
+    expect(lista.filter((p) => p.origem === 'f2_autonoma')).toHaveLength(18)
+    expect(/^total:\s*38$/m.test(frontmatter(premissas))).toBe(true)
+  })
+
+  it('o MAPA e o PROJETO dizem que as oito features estão entregues', () => {
+    const projeto = readFileSync(path.join(RAIZ, 'docs/projeto/PROJETO.md'), 'utf8')
+    const fmMapa = frontmatter(mapa)
+    expect(/^entregues:\s*8$/m.test(fmMapa)).toBe(true)
+    expect(/^pendentes:\s*0$/m.test(fmMapa)).toBe(true)
+    expect(/^features_entregues:\s*8$/m.test(frontmatter(projeto))).toBe(true)
+    expect(mapa).toMatch(/\| FT-08 \| Backup, restauração e saúde \| entregue \|/)
   })
 })

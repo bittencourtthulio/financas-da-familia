@@ -20,13 +20,13 @@ projeto-legado: nao
 
 | Item | Valor | Origem |
 | ---- | ----- | ------ |
-| Linguagem | TypeScript estrito (5.9.3) | `tsconfig.json:11`, `package.json:42` |
+| Linguagem | TypeScript estrito (5.9.3) | `tsconfig.json:11`, `package.json:47` |
 | Runtime | Node.js 22 (22.23.3 na máquina de build) | `.github/workflows/verificar.yml:17` |
 | Gerenciador de pacotes | npm, lock versionado, versões exatas no manifesto | `package-lock.json`, `tests/qualidade.test.ts:37` |
-| Framework | Next.js 16.4.3, App Router, React 19.2.8 | `package.json:29` |
-| Banco | SQLite via Prisma 7.10.1 com adaptador better-sqlite3 | `prisma/schema.prisma:10`, `src/lib/prisma.ts:13` |
+| Framework | Next.js 16.4.3, App Router, React 19.2.8 | `package.json:33` |
+| Banco | SQLite via Prisma 7.10.1 com adaptador better-sqlite3; `better-sqlite3` 12.11.1 declarado direto, para o backup | `prisma/schema.prisma:10`, `src/lib/prisma.ts:13`, `package.json:30` |
 
-**Evidência:** `tsconfig.json:11`, `package.json:29`, `prisma/schema.prisma:10`, `src/lib/prisma.ts:13`
+**Evidência:** `tsconfig.json:11`, `package.json:33`, `prisma/schema.prisma:10`, `src/lib/prisma.ts:13`
 
 ---
 
@@ -43,6 +43,9 @@ projeto-legado: nao
 | Build | `npm run build` | `package.json:8` |
 | Subir ambiente local | `npm run dev` | `package.json:7` |
 | Preparar banco | `npm run setup` | `package.json:18` |
+| Gerar backup do banco | `npm run backup` | `package.json:19` |
+| Restaurar um backup | `npm run restaurar -- <arquivo>` | `package.json:20` |
+| Descartar logs com mais de 90 dias | `npm run log:limpar` | `package.json:21` |
 | Verificação completa | `npm run verificar` | `package.json:12` |
 | Auditoria de dependência | `npm audit --audit-level=high` | `package.json:12` |
 
@@ -59,7 +62,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 | Onde o arquivo mora | `tests/`, plano (sem subpastas) — `vitest.config.ts:7` |
 | Nome do arquivo | `<assunto>.test.ts`, em português — `tests/usuarios.test.ts:1` |
 | Nome do caso | frase em português no `it('...')` — `tests/usuarios.test.ts:10` |
-| Runner e versão | Vitest 4.1.11, ambiente node — `package.json:43` |
+| Runner e versão | Vitest 4.1.11, ambiente node — `package.json:48` |
 | Biblioteca de asserção | `expect` do próprio Vitest |
 | Montagem de dado | funções de ajuda — `tests/ajuda.ts:10` (`criarUsuario`, `criarAdmin`) |
 | Marcação de teste lento | timeout global de 30 s e do gancho de 180 s — `vitest.config.ts:9` |
@@ -120,6 +123,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 | Utilitário puro / acesso a dados | `src/lib` | `src/lib/formato.ts:14` |
 | Ação de formulário | `src/app/acoes.ts` | `src/app/acoes.ts:1` |
 | Rota de API | `src/app/api/<assunto>/<ação>/route.ts` | `src/app/api/sessao/renovar/route.ts:11` |
+| Comando de operação (npm run) | `scripts/`, finos, sobre função testada de `src/lib` | `scripts/backup.ts:1` |
 | Componente de interface | `src/componentes` | `src/componentes/Formulario.tsx:20` |
 | Estado de tela (carregando, erro, não encontrado) | `loading.tsx`, `error.tsx`, `not-found.tsx` | `src/componentes/EstadoDeErro.tsx:7`, `src/app/not-found.tsx:4` |
 
@@ -132,23 +136,22 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 ## 6. Padrões de código com consequência
 
 ### Sinalização de erro
-Serviço sinaliza erro lançando `ErroDeAplicacao` pelos construtores `naoAutenticado`, `naoAutorizado`, `naoEncontrado`, `entradaInvalida`, `limiteExcedido` e `conflito`; a ação converte em mensagem para a tela e nenhum rastro de pilha chega ao usuário: erro desconhecido vira frase genérica e a tela de erro nunca lê `message` nem `stack`.
-**Evidência:** `src/lib/erros.ts:4`, `src/lib/erros.ts:27`, `src/app/acoes.ts:55`, `src/componentes/EstadoDeErro.tsx:7`, `tests/estados.test.ts:38`
+Serviço sinaliza erro lançando `ErroDeAplicacao` pelos construtores `naoAutenticado`, `naoAutorizado`, `naoEncontrado`, `entradaInvalida`, `limiteExcedido` e `conflito`; a ação converte em mensagem para a tela e nenhum rastro de pilha chega ao usuário: erro desconhecido passa por `mensagemSegura`, que devolve a frase genérica com um código de correlação de 12 caracteres e grava no log só nome, código do erro e o mesmo código (nunca a mensagem nem a pilha); as rotas de API fazem o mesmo com `registrarErroInesperado`; a tela de erro nunca lê `message` nem `stack`.
+**Evidência:** `src/lib/erros.ts:4`, `src/lib/erros.ts:27`, `src/lib/erros.ts:45`, `src/lib/erros.ts:51`, `src/app/acoes.ts:55`, `src/app/acoes.ts:57`, `src/componentes/EstadoDeErro.tsx:7`, `tests/estados.test.ts:38`, `tests/erro-sem-pilha.test.ts:59`, `tests/erro-rotas.test.ts:43`
 
 ### Validação de entrada
 Esquema `zod` no servidor, na camada de aplicação, antes de tocar o banco.
 **Evidência:** `src/servicos/usuarios.ts:21`, `src/servicos/autenticacao.ts:22`
 
 ### Log
-Apenas `console.error` na ação de formulário; não há biblioteca, formato estruturado nem correlação de requisição.
-**Nunca vai para o log:** — (LACUNA) ver `docs/stack/LACUNAS.md`, L-01
-> **PROPOSTA** — sem evidência no repositório. Não governa: as skills irmãs tratam este ponto como decisão a levantar, não como regra. Log estruturado sem segredo, com identificador de correlação, é a PR-14; chega na FT-08.
-
-**Evidência:** `src/app/acoes.ts:57`
+Uma linha JSON por evento, com `nivel` (`info`, `aviso`, `erro`), `instante` ISO UTC, `evento` (minúsculas separadas por ponto) e `contexto` plano, pela função `log` de `src/lib/log.ts`; sai na saída padrão e no arquivo do dia `logs/app-AAAA-MM-DD.log` (dia UTC, pasta em `LOG_DIR`, vazio desliga; nos testes fica desligado). O log nunca derruba quem o chamou.
+**Nunca vai para o log:** as chaves da lista compartilhada com a trilha (`senha`, `hash`, `token`, `jwt`, `segredo`, `valor`, `centavo`, `saldo`, `e-mail`, `cpf`), texto com cara de hash bcrypt, JWT ou e-mail, e mensagem ou pilha de erro (o `Error` vira só o nome). O que bate vira `[removido]`.
+**Retenção:** 90 dias (PR-11). `descartarLogsAntigos` apaga pelo dia do NOME do arquivo, com a data injetada, ao subir o servidor e por `npm run log:limpar`.
+**Evidência:** `src/lib/chaves-proibidas.ts:8`, `src/lib/log.ts:51`, `src/lib/log.ts:88`, `src/lib/log-arquivo.ts:8`, `src/lib/log-arquivo.ts:49`, `tests/log.test.ts:54`, `tests/log-retencao.test.ts:55`
 
 ### Configuração e segredo
-Variável obrigatória ausente falha na leitura, com mensagem em português, não em produção; segredo só no arquivo local de ambiente, que o `.gitignore` exclui, e o modelo versionado traz o segredo vazio.
-**Evidência:** `src/lib/ambiente.ts:4`, `src/lib/ambiente.ts:26`, `.gitignore:12`, `tests/seguranca-base.test.ts:58`
+Variável obrigatória ausente falha na leitura, com mensagem em português; segredo só no arquivo local de ambiente, que o `.gitignore` exclui, e o modelo versionado traz o segredo vazio. Configuração inválida falha **no start**: `validarAmbiente` junta todos os problemas (`DATABASE_URL`, `JWT_SECRET`, `JWT_TTL_SEGUNDOS`) sem repetir o valor, e `src/instrumentation.ts` a chama quando o servidor Node sobe e **encerra o processo com código 1**, porque o Next anuncia "Ready" antes do gancho e, se ele só lançar, segue de pé sem atender (provado com `next start` de verdade).
+**Evidência:** `src/lib/ambiente.ts:4`, `src/lib/ambiente.ts:33`, `src/lib/ambiente.ts:52`, `src/lib/ambiente.ts:62`, `src/instrumentation.ts:9`, `.gitignore:12`, `tests/seguranca-base.test.ts:58`, `tests/ambiente-start.test.ts:98`
 
 ### Nomeação
 
@@ -157,7 +160,7 @@ Variável obrigatória ausente falha na leitura, com mensagem em português, nã
 | Arquivo de serviço e de lib | minúsculo, sem acento; hífen quando composto — `limite-de-tentativas.ts` | `src/lib/limite-de-tentativas.ts:19` |
 | Componente | PascalCase em português — `EstadoDeErro.tsx` | `src/componentes/EstadoDeErro.tsx:7` |
 | Função / método | camelCase em português — `formatarMoeda`, `renovarSessao` | `src/lib/formato.ts:14`, `src/servicos/autenticacao.ts:118` |
-| Variável de ambiente | MAIÚSCULAS com sublinhado — `JWT_SECRET` | `src/lib/ambiente.ts:26` |
+| Variável de ambiente | MAIÚSCULAS com sublinhado — `JWT_SECRET` | `src/lib/ambiente.ts:62` |
 
 ---
 
@@ -174,6 +177,10 @@ Toda entidade de domínio nasce numa feature do B4, sob TDD, com migration, e en
 
 ### Auditoria
 Toda ação auditada (PR-10) passa por `registrarAtividade` (`src/servicos/atividade.ts:75`), chamada dentro da mesma transação da ação — `src/servicos/usuarios.ts:86`, `src/servicos/usuarios.ts:161`. O código da ação é `entidade.verbo` e precisa estar no catálogo `src/lib/atividade.ts:9`, com rótulo em português. O `detalhe` é plano e pequeno e nunca recebe senha, hash, token, segredo, valor, saldo, e-mail nem CPF (a barreira é `src/lib/chaves-proibidas.ts:8`, testada em `tests/atividade.test.ts:88`); o módulo não oferece editar nem apagar (`tests/atividade.test.ts:122`). Só o responsável lê (`src/servicos/atividade.ts:134`, `tests/atividade-leitura.test.ts:28`). Feature nova que altera dado de negócio acrescenta a sua ação ao catálogo e chama o serviço. Lançamento e categoria fazem isso (`lancamento.criado`, `lancamento.alterado`, `lancamento.apagado`, `categoria.criada` em `src/lib/atividade.ts:13`): o rastro é gravado na mesma transação (`src/servicos/lancamentos.ts:88`, `src/servicos/lancamentos.ts:264`) e leva só o tipo e o id da categoria, nunca o valor — `tests/lancamentos.test.ts` e `tests/lancamentos-edicao.test.ts` afirmam que valor e descrição não aparecem em nenhuma coluna do registro. Os filhos fazem o mesmo (`filho.cadastrado`, `filho.alterado`, `filho.login_criado`, `filho.login_desativado`, a partir de `src/lib/atividade.ts:17`): o rastro é gravado na mesma transação (`src/servicos/filhos.ts:140`, `src/servicos/filhos.ts:186`, `src/servicos/filhos.ts:252`, `src/servicos/filhos.ts:285`) e leva só o nome do filho e, na edição, os nomes dos campos alterados, nunca o valor da mesada, o e-mail do login nem a data de nascimento. A mesada faz o mesmo (`mesada.registrada`, `mesada.alterada`, `mesada.apagada`, a partir de `src/lib/atividade.ts:21`): o rastro é gravado na mesma transação (`src/servicos/mesada.ts:139`) e leva só o id do movimento, o tipo, o id e o nome do filho, nunca o valor, o saldo nem a descrição; edição sem mudança real não grava. A privacidade acrescenta duas ações (`familia.exportada` em `src/lib/atividade.ts:24` e `filho.excluido` em `src/lib/atividade.ts:25`): a exportação grava ator, um id opaco e a versão do formato, sem conteúdo, antes de entregar o arquivo (se o rastro falha, não há arquivo); a exclusão grava ator, o id opaco do filho e contagens, sem nome, e-mail, valor nem saldo, e as linhas antigas que citavam o filho passam a dizer "filho removido" (PR-35). Quem só aparece como autor de uma linha não tem o `alvoNome` trocado, porque esse nome é de outra pessoa.
+
+### Operação: backup, restauração e saúde
+O backup é `VACUUM INTO` do `better-sqlite3` (`gerarBackup`, `src/lib/backup.ts:85`) para `backups/backup-AAAA-MM-DD-HHMMSS.db` em horário de São Paulo, sem sobrescrever, com pasta 0700 e arquivo 0600; a pasta `backups/` e a `logs/` ficam no `.gitignore`. O backup leva os hashes de senha. A restauração (`restaurarBackup`, `src/lib/restauracao.ts:95`) só aceita SQLite íntegro com as tabelas de `TABELAS_ESPERADAS` (`src/lib/restauracao.ts:21`, conferida contra o banco migrado por teste), preserva o banco atual em `backups/antes-da-restauracao-*.db` e troca por renomeação; arquivo inválido deixa o banco intacto, byte a byte. O sistema precisa estar parado ao restaurar. Os testes de backup usam banco temporário com as migrations reais (`tests/banco-temporario.ts:1`), nunca o banco compartilhado da suíte. A saúde é `GET /api/saude` (`src/app/api/saude/route.ts:10`), pública, que responde `{status, banco}` 200 ou 503 por `verificarSaude` (`src/servicos/saude.ts:34`), com o Prisma importado sob demanda para falha de abertura virar 503.
+**Evidência:** `src/lib/backup.ts:85`, `src/lib/restauracao.ts:95`, `src/servicos/saude.ts:34`, `src/app/api/saude/route.ts:10`, `tests/backup-ponta-a-ponta.test.ts:37`, `tests/restauracao.test.ts:128`, `tests/saude-rotas.test.ts:34`, `tests/rotas.test.ts:558`
 
 ### Versionamento
 Uma branch por feature, `feat/ft-NN-<slug>`, na árvore principal, um commit por task, sem push forçado nem merge no fluxo automático — `docs/projeto/PREMISSAS.md:326` (PR-24). Mensagens de commit seguem Conventional Commits em português (`git log`).
@@ -206,6 +213,7 @@ Nenhum.
 | 2026-10-28 | FT-06 | Seção 7: "Dinheiro" cita o saldo do filho por `groupBy` de inteiros e o saldo negativo permitido e dito em texto; "Autorização" cita a mesada só do responsável, `meuExtrato` sem id e o isolamento entre irmãos; "Dados do domínio" ganhou `MovimentoDeMesada` com `Cascade` e a nota para a FT-07; "Auditoria" cita as três ações da mesada sem valor; citações de `acoes.ts` e `tests/filhos-acoes.test.ts` deslocadas e reconferidas |
 
 | 2026-10-28 | FT-07 | Seção 7: "Dados do domínio" fecha a nota para a FT-07 (exportação versionada, exclusão em uma transação, trilha anonimizada, sem sessão para revogar); "Autorização" cita `exportarDadosDaFamilia`, `excluirFilho`, a rota só POST e a ação com a guarda fora do `try`; "Auditoria" cita `familia.exportada` e `filho.excluido`; citações de `acoes.ts` deslocadas em uma linha pelo import novo e reconferidas |
+| 2026-10-28 | FT-08 | Seção 6: "Log" passou de PROPOSTA a regra com evidência (JSON por linha, lista de chaves proibidas compartilhada com a trilha, retenção de 90 dias); "Sinalização de erro" cita `mensagemSegura` e o código de correlação; "Configuração" cita `validarAmbiente` e o gancho que encerra o processo; comandos `backup`, `restaurar` e `log:limpar`; `better-sqlite3` declarado. Seção 7: "Operação" nova. Citações deslocadas conferidas (`package.json`, `atividade.ts`, `ambiente.ts`) |
 
 ---
 

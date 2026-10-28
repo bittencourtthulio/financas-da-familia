@@ -449,3 +449,75 @@ describe('privacidade dos dados no CONVENCOES.md (FT-07)', () => {
     expect(convencoes).toMatch(/\| FT-07 \|/)
   })
 })
+
+describe('backup, restauração, saúde e log no CONVENCOES.md (FT-08)', () => {
+  it('cada citação nova da operação aponta para a linha que contém o nome citado', () => {
+    const esperado: Array<[string, number, RegExp]> = [
+      ['package.json', 19, /"backup"/],
+      ['package.json', 20, /"restaurar"/],
+      ['package.json', 21, /"log:limpar"/],
+      ['package.json', 30, /better-sqlite3/],
+      ['package.json', 33, /"next"/],
+      ['package.json', 47, /"typescript"/],
+      ['package.json', 48, /"vitest"/],
+      ['scripts/backup.ts', 1, /npm run backup/],
+      ['src/lib/chaves-proibidas.ts', 8, /CHAVE_PROIBIDA/],
+      ['src/lib/log.ts', 51, /montarLinha/],
+      ['src/lib/log.ts', 88, /registrar/],
+      ['src/lib/log-arquivo.ts', 8, /RETENCAO_DIAS/],
+      ['src/lib/log-arquivo.ts', 49, /descartarLogsAntigos/],
+      ['src/lib/erros.ts', 45, /mensagemSegura/],
+      ['src/lib/erros.ts', 51, /registrarErroInesperado/],
+      ['src/lib/ambiente.ts', 33, /problemasDeAmbiente/],
+      ['src/lib/ambiente.ts', 52, /validarAmbiente/],
+      ['src/lib/ambiente.ts', 62, /jwtSecret/],
+      ['src/instrumentation.ts', 9, /register/],
+      ['src/lib/backup.ts', 85, /gerarBackup/],
+      ['src/lib/restauracao.ts', 21, /TABELAS_ESPERADAS/],
+      ['src/lib/restauracao.ts', 95, /restaurarBackup/],
+      ['src/servicos/saude.ts', 34, /verificarSaude/],
+      ['src/app/api/saude/route.ts', 10, /GET/],
+      ['tests/banco-temporario.ts', 1, /Banco SQLite temporário/],
+      ['tests/log.test.ts', 54, /chave proibida/],
+      ['tests/log-retencao.test.ts', 55, /descarte de logs/],
+      ['tests/erro-sem-pilha.test.ts', 59, /mensagemSegura/],
+      ['tests/erro-rotas.test.ts', 43, /erro inesperado/],
+      ['tests/ambiente-start.test.ts', 98, /servidor real/],
+      ['tests/backup-ponta-a-ponta.test.ts', 37, /cria, faz backup/],
+      ['tests/restauracao.test.ts', 128, /restaurarBackup/],
+      ['tests/saude-rotas.test.ts', 34, /banco inacessível/],
+      ['tests/rotas.test.ts', 558, /rota pública de saúde/],
+    ]
+    for (const [arquivo, linha, padrao] of esperado) {
+      expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
+      const conteudo = readFileSync(path.join(RAIZ, arquivo), 'utf8').split('\n')[linha - 1]
+      expect(conteudo, `${arquivo}:${linha}`).toMatch(padrao)
+    }
+  })
+
+  it('o Log deixou de ser PROPOSTA: tem formato, o que nunca vai e a retenção de 90 dias', () => {
+    const inicio = convencoes.indexOf('### Log')
+    const log = convencoes.slice(inicio, convencoes.indexOf('### Configuração e segredo'))
+    expect(log).not.toContain('PROPOSTA')
+    expect(log).not.toContain('(LACUNA)')
+    for (const termo of ['JSON', 'Nunca vai para o log', '90 dias', 'LOG_DIR', '[removido]']) {
+      expect(log, termo).toContain(termo)
+    }
+  })
+
+  it('a configuração diz que o gancho encerra o processo e a operação cita backup, restauração e saúde', () => {
+    expect(convencoes).toMatch(/encerra o processo com código 1/)
+    const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
+    expect(secao7).toContain('### Operação: backup, restauração e saúde')
+    for (const termo of ['VACUUM INTO', 'restaurarBackup', 'TABELAS_ESPERADAS', '/api/saude', 'hashes de senha', 'parado']) {
+      expect(secao7, termo).toContain(termo)
+    }
+  })
+
+  it('os comandos novos estão na tabela de comandos e o histórico registra a FT-08', () => {
+    for (const comando of ['npm run backup', 'npm run restaurar -- <arquivo>', 'npm run log:limpar']) {
+      expect(convencoes, comando).toContain(comando)
+    }
+    expect(convencoes).toMatch(/\| FT-08 \|/)
+  })
+})

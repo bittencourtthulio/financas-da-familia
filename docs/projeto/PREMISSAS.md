@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 35
+total: 38
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 15
+  f2_autonoma: 18
   recursao: 0
   template: 5
 ---
@@ -163,7 +163,7 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Origem:** catalogo_lacunas
 **Etapa:** b1
 **Provisória:** false
-**Realizada em:** null
+**Realizada em:** FT-08
 
 ---
 
@@ -189,7 +189,7 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Origem:** catalogo_lacunas
 **Etapa:** b1
 **Provisória:** false
-**Realizada em:** null
+**Realizada em:** FT-08
 
 ---
 
@@ -202,7 +202,7 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Origem:** catalogo_lacunas
 **Etapa:** b1
 **Provisória:** false
-**Realizada em:** null
+**Realizada em:** FT-08
 
 ---
 
@@ -476,3 +476,42 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** true
 **Realizada em:** FT-07
+
+---
+
+### PR-36 — Forma do log, o que ele redige e o erro inesperado
+
+**Assunto:** FT-08, formato do log de aplicação, o que nunca vai para ele e como o erro inesperado aparece
+**Decisão:** o log é uma linha JSON por evento com `nivel` (`info`, `aviso`, `erro`), `instante` ISO UTC, `evento` (minúsculas separadas por ponto) e `contexto` plano. Sai na saída padrão e no arquivo do dia `logs/app-AAAA-MM-DD.log` (dia UTC; pasta em `LOG_DIR`, vazio desliga; desligado nos testes). Nunca registra as chaves proibidas da trilha (senha, hash, token, JWT, segredo, valor, centavos, saldo, e-mail, CPF), texto com cara de hash, JWT ou e-mail, nem mensagem ou pilha de erro: o que bate vira `[removido]` e um `Error` vira só o nome. O arquivo com mais de 90 dias (pelo dia do nome) é descartado ao subir o servidor e por `npm run log:limpar`. O erro inesperado grava só `erro.inesperado` com nome, código do erro e um identificador de 12 caracteres, e a tela ou a resposta da API mostra o mesmo identificador ("Código: ...") junto da frase genérica.
+**Por quê:** a PR-11 manda log por 90 dias sem dado pessoal e a PR-14 manda erro sem pilha com identificador de correlação; a mensagem de um erro de banco pode trazer e-mail ou valor, então gravar a mensagem anularia a regra, e o identificador basta para achar a linha. Arquivo por dia, com a data no nome, torna o descarte exato e testável sem depender de data de modificação. Reaproveitar a lista da trilha evita duas definições de "dado que não se registra".
+**O que invalida:** se a família ou quem opera quiser a pilha completa no log (por exemplo, para depurar em produção), outro prazo de retenção, log centralizado em serviço externo, ou se a saída padrão for redirecionada para um lugar com retenção própria.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-08
+
+---
+
+### PR-37 — Forma do backup e da restauração
+
+**Assunto:** FT-08, como o backup é gerado, guardado e restaurado
+**Decisão:** `npm run backup` gera `backups/backup-AAAA-MM-DD-HHMMSS.db` (horário de São Paulo; pasta em `BACKUP_DIR`) por `VACUUM INTO`, com pasta 0700 e arquivo 0600, sem nunca sobrescrever. `npm run restaurar -- <arquivo>` só aceita um SQLite íntegro com as seis tabelas do sistema, guarda o banco atual em `backups/antes-da-restauracao-AAAA-MM-DD-HHMMSS.db` e troca por renomeação; arquivo inválido é recusado sem tocar no banco atual. O sistema precisa estar parado na restauração (documentado no runbook, sem trava automática). O arquivo leva hashes de senha e todo o dinheiro da casa: a pasta fica fora do git, não é criptografada e quem opera a guarda com cuidado. Não há rotação dos backups antigos nem agendamento: ambos ficam com quem opera (cron do sistema).
+**Por quê:** a PR-13 pede comando de backup, comando de restauração e teste que restaura; `VACUUM INTO` dá uma cópia consistente com o sistema no ar, o que um `cp` não garante. Restaurar lixo por cima do histórico da família seria pior que não ter o comando, por isso a validação e a cópia prévia. Agendar, criptografar, mandar para nuvem ou restaurar pela interface exigem decisão de frequência, de chave e de papel, ou credencial externa que o buildx não tem.
+**O que invalida:** se a família quiser backup automático, retenção de backups, criptografia, cópia remota ou restauração pela interface, ou se o banco for trocado por serviço gerenciado com backup próprio.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-08
+
+---
+
+### PR-38 — Rota de saúde e configuração que falha no start
+
+**Assunto:** FT-08, o que `/api/saude` responde e o que acontece com configuração inválida
+**Decisão:** `GET /api/saude` é pública (sem sessão) e responde `200 {"status":"ok","banco":"ok"}` quando um `SELECT 1` no banco responde em até 3 segundos, ou `503 {"status":"indisponivel","banco":"falha"}` quando não; nunca leva versão, caminho, usuário nem pilha, e o corpo tem só essas duas chaves. Ao subir, o servidor confere `DATABASE_URL` (precisa ser `file:`), `JWT_SECRET` e `JWT_TTL_SEGUNDOS` (inteiro positivo, opcional); se algo estiver errado, imprime todos os problemas sem repetir valor e encerra com código 1, porque o Next anuncia "Ready" antes do gancho de start e só registraria o erro, seguindo de pé sem atender.
+**Por quê:** a PR-14 pede rota de saúde e variável obrigatória ausente que falha no start. A rota é pública porque um monitor precisa perguntar sem entrar, e por isso não pode entregar nada que ajude um atacante ou revele dado da família. Encerrar o processo é o único jeito observado de a falha de configuração realmente impedir o start.
+**O que invalida:** se a saúde precisar de autenticação (monitor interno atrás de proxy), se quiser checar mais que o banco (disco, fila), ou se a hospedagem tratar código de saída diferente de zero de outro modo.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-08

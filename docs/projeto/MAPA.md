@@ -5,9 +5,9 @@ kind: mapa
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
 total_features: 8
-pendentes: 1
+pendentes: 0
 em_andamento: 0
-entregues: 7
+entregues: 8
 bloqueadas: 0
 ---
 
@@ -26,7 +26,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 | FT-05 | Filhos da família | entregue | — (branch feat/ft-05-filhos-da-familia, sem remote) |
 | FT-06 | Mesada dos filhos | entregue | — (branch feat/ft-06-mesada-dos-filhos, sem remote) |
 | FT-07 | Privacidade dos dados da família | entregue | — (branch feat/ft-07-privacidade-dos-dados, sem remote) |
-| FT-08 | Backup, restauração e saúde | pendente | — |
+| FT-08 | Backup, restauração e saúde | entregue | — (branch feat/ft-08-backup-e-saude, sem remote) |
 
 ---
 
@@ -156,10 +156,13 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 **Depende de:** [FT-01]
 **Paralelizável:** false
 **Origem:** premissa
-**Premissas que realiza:** [PR-11, PR-13, PR-14]
+**Premissas que realiza:** [PR-11, PR-13, PR-14, PR-36, PR-37, PR-38]
 **Módulo disponível:** -
 **Fatias candidatas:** -
-**Status:** pendente
+**Status:** entregue
+**PR:** — (branch `feat/ft-08-backup-e-saude`, sem remoto; descrição pronta em `docs/backup-e-saude/PR.md`)
+**Sprints:** 3
+**Testes:** TESTES_NOVOS novos (SUITE_TOTAL na suíte)
 
 ---
 
