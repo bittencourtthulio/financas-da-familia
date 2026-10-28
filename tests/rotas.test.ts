@@ -87,15 +87,35 @@ describe('sem sessão', () => {
     expect(r.status).toBe(200)
     expect(await r.text()).toContain('Entrar')
   })
+
+  it('a tela de login diz o nome do sistema e descreve a página em português', async () => {
+    const html = await (await pedir('/entrar')).text()
+    expect(html).toContain('Finanças da Família')
+    expect(html).toMatch(/<meta name="description" content="[^"]*família[^"]*"/)
+    expect(html).not.toMatch(/buildx|Gerado/i)
+  })
 })
 
 describe('com sessão de usuário comum', () => {
-  it('o painel abre, com título e subtítulo', async () => {
+  it('o painel abre, com título e subtítulo do domínio', async () => {
     const r = await pedir('/', await cookieDe('comum.rota@teste.local'))
     const html = await r.text()
     expect(r.status).toBe(200)
-    expect(html).toContain('Painel')
-    expect(html).toContain('Esta é a tela inicial do sistema')
+    expect(html).toContain('Painel da família')
+    expect(html).toMatch(/Bem-vindo, (<!-- -->)?Comum de Rota/)
+    expect(html).toContain('as finanças da casa')
+    expect(html).not.toContain('Esta é a tela inicial do sistema')
+  })
+
+  it('o painel vazio explica o que vai aparecer ali, sem texto genérico do template', async () => {
+    const html = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
+    expect(html).toContain('Ainda não há movimentações para mostrar')
+    expect(html).not.toContain('As telas do projeto aparecem')
+  })
+
+  it('a barra lateral traz o nome do sistema', async () => {
+    const html = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
+    expect(html).toMatch(/class="marca"[^>]*>Finanças da Família</)
   })
 
   it('o perfil abre', async () => {

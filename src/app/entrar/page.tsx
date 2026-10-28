@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { usuarioAtual } from '@/app/sessao-servidor'
 import { autenticar } from '@/app/acoes'
 import { Formulario, Campo } from '@/componentes/Formulario'
+import { NOME_DO_SISTEMA } from '@/lib/marca'
 
 export default async function Entrar() {
   if (await usuarioAtual()) redirect('/')
@@ -16,6 +17,7 @@ export default async function Entrar() {
       }}
     >
       <div style={{ width: '100%', maxWidth: 380 }}>
+        <div className="marca marca-do-login">{NOME_DO_SISTEMA}</div>
         <h1 className="titulo-da-tela">Entrar</h1>
         <p className="subtitulo-da-tela">Informe suas credenciais para continuar.</p>
 

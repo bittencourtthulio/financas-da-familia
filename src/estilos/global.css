@@ -92,6 +92,17 @@ a { color: var(--fg-link); }
 .barra-de-status button:hover { background: var(--statusbar-hover); }
 .barra-de-status .espaco { margin-left: auto; }
 
+/* ---------- marca ---------- */
+
+.marca {
+  padding: 4px 16px 8px;
+  font-weight: 600;
+  color: var(--fg-default);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.marca-do-login { padding: 0 0 12px; font-size: 15px; border-bottom: none; }
+
 /* ---------- navegação ---------- */
 
 .navegacao a {

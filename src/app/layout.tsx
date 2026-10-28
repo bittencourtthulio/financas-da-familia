@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import '../estilos/global.css'
+import { NOME_DO_SISTEMA, DESCRICAO_DO_SISTEMA } from '@/lib/marca'
 
 export const metadata: Metadata = {
-  title: 'Finanças da Família',
-  description: 'Gerado pelo buildx.',
+  title: NOME_DO_SISTEMA,
+  description: DESCRICAO_DO_SISTEMA,
 }
 
 export default function LayoutRaiz({ children }: { children: React.ReactNode }) {

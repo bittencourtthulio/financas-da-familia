@@ -3,6 +3,7 @@ import { exigirUsuario } from '@/app/sessao-servidor'
 import { Navegacao } from '@/componentes/Navegacao'
 import { AlternadorDeTema } from '@/componentes/AlternadorDeTema'
 import { sair } from '@/app/acoes'
+import { NOME_DO_SISTEMA } from '@/lib/marca'
 
 /**
  * A casca do sistema: barra de atividade, barra lateral, conteúdo e barra
@@ -20,6 +21,7 @@ export default async function LayoutDoSistema({
       <div className="barra-de-atividade" role="presentation" />
 
       <aside className="barra-lateral">
+        <div className="marca">{NOME_DO_SISTEMA}</div>
         <Navegacao ehAdmin={usuario.papel === 'admin'} />
       </aside>
 
