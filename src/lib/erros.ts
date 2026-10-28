@@ -44,6 +44,11 @@ export const MENSAGEM_GENERICA = 'Não foi possível concluir. Tente de novo.'
  */
 export function mensagemSegura(erro: unknown): string {
   if (erro instanceof ErroDeAplicacao) return erro.message
+  return `${MENSAGEM_GENERICA} Código: ${registrarErroInesperado(erro)}`
+}
+
+/** Grava o erro inesperado no log (nome, código, ref) e devolve a ref de correlação. */
+export function registrarErroInesperado(erro: unknown): string {
   const ref = randomUUID().replace(/-/g, '').slice(0, 12)
   const codigo = (erro as { code?: unknown } | null)?.code
   log.erro('erro.inesperado', {
@@ -51,5 +56,5 @@ export function mensagemSegura(erro: unknown): string {
     nome: erro instanceof Error ? erro.name : typeof erro,
     codigo: typeof codigo === 'string' ? codigo : null,
   })
-  return `${MENSAGEM_GENERICA} Código: ${ref}`
+  return ref
 }

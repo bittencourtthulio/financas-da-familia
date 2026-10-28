@@ -1,5 +1,5 @@
 import { usuarioAtual } from '@/app/sessao-servidor'
-import { ErroDeAplicacao } from '@/lib/erros'
+import { ErroDeAplicacao, registrarErroInesperado } from '@/lib/erros'
 import { exportarDadosDaFamilia } from '@/servicos/privacidade'
 
 /**
@@ -29,9 +29,9 @@ export async function POST() {
     if (erro instanceof ErroDeAplicacao) {
       return Response.json({ erro: erro.message }, { status: erro.status, headers: semCache })
     }
-    console.error(erro)
+    const codigo = registrarErroInesperado(erro)
     return Response.json(
-      { erro: 'Não foi possível gerar o arquivo. Tente de novo.' },
+      { erro: 'Não foi possível gerar o arquivo. Tente de novo.', codigo },
       { status: 500, headers: semCache },
     )
   }

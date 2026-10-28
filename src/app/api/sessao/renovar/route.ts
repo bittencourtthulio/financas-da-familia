@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { COOKIE_SESSAO, opcoesDoCookie } from '@/lib/sessao'
-import { ErroDeAplicacao } from '@/lib/erros'
+import { ErroDeAplicacao, registrarErroInesperado } from '@/lib/erros'
 import { renovarSessao } from '@/servicos/autenticacao'
 
 /**
@@ -25,9 +25,9 @@ export async function POST() {
     if (erro instanceof ErroDeAplicacao) {
       return Response.json({ erro: erro.message }, { status: erro.status, headers: semCache })
     }
-    console.error(erro)
+    const codigo = registrarErroInesperado(erro)
     return Response.json(
-      { erro: 'Não foi possível renovar a sessão.' },
+      { erro: 'Não foi possível renovar a sessão.', codigo },
       { status: 500, headers: semCache },
     )
   }
