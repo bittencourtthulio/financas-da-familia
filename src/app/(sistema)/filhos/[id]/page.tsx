@@ -31,6 +31,9 @@ export default async function EditarFilho({ params }: { params: Promise<{ id: st
       <p className="subtitulo-da-tela">
         Corrija os dados e salve. <Link href="/filhos">Voltar para a lista</Link>
       </p>
+      <p>
+        <Link href={`/filhos/${filho.id}/mesada`}>Ver mesada e extrato de {filho.nome}</Link>
+      </p>
 
       <Formulario acao={salvarFilho} rotulo="Salvar alterações">
         <CamposDoFilho

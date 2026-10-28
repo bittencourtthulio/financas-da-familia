@@ -383,6 +383,33 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
 .mesada-combinada-do-filho .nota-do-campo { margin: 0; }
 .login-do-filho { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); max-width: 380px; }
 
+/* ---------- mesada (FT-06) ---------- */
+
+/* O saldo é o que a tela tem de memorável: um número grande, com a situação dita
+   em texto; a borda só reforça. Tudo em tokens, nos dois temas. */
+.saldo-da-mesada {
+  max-width: 480px;
+  margin-bottom: 28px;
+  padding: 16px 18px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border-focus);
+  border-radius: var(--raio);
+}
+.saldo-da-mesada[data-saldo='positivo'] { border-left-color: var(--success); }
+.saldo-da-mesada[data-saldo='zerado'] { border-left-color: var(--warning); }
+.saldo-da-mesada[data-saldo='negativo'] { border-left-color: var(--danger); background: var(--danger-bg); }
+.valor-do-saldo { margin: 0 0 4px; font-size: 36px; line-height: 1.1; font-weight: 600; font-variant-numeric: tabular-nums; }
+.frase-do-saldo { margin: 0 0 12px; color: var(--fg-muted); }
+.totais-da-mesada { display: flex; gap: 32px; margin: 0; padding-top: 10px; border-top: 1px solid var(--border); }
+.totais-da-mesada dt { color: var(--fg-muted); }
+.totais-da-mesada dd { margin: 2px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.saldo-do-filho { margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+.saldo-do-filho[data-saldo='negativo'] strong { color: var(--danger); }
+.formulario-rapido { max-width: 380px; margin-bottom: 28px; }
+.mesada-referencia { margin: 0 0 20px; color: var(--fg-muted); }
+.extrato-da-mesada td:nth-child(3) { overflow-wrap: anywhere; }
+
 /* ---------- celular ---------- */
 
 @media (max-width: 768px) {
@@ -407,4 +434,9 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
   .seletor-do-resumo a { display: inline-flex; align-items: center; }
   .seletor-sem-vizinho { display: none; }
   .lista-de-filhos { grid-template-columns: 1fr; }
+  .saldo-da-mesada { max-width: none; }
+  .valor-do-saldo { font-size: 30px; }
+  .totais-da-mesada { gap: 20px; }
+  .paginacao a { display: inline-flex; align-items: center; min-height: 44px; }
+  .saldo-do-filho a { display: inline-flex; align-items: center; min-height: 44px; }
 }

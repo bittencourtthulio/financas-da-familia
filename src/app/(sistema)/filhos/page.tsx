@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { exigirUsuarioAdmin } from '@/app/sessao-servidor'
 import { listarFilhos } from '@/servicos/filhos'
+import { saldosDosFilhos } from '@/servicos/mesada'
 import { ListaDeFilhos } from '@/componentes/ListaDeFilhos'
 
 /**
@@ -11,6 +12,7 @@ import { ListaDeFilhos } from '@/componentes/ListaDeFilhos'
 export default async function Filhos() {
   const admin = await exigirUsuarioAdmin()
   const filhos = await listarFilhos(admin)
+  const saldos = await saldosDosFilhos(admin)
 
   return (
     <>
@@ -23,7 +25,7 @@ export default async function Filhos() {
           Cadastrar filho
         </Link>
       </div>
-      <ListaDeFilhos filhos={filhos} />
+      <ListaDeFilhos filhos={filhos} saldos={saldos} />
     </>
   )
 }

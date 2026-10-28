@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { descricaoDaMesada, situacaoDoLogin } from '@/lib/filhos'
+import { formatarMoeda } from '@/lib/formato'
+import { situacaoDoSaldo } from '@/lib/mesada'
 import type { FilhoListado } from '@/servicos/filhos'
 
 /**
@@ -7,7 +9,14 @@ import type { FilhoListado } from '@/servicos/filhos'
  * situação do login em texto. Sem filho cadastrado, o estado vazio convida a
  * cadastrar o primeiro.
  */
-export function ListaDeFilhos({ filhos }: { filhos: FilhoListado[] }) {
+export function ListaDeFilhos({
+  filhos,
+  saldos,
+}: {
+  filhos: FilhoListado[]
+  /** O saldo de cada filho, por id (FT-06); sem ele a lista é a da FT-05. */
+  saldos?: Record<string, number>
+}) {
   if (filhos.length === 0) {
     return (
       <p className="vazio">
@@ -26,6 +35,13 @@ export function ListaDeFilhos({ filhos }: { filhos: FilhoListado[] }) {
           </h2>
           <p className="mesada-combinada">{descricaoDaMesada(f.mesadaCentavos, f.periodicidade)}</p>
           <p className="situacao-do-login">{situacaoDoLogin(f.login)}</p>
+          {saldos && (
+            <p className="saldo-do-filho" data-saldo={situacaoDoSaldo(saldos[f.id] ?? 0).situacao}>
+              <span>{situacaoDoSaldo(saldos[f.id] ?? 0).rotulo}: </span>
+              <strong>{formatarMoeda(saldos[f.id] ?? 0)}</strong>{' '}
+              <Link href={`/filhos/${f.id}/mesada`}>Ver mesada</Link>
+            </p>
+          )}
         </li>
       ))}
     </ul>
