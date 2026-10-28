@@ -9,7 +9,7 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-02
 sprint:
   titulo: Rota, acao, telas e prova no servidor
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o responsavel baixa o arquivo e apaga a conta de um filho pelas telas; usuario, filho e visitante sao barrados na rota, na acao e na pagina; o servidor real prova o download e o token do filho excluido
   riscos: [cookie sameSite lax e rota que grava, regra de CSS so com token, tabela de acoes sensiveis ampliada, citacoes de linha de acoes.ts]
   fora_de_escopo: [Documentacao final, premissas]
@@ -30,7 +30,7 @@ fases:
     tasks: [T-02.02]
   - id: F-02.3
     titulo: Prova no servidor
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -71,7 +71,7 @@ tasks:
   - id: T-02.03
     titulo: "Prova no servidor real: download, papeis e token do filho excluido"
     fase: F-02.3
-    status: pendente
+    status: concluida
     objetivo: Provar no servidor de producao real que o responsavel baixa o arquivo versionado e sem campo secreto, que usuario, filho e visitante sao negados na rota e na pagina, e que o cookie de um filho emitido antes da exclusao deixa de abrir qualquer pagina
     arquivos:
       cria: ["tests/privacidade-rotas.test.ts"]
@@ -81,8 +81,8 @@ tasks:
     criterio_aceite: tests/privacidade-rotas.test.ts e tests/rotas.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.02]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1310 testes)
 
 ---
 
