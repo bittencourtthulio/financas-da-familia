@@ -59,7 +59,7 @@ tasks:
     depende_de: [T-01.01]
     paralelizavel: false
     concluida_em: 2026-10-28
-    suite: verde (1256 testes)
+    suite: verde (1251 testes)
 
 ---
 

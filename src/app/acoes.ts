@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { entrar } from '@/servicos/autenticacao'
+import { excluirFilho } from '@/servicos/privacidade'
 import { criar, editar, desativar } from '@/servicos/usuarios'
 import { atualizarPerfil, trocarSenha } from '@/servicos/perfil'
 import {
@@ -354,4 +355,23 @@ export async function excluirMovimentoDeMesada(
   }
   atualizarMesada(filhoId)
   redirect(enderecoDoExtratoDoFilho(filhoId))
+}
+
+// A exclusão da conta do filho (FT-07, PR-35) exige o responsável FORA do try,
+// como as demais. O servidor confere o nome digitado; a tela não basta.
+export async function excluirContaDoFilho(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  try {
+    await excluirFilho(autor, String(form.get('id')), { confirmacao: form.get('confirmacao') ?? undefined })
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/filhos')
+  revalidatePath('/privacidade')
+  revalidatePath('/atividade')
+  revalidatePath('/')
+  redirect('/privacidade?excluido=1')
 }

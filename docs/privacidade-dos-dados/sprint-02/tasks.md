@@ -16,7 +16,7 @@ sprint:
 fases:
   - id: F-02.1
     titulo: Rota e acao
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -39,7 +39,7 @@ tasks:
   - id: T-02.01
     titulo: "Rota de download POST e acao de servidor para excluir a conta do filho"
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Criar a rota POST /api/privacidade/exportar (401 sem sessao, 403 para outro papel, 405 para GET, attachment com nome datado, no-store) e a acao excluirContaDoFilho com a guarda do responsavel fora do try; ampliar antes a tabela de acoes sensiveis
     arquivos:
       cria: ["src/app/api/privacidade/exportar/route.ts", "tests/privacidade-rota.test.ts", "tests/privacidade-acoes.test.ts"]
@@ -49,8 +49,8 @@ tasks:
     criterio_aceite: tests/privacidade-rota.test.ts, tests/privacidade-acoes.test.ts e tests/filhos-acoes.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.02]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1273 testes)
 
   - id: T-02.02
     titulo: "Pagina Privacidade, botoes de baixar e de apagar, menu e estilos"
