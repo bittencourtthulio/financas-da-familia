@@ -105,3 +105,29 @@ describe('premissas que a FT-01 realiza (MAPA.md)', () => {
     }
   })
 })
+
+describe('premissas que a FT-02 realiza (MAPA.md)', () => {
+  const bloco = /### FT-02 [\s\S]*?\*\*Premissas que realiza:\*\*\s*\[([^\]]*)\]/.exec(mapa)
+  const realizadas = (bloco?.[1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+
+  it('o MAPA lista a PR-10 para a FT-02', () => {
+    expect(realizadas).toContain('PR-10')
+  })
+
+  it('a PR-10 e a PR-25 (criada na F2 da FT-02) estão Realizada em FT-02', () => {
+    for (const id of ['PR-10', 'PR-25']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).toBe('FT-02')
+    }
+  })
+
+  it('a PR-25 é f2_autonoma e as PR-21 a PR-24 continuam da FT-01', () => {
+    expect(lista.find((p) => p.id === 'PR-25')?.origem).toBe('f2_autonoma')
+    for (const id of ['PR-21', 'PR-22', 'PR-23', 'PR-24']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).toBe('FT-01')
+    }
+  })
+
+  it('a PR-11 (retenção) não é marcada por esta feature: o limite de 90 dias do log é da FT-08', () => {
+    expect(lista.find((p) => p.id === 'PR-11')?.realizadaEm).not.toBe('FT-02')
+  })
+})

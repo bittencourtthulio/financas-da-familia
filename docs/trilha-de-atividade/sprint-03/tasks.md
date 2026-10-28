@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-03
 sprint:
   titulo: Tela Atividade, seed e fechamento
-  status: pendente
+  status: concluido
   criterio_saida: O responsavel abre Atividade no servidor de producao e ve as acoes com data e hora; o adulto nao ve o item nem a tela; npm run verificar verde
   riscos: [rotas.test.ts pode estourar timeout depois do build, A pagina nova precisa de build antes do teste de rotas]
   fora_de_escopo: [Filtros, exportacao, lancamentos, mesada]
 fases:
   - id: F-03.1
     titulo: Tela, seed e documentos
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam, a suite inteira esta verde e as premissas estao coerentes
     paralelizavel: false
     paralela_com: []
@@ -55,7 +55,7 @@ tasks:
   - id: T-03.03
     titulo: Convenções, premissas e fechamento de registros
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Ajustar o teste de premissas (D-13), atualizar CONVENCOES.md com a regra de auditoria e as citacoes deslocadas, README com o item Atividade
     arquivos:
       cria: []
@@ -65,6 +65,9 @@ tasks:
     criterio_aceite: A suite inteira esta verde e nenhuma citacao do CONVENCOES.md aponta para linha errada
     depende_de: [T-03.02]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (250 testes)
+    nota: o ajuste do teste de premissas de f2_autonoma (D-13) foi feito antes, na T-01.01, para a suite ficar verde; aqui so se acrescentou a conferencia da FT-02
 ---
 
 # Plano — Sprint 03 — Tela Atividade, seed e fechamento

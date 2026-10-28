@@ -170,12 +170,15 @@ Todo valor monetário é inteiro em centavos (BRL); a formatação recusa não i
 Papéis gravados `admin` e `usuario` (interface: Responsável e Adulto); a checagem acontece no servidor, em serviço ou ação, nunca só na interface — `src/app/sessao-servidor.ts:31`, `src/servicos/autenticacao.ts:127`, `src/servicos/usuarios.ts:54`, `tests/rotas.test.ts:147`. O papel `filho`: `decidido_pelo_buildx` (PR-06, evidência na FT-05).
 
 ### Dados do domínio
-Toda entidade de domínio nasce numa feature do B4, sob TDD, com migration, e entrada validada com `zod` no servidor — validação: `src/servicos/usuarios.ts:21`; migration: `prisma/migrations/20260830193658_esquema_inicial/migration.sql:2`. Primeira entidade de domínio nova sob esta regra: `decidido_pelo_buildx` (evidência na FT-03).
+Toda entidade de domínio nasce numa feature do B4, sob TDD, com migration, e entrada validada com `zod` no servidor — validação: `src/servicos/usuarios.ts:21`; migration: `prisma/migrations/20260830193658_esquema_inicial/migration.sql:2`. Primeira entidade nova sob esta regra: `Atividade` (FT-02) — esquema `prisma/schema.prisma:36`, migration `prisma/migrations/20261028143052_atividade/migration.sql:2`, validação `src/servicos/atividade.ts:83`. Toda tabela nova entra também em `limparBanco` (`tests/ajuda.ts:40`), senão um teste enxerga o que o outro criou. A primeira entidade com dado do negócio (lançamento) continua para a FT-03.
+
+### Auditoria
+Toda ação auditada (PR-10) passa por `registrarAtividade` (`src/servicos/atividade.ts:83`), chamada dentro da mesma transação da ação — `src/servicos/usuarios.ts:86`, `src/servicos/usuarios.ts:155`. O código da ação é `entidade.verbo` e precisa estar no catálogo `src/lib/atividade.ts:9`, com rótulo em português. O `detalhe` é plano e pequeno e nunca recebe senha, hash, token, segredo, valor, saldo, e-mail nem CPF (a barreira é `src/servicos/atividade.ts:40`, testada em `tests/atividade.test.ts:88`); o módulo não oferece editar nem apagar (`tests/atividade.test.ts:122`). Só o responsável lê (`src/servicos/atividade.ts:142`, `tests/atividade-leitura.test.ts:28`). Feature nova que altera dado de negócio acrescenta a sua ação ao catálogo e chama o serviço.
 
 ### Versionamento
 Uma branch por feature, `feat/ft-NN-<slug>`, na árvore principal, um commit por task, sem push forçado nem merge no fluxo automático — `docs/projeto/PREMISSAS.md:326` (PR-24). Mensagens de commit seguem Conventional Commits em português (`git log`).
 
-**Evidência:** `src/lib/formato.ts:13`, `src/app/sessao-servidor.ts:31`, `docs/projeto/PREMISSAS.md:326`
+**Evidência:** `src/lib/formato.ts:13`, `src/app/sessao-servidor.ts:31`, `src/servicos/atividade.ts:83`, `docs/projeto/PREMISSAS.md:326`
 
 ---
 
@@ -195,6 +198,7 @@ Nenhum.
 | ---- | ------ | ----------- |
 | 2026-10-28 | inicial | B2 do buildx: regras prescritas, só comandos com evidência |
 | 2026-10-28 | e83574e | FT-01: stackx-detectar converteu as regras em evidência `arquivo:linha`, adicionou comandos `typecheck` e `verificar`, e corrigiu a camada de `sessao-servidor` |
+| 2026-10-28 | FT-02 | Seção 7 ganhou "Auditoria" (`registrarAtividade`, catálogo de ações, barreira do detalhe); a entidade `Atividade` é a primeira entidade nova sob a regra de dados; citações de `src/servicos/usuarios.ts` deslocadas por causa do import novo |
 
 ---
 
