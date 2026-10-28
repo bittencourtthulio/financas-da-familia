@@ -40,18 +40,18 @@ tasks:
   - id: T-04.02
     titulo: Renovacao deslizante da sessao
     fase: F-04.1
-    status: pendente
+    status: concluida
     objetivo: Renovar a sessao na metade do tempo de vida do token enquanto a aba esta aberta, revalidando conta e corte de senha, conforme a PR-21
     arquivos:
-      cria: [src/app/api/sessao/renovar/route.ts, src/componentes/RenovadorDeSessao.tsx, tests/renovacao.test.ts]
+      cria: [src/app/api/sessao/renovar/route.ts, src/componentes/RenovadorDeSessao.tsx, src/lib/renovacao.ts, tests/renovacao.test.ts]
       altera: [src/servicos/autenticacao.ts, src/app/(sistema)/layout.tsx, tests/rotas.test.ts]
     teste_integracao: Com o servidor de pe POST em api sessao renovar com cookie valido responde 200 e novo cookie de sessao, sem cookie responde 401, e com token anterior a uma troca de senha responde 401 sem novo cookie
     teste_funcional: renovarSessao de um token valido devolve token do mesmo usuario com emitidoEm maior ou igual, e de usuario desativado ou de sessao anterior ao corte lanca nao autenticado
     criterio_aceite: tests/renovacao.test.ts e tests/rotas.test.ts terminam com 0 failed
     depende_de: [T-04.01]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-04.03
     titulo: Confirmacao da seguranca de base
     fase: F-04.1
@@ -163,3 +163,5 @@ Os campos de cada task estão no frontmatter acima (fonte única).
 
 - **T-04.01** — D-10. **T-04.02** — D-09. **T-04.03** — D-12 (confirma a PR-12 por teste). **T-04.04** — D-11. **T-04.05** — D-12, D-14; declara também os artefatos do planejamento (`docs/fundacao/`) e o `.gitignore`.
 - **T-04.01** concluída em 2026-10-28 · suíte: 131 passed, 0 failed · real: 0,6 h (aprox.)
+- **T-04.02** concluída em 2026-10-28 · suíte: 141 passed, 0 failed · real: 0,9 h (aprox.)
+- Divergência da T-04.02: `src/lib/renovacao.ts` foi acrescentado (a conta do intervalo precisa existir fora do componente cliente, porque o layout, do servidor, a chama); o teste passou a vermelho de verdade quando a função estava dentro do arquivo cliente (500 em todas as páginas).

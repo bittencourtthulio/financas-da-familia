@@ -4,6 +4,9 @@ import { Navegacao } from '@/componentes/Navegacao'
 import { AlternadorDeTema } from '@/componentes/AlternadorDeTema'
 import { CascaDoSistema } from '@/componentes/CascaDoSistema'
 import { BotaoDaGaveta } from '@/componentes/BotaoDaGaveta'
+import { RenovadorDeSessao } from '@/componentes/RenovadorDeSessao'
+import { intervaloDeRenovacao } from '@/lib/renovacao'
+import { ambiente } from '@/lib/ambiente'
 import { sair } from '@/app/acoes'
 import { NOME_DO_SISTEMA } from '@/lib/marca'
 import { rotuloDoPapel } from '@/lib/papeis'
@@ -21,6 +24,7 @@ export default async function LayoutDoSistema({
 
   return (
     <CascaDoSistema>
+      <RenovadorDeSessao intervaloMs={intervaloDeRenovacao(ambiente.jwtTtlSegundos)} />
       <div className="barra-de-atividade" role="presentation" />
 
       <aside className="barra-lateral" id="barra-lateral">

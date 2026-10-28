@@ -221,3 +221,44 @@ describe('cookie de sessão', () => {
     expect(r.status).toBe(307)
   })
 })
+
+describe('renovação da sessão', () => {
+  const renovar = (cookie?: string) =>
+    fetch(`${BASE}/api/sessao/renovar`, {
+      method: 'POST',
+      headers: cookie ? { cookie } : {},
+    })
+
+  it('sem cookie responde 401 e não entrega cookie', async () => {
+    const r = await renovar()
+    expect(r.status).toBe(401)
+    expect(r.headers.get('set-cookie')).toBeNull()
+  })
+
+  it('com sessão válida responde 200 e renova o cookie, httpOnly e sameSite lax', async () => {
+    const r = await renovar(await cookieDe('comum.rota@teste.local'))
+    expect(r.status).toBe(200)
+    const cookie = r.headers.get('set-cookie') ?? ''
+    expect(cookie).toContain(`${COOKIE_SESSAO}=`)
+    expect(cookie).toMatch(/httponly/i)
+    expect(cookie).toMatch(/samesite=lax/i)
+  })
+
+  it('com sessão anterior a uma troca de senha responde 401 e não renova', async () => {
+    const cookie = await cookieDe('comum.rota@teste.local')
+    await prisma.usuario.update({
+      where: { email: 'comum.rota@teste.local' },
+      data: { sessoesValidasDesde: new Date(Date.now() + 10_000) },
+    })
+    try {
+      const r = await renovar(cookie)
+      expect(r.status).toBe(401)
+      expect(r.headers.get('set-cookie')).toBeNull()
+    } finally {
+      await prisma.usuario.update({
+        where: { email: 'comum.rota@teste.local' },
+        data: { sessoesValidasDesde: new Date(0) },
+      })
+    }
+  })
+})

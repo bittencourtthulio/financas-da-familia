@@ -110,6 +110,19 @@ export async function usuarioDaSessao(token: string): Promise<UsuarioAutenticado
   }
 }
 
+/**
+ * Renovação deslizante (PR-21): passa pela mesma verificação de qualquer
+ * sessão (conta ativa, corte de troca de senha) e emite um token novo com o
+ * papel que o banco tem agora, não o do token velho.
+ */
+export async function renovarSessao(token: string): Promise<{
+  token: string
+  usuario: UsuarioAutenticado
+}> {
+  const usuario = await usuarioDaSessao(token)
+  return { token: await assinarSessao(usuario.id, usuario.papel), usuario }
+}
+
 /** Exige que o usuário seja admin. A verificação é aqui, no servidor (L2). */
 export function exigirAdmin(usuario: UsuarioAutenticado): void {
   if (usuario.papel !== 'admin') throw naoAutorizado()
