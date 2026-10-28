@@ -9,21 +9,21 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-02
 sprint:
   titulo: Rota de saude e configuracao que falha no start
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; GET /api/saude responde 200 e 503 no servidor real, sem dado pessoal; servidor com configuracao invalida nao sobe
   riscos: [register do instrumentation nao derrubar o next start, import do Prisma derrubar a rota]
   fora_de_escopo: [Backup]
 fases:
   - id: F-02.1
     titulo: Saude
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
     tasks: [T-02.01]
   - id: F-02.2
     titulo: Configuracao no start e rotas
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-02.01
     titulo: "Servico de saude e rota GET /api/saude"
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Responder 200 {status ok, banco ok} quando o banco responde e 503 quando nao, sem versao, caminho nem pilha
     arquivos:
       cria: ["src/servicos/saude.ts", "src/app/api/saude/route.ts", "tests/saude.test.ts"]
@@ -42,13 +42,13 @@ tasks:
     criterio_aceite: tests/saude.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: "suite inteira ao fim da sprint: 1386 de 1387 verdes; a falha (log-retencao, dependia de logs/ criado por servidores de outros testes) foi corrigida na T-03.01"
 
   - id: T-02.02
     titulo: "validarAmbiente e instrumentation que derruba o start"
     fase: F-02.2
-    status: pendente
+    status: concluida
     objetivo: Configuracao invalida (DATABASE_URL ou JWT_SECRET ausente, TTL invalido) falha ao subir o servidor, com todos os problemas numa mensagem em portugues
     arquivos:
       cria: ["src/instrumentation.ts", "tests/ambiente-start.test.ts"]
@@ -58,13 +58,13 @@ tasks:
     criterio_aceite: tests/ambiente-start.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-01.02]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: "suite inteira ao fim da sprint: 1386 de 1387 verdes; a falha (log-retencao, dependia de logs/ criado por servidores de outros testes) foi corrigida na T-03.01"
 
   - id: T-02.03
     titulo: "Rota publica no teste de rotas e 503 no servidor real"
     fase: F-02.2
-    status: pendente
+    status: concluida
     objetivo: Provar com o servidor de producao que /api/saude e publica, nao tem dado pessoal e responde 503 com banco inacessivel
     arquivos:
       cria: ["tests/saude-rotas.test.ts"]
@@ -74,8 +74,8 @@ tasks:
     criterio_aceite: tests/rotas.test.ts e tests/saude-rotas.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.01, T-02.02]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: "suite inteira ao fim da sprint: 1386 de 1387 verdes; a falha (log-retencao, dependia de logs/ criado por servidores de outros testes) foi corrigida na T-03.01"
 
 ---
 

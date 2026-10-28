@@ -9,21 +9,21 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-01
 sprint:
   titulo: Log estruturado, retencao de 90 dias e erro sem pilha
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o log nunca grava segredo, hash, e-mail nem valor; logs com mais de 90 dias sao descartados com data injetada; erro inesperado nao mostra pilha nem mensagem ao usuario
   riscos: [citacoes de linha deslocadas em acoes.ts, lib de log importada pelo cliente]
   fora_de_escopo: [Backup, rota de saude]
 fases:
   - id: F-01.1
     titulo: Modulo de log
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
     tasks: [T-01.01, T-01.02]
   - id: F-01.2
     titulo: Erro sem pilha
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-01.01
     titulo: "Chaves proibidas compartilhadas e log estruturado com redacao"
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Mover a lista de chaves proibidas da trilha para src/lib e criar o log em JSON por linha (nivel, instante, evento, contexto) que redige o que e proibido
     arquivos:
       cria: ["src/lib/chaves-proibidas.ts", "src/lib/log.ts", "tests/log.test.ts"]
@@ -42,13 +42,13 @@ tasks:
     criterio_aceite: tests/log.test.ts e tests/atividade-dados.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: "suite inteira nao rodada ao fim da task; coberta pela suite do fim da sprint 02 (1386 de 1387 verdes, a falha era um teste novo da T-01.02, corrigido na T-03.01)"
 
   - id: T-01.02
     titulo: "Arquivo de log por dia e descarte apos 90 dias"
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Gravar em logs/app-AAAA-MM-DD.log e descartar arquivos com mais de 90 dias, com a data injetada, mais o comando npm run log:limpar
     arquivos:
       cria: ["scripts/limpar-logs.ts", "tests/log-retencao.test.ts"]
@@ -58,13 +58,13 @@ tasks:
     criterio_aceite: tests/log-retencao.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: "suite inteira nao rodada ao fim da task; coberta pela suite do fim da sprint 02 (1386 de 1387 verdes, a falha era um teste novo da T-01.02, corrigido na T-03.01)"
 
   - id: T-01.03
     titulo: "Erro inesperado sem pilha, com identificador de correlacao"
     fase: F-01.2
-    status: pendente
+    status: concluida
     objetivo: Trocar o console.error(erro) por log estruturado com nome, codigo e identificador, e mostrar o identificador ao usuario
     arquivos:
       cria: ["tests/erro-sem-pilha.test.ts"]
@@ -74,8 +74,8 @@ tasks:
     criterio_aceite: tests/erro-sem-pilha.test.ts, tests/estados.test.ts e as suites de acoes terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: "suite inteira nao rodada ao fim da task; coberta pela suite do fim da sprint 02 (1386 de 1387 verdes, a falha era um teste novo da T-01.02, corrigido na T-03.01)"
 
 ---
 

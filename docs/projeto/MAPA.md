@@ -162,7 +162,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 **Status:** entregue
 **PR:** — (branch `feat/ft-08-backup-e-saude`, sem remoto; descrição pronta em `docs/backup-e-saude/PR.md`)
 **Sprints:** 3
-**Testes:** TESTES_NOVOS novos (SUITE_TOTAL na suíte)
+**Testes:** 120 novos (1444 na suíte)
 
 ---
 
