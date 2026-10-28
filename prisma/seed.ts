@@ -16,6 +16,7 @@ semearDemonstracao(prisma)
     for (const conta of DEMONSTRACAO_FILHOS) {
       console.log(`  ${'filho'.padEnd(8)} ${conta.email}  senha: ${conta.senha}  (${conta.nome})`)
     }
+    console.log('  mesada   Ana com saldo positivo e Pedro com saldo negativo (movimentos fictícios)')
     return prisma.$disconnect()
   })
   .catch(async (erro) => {

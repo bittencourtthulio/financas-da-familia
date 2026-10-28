@@ -11,6 +11,7 @@ import { dataCivilValida, mesAnterior, mesAtualEmSaoPaulo, mesDaData } from '@/l
 import { listarLancamentos } from '@/servicos/lancamentos'
 import { resumoDoMes } from '@/servicos/resumo'
 import { listarFilhos, minhaMesada } from '@/servicos/filhos'
+import { extratoDoFilho, meuExtrato, saldosDosFilhos } from '@/servicos/mesada'
 import { DEMONSTRACAO, DEMONSTRACAO_FILHOS, semearDemonstracao } from '../prisma/demonstracao'
 import { limparBanco } from './ajuda'
 
@@ -295,5 +296,84 @@ describe('proteção contra produção', () => {
     expect(await prisma.categoria.count()).toBe(0)
     expect(await prisma.lancamento.count()).toBe(0)
     expect(await prisma.filho.count()).toBe(0)
+  })
+})
+
+describe('movimentos de mesada de demonstração (FT-06, PR-04)', () => {
+  const responsavel = async () =>
+    prisma.usuario.findUniqueOrThrow({ where: { email: 'responsavel@exemplo.local' } })
+
+  it('cria créditos e gastos para os dois filhos', async () => {
+    await semearDemonstracao(prisma)
+    const movimentos = await prisma.movimentoDeMesada.findMany()
+    expect(movimentos.length).toBeGreaterThanOrEqual(8)
+    expect(new Set(movimentos.map((m) => m.tipo))).toEqual(new Set(['credito', 'gasto']))
+    expect(new Set(movimentos.map((m) => m.filhoId))).toEqual(
+      new Set(DEMONSTRACAO_FILHOS.map((f) => `demonstracao-filho-${f.slug}`)),
+    )
+  })
+
+  it('Ana fica com saldo positivo e Pedro com saldo negativo, para provar os dois estados', async () => {
+    await semearDemonstracao(prisma)
+    const admin = await responsavel()
+    const saldos = await saldosDosFilhos(admin)
+    expect(saldos['demonstracao-filho-ana']).toBeGreaterThan(0)
+    expect(saldos['demonstracao-filho-pedro']).toBeLessThan(0)
+    expect((await extratoDoFilho(admin, 'demonstracao-filho-ana')).saldoCentavos).toBe(saldos['demonstracao-filho-ana'])
+  })
+
+  it('rodar duas vezes não duplica nem desfaz o que o responsável editou', async () => {
+    await semearDemonstracao(prisma)
+    const total = await prisma.movimentoDeMesada.count()
+    await prisma.movimentoDeMesada.update({
+      where: { id: 'demonstracao-mesada-1' },
+      data: { descricao: 'Editado pelo responsável' },
+    })
+    await semearDemonstracao(prisma)
+    expect(await prisma.movimentoDeMesada.count()).toBe(total)
+    expect((await prisma.movimentoDeMesada.findUniqueOrThrow({ where: { id: 'demonstracao-mesada-1' } })).descricao).toBe(
+      'Editado pelo responsável',
+    )
+  })
+
+  it('todo valor é inteiro positivo em centavos, a data é um dia civil válido e a descrição é curta', async () => {
+    await semearDemonstracao(prisma, new Date('2026-03-15T12:00:00Z'))
+    for (const m of await prisma.movimentoDeMesada.findMany()) {
+      expect(Number.isInteger(m.valorCentavos), m.id).toBe(true)
+      expect(m.valorCentavos, m.id).toBeGreaterThan(0)
+      expect(dataCivilValida(m.data), m.id).toBe(true)
+      expect(m.descricao.length, m.id).toBeLessThanOrEqual(200)
+      expect(m.descricao.length, m.id).toBeGreaterThan(0)
+      expect(['2026-01', '2026-02', '2026-03']).toContain(mesDaData(m.data))
+    }
+  })
+
+  it('cada filho entra e vê só o próprio extrato; o outro nunca aparece', async () => {
+    await semearDemonstracao(prisma)
+    const ana = await prisma.usuario.findUniqueOrThrow({ where: { email: 'ana@exemplo.local' } })
+    const pedro = await prisma.usuario.findUniqueOrThrow({ where: { email: 'pedro@exemplo.local' } })
+    const deAna = await meuExtrato(ana)
+    const dePedro = await meuExtrato(pedro)
+    expect(deAna.itens.length).toBeGreaterThan(0)
+    expect(dePedro.itens.length).toBeGreaterThan(0)
+    expect(deAna.itens.every((m) => m.filhoId === 'demonstracao-filho-ana')).toBe(true)
+    expect(dePedro.itens.every((m) => m.filhoId === 'demonstracao-filho-pedro')).toBe(true)
+    expect(dePedro.saldoCentavos).toBeLessThan(0)
+  })
+
+  it('não guarda saldo nem toca a trilha de atividade', async () => {
+    await semearDemonstracao(prisma)
+    expect(await prisma.atividade.count({ where: { entidade: 'mesada' } })).toBe(0)
+  })
+
+  it('não roda em produção', async () => {
+    const antes = process.env.NODE_ENV
+    Object.assign(process.env, { NODE_ENV: 'production' })
+    try {
+      await expect(semearDemonstracao(prisma)).rejects.toThrow(/produção/)
+    } finally {
+      Object.assign(process.env, { NODE_ENV: antes })
+    }
+    expect(await prisma.movimentoDeMesada.count()).toBe(0)
   })
 })

@@ -1,7 +1,8 @@
 // Dados de demonstração (PR-04). Contas fictícias para uso local e para o
 // roteiro do QA. Usuários e a trilha de atividade deles (FT-02), categorias e
-// lançamentos de três meses (FT-03 e FT-04) e dois filhos com login (FT-05): os
-// movimentos de mesada nascem na FT-06, que acrescenta a sua parte aqui.
+// lançamentos de três meses (FT-03 e FT-04), dois filhos com login (FT-05) e os
+// movimentos de mesada deles (FT-06): Ana com saldo positivo e Pedro com saldo
+// negativo, para mostrar os dois estados.
 import type { PrismaClient } from '../src/gerado/prisma/client.js'
 import { hashDeSenha } from '../src/lib/senha.js'
 import { hojeEmSaoPaulo, mesAnterior, mesDaData } from '../src/lib/datas.js'
@@ -50,7 +51,7 @@ export const DEMONSTRACAO_FILHOS = [
  * as contas têm senha conhecida.
  */
 export async function semearDemonstracao(
-  prisma: Pick<PrismaClient, 'usuario' | 'atividade' | 'categoria' | 'lancamento' | 'filho'>,
+  prisma: Pick<PrismaClient, 'usuario' | 'atividade' | 'categoria' | 'lancamento' | 'filho' | 'movimentoDeMesada'>,
   agora: Date = new Date(),
 ): Promise<void> {
   if (process.env.NODE_ENV === 'production') {
@@ -75,6 +76,7 @@ export async function semearDemonstracao(
   await semearAtividade(prisma)
   await semearLancamentos(prisma, agora)
   await semearFilhos(prisma)
+  await semearMesada(prisma, agora)
 }
 
 const DIA = 24 * 60 * 60 * 1000
@@ -230,6 +232,63 @@ async function semearFilhos(prisma: Pick<PrismaClient, 'usuario' | 'filho'>): Pr
         mesadaCentavos: f.mesadaCentavos,
         periodicidade: f.periodicidade,
         usuarioId: usuario.id,
+      },
+    })
+  }
+}
+
+// Movimentos de mesada fictícios, em centavos inteiros (PR-02). `meses` é
+// quantos meses antes do corrente. Ana recebe 3 × R$ 50,00 e gasta R$ 71,40:
+// saldo de R$ 78,60. Pedro recebe R$ 120,00 e gasta R$ 149,90: saldo de
+// -R$ 29,90, para a demonstração mostrar o saldo negativo (PR-32).
+const MESADA_DA_DEMONSTRACAO = [
+  { n: 1, filho: 'ana', tipo: 'credito', valorCentavos: 5000, dia: 1, descricao: 'Mesada da semana' },
+  { n: 2, filho: 'ana', tipo: 'gasto', valorCentavos: 1850, dia: 3, descricao: 'Sorvete e figurinhas' },
+  { n: 3, filho: 'ana', tipo: 'credito', valorCentavos: 5000, dia: 8, descricao: 'Mesada da semana' },
+  { n: 4, filho: 'ana', tipo: 'gasto', valorCentavos: 3290, dia: 10, descricao: 'Livro de história' },
+  { n: 5, filho: 'ana', tipo: 'credito', valorCentavos: 5000, dia: 24, descricao: 'Mesada da semana', meses: 1 },
+  { n: 6, filho: 'ana', tipo: 'gasto', valorCentavos: 2000, dia: 26, descricao: 'Presente de aniversário', meses: 1 },
+  { n: 7, filho: 'pedro', tipo: 'credito', valorCentavos: 12000, dia: 1, descricao: 'Mesada do mês', meses: 1 },
+  { n: 8, filho: 'pedro', tipo: 'gasto', valorCentavos: 6990, dia: 12, descricao: 'Fone de ouvido', meses: 1 },
+  { n: 9, filho: 'pedro', tipo: 'gasto', valorCentavos: 4500, dia: 5, descricao: 'Jogo no celular' },
+  { n: 10, filho: 'pedro', tipo: 'gasto', valorCentavos: 3500, dia: 9, descricao: 'Lanche com os amigos' },
+] as ReadonlyArray<{
+  n: number
+  filho: string
+  tipo: string
+  valorCentavos: number
+  dia: number
+  descricao: string
+  meses?: number
+}>
+
+/**
+ * Dez movimentos fictícios para os dois filhos. `upsert` sem atualizar, com id
+ * fixo: rodar de novo não duplica nem desfaz o que o responsável editou. O
+ * saldo nunca é gravado; é sempre somado do extrato.
+ */
+async function semearMesada(
+  prisma: Pick<PrismaClient, 'movimentoDeMesada'>,
+  agora: Date,
+): Promise<void> {
+  const mesCorrente = mesDaData(hojeEmSaoPaulo(agora))
+  const mesAtras = (meses: number) => {
+    let mes = mesCorrente
+    for (let i = 0; i < meses; i += 1) mes = mesAnterior(mes)
+    return mes
+  }
+
+  for (const m of MESADA_DA_DEMONSTRACAO) {
+    await prisma.movimentoDeMesada.upsert({
+      where: { id: `demonstracao-mesada-${m.n}` },
+      update: {},
+      create: {
+        id: `demonstracao-mesada-${m.n}`,
+        filhoId: `demonstracao-filho-${m.filho}`,
+        tipo: m.tipo,
+        valorCentavos: m.valorCentavos,
+        data: `${mesAtras(m.meses ?? 0)}-${String(m.dia).padStart(2, '0')}`,
+        descricao: m.descricao,
       },
     })
   }
