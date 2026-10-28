@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 28
+total: 29
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 8
+  f2_autonoma: 9
   recursao: 0
   template: 5
 ---
@@ -124,7 +124,7 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Origem:** catalogo_lacunas
 **Etapa:** b1
 **Provisória:** false
-**Realizada em:** null
+**Realizada em:** FT-04
 
 ---
 
@@ -385,3 +385,16 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** true
 **Realizada em:** FT-03
+
+---
+
+### PR-29 — Saldo é do mês escolhido, sem acumulado
+
+**Assunto:** FT-04, definição de saldo e de resumo
+**Decisão:** o saldo do mês é a soma das receitas do mês menos a soma das despesas do mês, em centavos inteiros, e pode ser negativo. Conta só o que tem data dentro do mês escolhido (do dia 1 ao último dia, no calendário de São Paulo): o saldo de um mês nunca carrega o do anterior, e não há saldo acumulado, saldo inicial, meta, orçamento nem comparação entre meses. O resumo mostra o total de receitas, o total de despesas, o saldo e as despesas somadas por categoria (só as categorias que têm despesa no mês, da maior para a menor); receita não é aberta por categoria. O painel inicial mostra o resumo ao responsável e ao adulto, o mês vem do parâmetro `mes` da URL (`AAAA-MM`, validado no servidor; inválido ou ausente vale o mês corrente), e qualquer outro papel não recebe o resumo. Pendência `decisao_humana` não bloqueante: a família quer que o saldo carregue o do mês anterior (saldo acumulado)?
+**Por quê:** o critério de aceite diz "vê o saldo do mês refletir os dois lançamentos" e o MAPA diz "saldo do mês escolhido"; nenhum arquivo traz saldo acumulado, e "orçamento por categoria" e "relatórios comparativos" estão em fora de escopo. Somar só o mês é a opção mais simples e reversível: acrescentar um acumulado depois não desfaz nada, enquanto começar com acumulado e depois tirar mudaria números que a família já conferiu.
+**O que invalida:** se a família quiser saldo acumulado, saldo inicial, receita aberta por categoria, ou ver o resumo de mais de um mês lado a lado.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-04

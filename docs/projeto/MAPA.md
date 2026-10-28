@@ -5,8 +5,8 @@ kind: mapa
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
 total_features: 8
-pendentes: 5
-em_andamento: 0
+pendentes: 4
+em_andamento: 1
 entregues: 3
 bloqueadas: 0
 ---
@@ -22,7 +22,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 | FT-01 | Fundação: acesso, papéis e esqueleto | entregue | — (branch feat/ft-01-fundacao, sem remoto) |
 | FT-02 | Trilha de atividade | entregue | — (branch feat/ft-02-trilha-de-atividade, sem remote) |
 | FT-03 | Lançamentos da casa | entregue | — (branch feat/ft-03-lancamentos-da-casa, sem remote) |
-| FT-04 | Saldo e resumo do mês | pendente | — |
+| FT-04 | Saldo e resumo do mês | em_andamento | — |
 | FT-05 | Filhos da família | pendente | — |
 | FT-06 | Mesada dos filhos | pendente | — |
 | FT-07 | Privacidade dos dados da família | pendente | — |
@@ -91,7 +91,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 **Premissas que realiza:** [PR-08]
 **Módulo disponível:** -
 **Fatias candidatas:** -
-**Status:** pendente
+**Status:** em_andamento
 
 ---
 
