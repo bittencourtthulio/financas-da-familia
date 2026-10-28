@@ -168,6 +168,13 @@ th {
 td { padding: 0 8px; height: var(--altura-linha); border-bottom: 1px solid var(--border); }
 tbody tr:hover { background: var(--bg-hover); }
 
+/* ---------- estados de tela ---------- */
+
+.estado { padding: 24px 0; color: var(--fg-muted); max-width: 520px; }
+.estado-erro { border-left: 3px solid var(--danger); padding-left: 16px; color: var(--fg-default); }
+.estado .titulo-da-tela { color: var(--fg-default); }
+.codigo-do-erro { font-family: var(--font-mono); color: var(--fg-muted); }
+
 /* ---------- gaveta e tabela no celular ---------- */
 
 .botao-gaveta { display: none; }

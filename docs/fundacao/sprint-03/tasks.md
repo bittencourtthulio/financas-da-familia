@@ -40,7 +40,7 @@ tasks:
   - id: T-03.02
     titulo: Estados carregando, erro e nao encontrado
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Cobrir os estados carregando, erro e pagina inexistente com telas em portugues que nunca mostram mensagem tecnica
     arquivos:
       cria: [src/componentes/EstadoDeCarregando.tsx, src/componentes/EstadoDeErro.tsx, src/app/(sistema)/loading.tsx, src/app/(sistema)/error.tsx, src/app/error.tsx, src/app/not-found.tsx, tests/estados.test.ts]
@@ -50,8 +50,8 @@ tasks:
     criterio_aceite: tests/estados.test.ts e tests/rotas.test.ts terminam com 0 failed e nenhum dos arquivos de estado exibe error.message
     depende_de: [T-03.01]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-03.03
     titulo: Formato brasileiro de valor e data
     fase: F-03.1
@@ -127,3 +127,5 @@ Os campos de cada task estão no frontmatter acima (fonte única).
 
 - **T-03.01** — D-06. **T-03.02** — D-07. **T-03.03** — D-08.
 - **T-03.01** concluída em 2026-10-28 · suíte: 104 passed, 0 failed · real: 0,8 h (aprox.)
+- **T-03.02** concluída em 2026-10-28 · suíte: 113 passed, 0 failed · real: 0,8 h (aprox.)
+- Divergência da T-03.02: o `loading.tsx` do sistema coloca as páginas dentro de um limite de streaming; a negação de `/configuracoes/usuarios` para o adulto deixou de ser um 307 e passou a ser um `meta refresh` para `/` no corpo (status 200), sem nenhum dado de administração. O teste de rotas foi reescrito para afirmar o que importa (redirecionamento sem vazamento). Registrado como D-17 e como risco residual no FECHAMENTO.

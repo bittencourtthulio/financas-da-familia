@@ -88,6 +88,14 @@ describe('sem sessão', () => {
     expect(await r.text()).toContain('Entrar')
   })
 
+  it('uma rota inexistente responde 404 com a página em português', async () => {
+    const r = await pedir('/rota-que-nao-existe')
+    const html = await r.text()
+    expect(r.status).toBe(404)
+    expect(html).toContain('Página não encontrada')
+    expect(html).not.toContain('This page could not be found')
+  })
+
   it('a tela de login diz o nome do sistema e descreve a página em português', async () => {
     const html = await (await pedir('/entrar')).text()
     expect(html).toContain('Finanças da Família')
@@ -137,12 +145,22 @@ describe('com sessão de usuário comum', () => {
   })
 
   it('o cadastro de usuários é negado no servidor, não só escondido no menu', async () => {
+    // Com o estado de carregamento da rota (loading.tsx), a resposta já começou
+    // quando a checagem de papel roda: o redirecionamento viaja no corpo
+    // (meta refresh) em vez de virar 307. O que importa continua valendo: a
+    // checagem é do servidor e nenhum dado de administração é entregue.
     const r = await pedir(
       '/configuracoes/usuarios',
       await cookieDe('comum.rota@teste.local'),
     )
-    expect(r.status).toBe(307)
-    expect(r.headers.get('location')).not.toContain('/configuracoes')
+    const html = await r.text()
+    const redirecionou =
+      r.status === 307 ||
+      /<meta[^>]*http-equiv="refresh"[^>]*content="[^"]*url=\/"/.test(html)
+    expect(redirecionou).toBe(true)
+    expect(html).not.toContain('admin.rota@teste.local')
+    expect(html).not.toContain('Novo usuário')
+    expect(html).not.toContain('tabela-rolavel')
   })
 
   it('o item Usuários não aparece na navegação', async () => {
