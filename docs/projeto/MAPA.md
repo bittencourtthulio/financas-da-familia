@@ -6,8 +6,8 @@ projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
 total_features: 8
 pendentes: 7
-em_andamento: 1
-entregues: 0
+em_andamento: 0
+entregues: 1
 bloqueadas: 0
 ---
 
@@ -19,7 +19,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 
 | ID | Feature | Status | PR |
 |---|---|---|---|
-| FT-01 | Fundação: acesso, papéis e esqueleto | em_andamento | — |
+| FT-01 | Fundação: acesso, papéis e esqueleto | entregue | — (branch feat/ft-01-fundacao, sem remoto) |
 | FT-02 | Trilha de atividade | pendente | — |
 | FT-03 | Lançamentos da casa | pendente | — |
 | FT-04 | Saldo e resumo do mês | pendente | — |
@@ -40,7 +40,10 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 **Premissas que realiza:** [PR-03, PR-04, PR-05, PR-07, PR-12, PR-15, PR-16, PR-17, PR-18, PR-19, PR-20, PR-21, PR-22, PR-23, PR-24]
 **Módulo disponível:** -
 **Fatias candidatas:** -
-**Status:** em_andamento
+**Status:** entregue
+**PR:** — (branch `feat/ft-01-fundacao`, sem remoto; descrição pronta em `docs/fundacao/PR.md`)
+**Sprints:** 4
+**Testes:** 112 novos (173 na suíte)
 
 ---
 

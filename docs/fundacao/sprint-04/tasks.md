@@ -88,7 +88,7 @@ tasks:
     status: concluida
     objetivo: Rodar o stackx-detectar, converter decidido_pelo_buildx em evidencia arquivo e linha e registrar Realizada em FT-01 nas premissas
     arquivos:
-      cria: [tests/convencoes.test.ts, tests/premissas.test.ts, docs/stack/LACUNAS.md, docs/fundacao/]
+      cria: [tests/convencoes.test.ts, tests/premissas.test.ts, docs/stack/LACUNAS.md, docs/fundacao/, docs/sprintx/estimativas/HISTORICO.md]
       altera: [docs/stack/CONVENCOES.md, docs/projeto/PREMISSAS.md, docs/projeto/MAPA.md, docs/projeto/PROJETO.md, README.md, .gitignore]
     teste_integracao: Toda citacao arquivo e linha de CONVENCOES.md aponta para arquivo que existe com a linha dentro do tamanho, e toda regra ainda marcada decidido_pelo_buildx traz no mesmo item o texto evidencia na FT- seguido do numero da feature que a produzira
     teste_funcional: Os totais do frontmatter de PREMISSAS.md batem com os blocos PR-NN e toda premissa que a FT-01 realiza no MAPA.md tem Realizada em FT-01

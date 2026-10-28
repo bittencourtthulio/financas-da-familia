@@ -112,6 +112,18 @@ decisoes:
     motivo: "(HIPOTESE) MAPA.md FT-01 Entrega e PROJETO.md Criterios de aceite (membro adulto nao gerencia usuarios)"
     status: fechada
     bloqueante: false
+  - id: D-17
+    decisao: Manter o loading.tsx do sistema; a negacao de /configuracoes/usuarios ao adulto passa a ser meta refresh no corpo (status 200) em vez de 307, sem dado de administracao no corpo
+    alternativa_descartada: Remover o loading.tsx para manter o 307, ou criar um proxy de rotas so para isso
+    motivo: "(HIPOTESE) descoberta na T-03.02: PR-16 exige estado carregando em toda tela que busca dado e o limite de streaming do Next adia o redirect; a checagem continua no servidor (PR-06, CONVENCOES secao 7) e o teste de rotas afirma redirecionamento sem vazamento"
+    status: fechada
+    bloqueante: false
+  - id: D-18
+    decisao: Mover sessao-servidor de src/lib para src/app, porque a guarda de camadas achou que a lib importava um servico
+    alternativa_descartada: Abrir excecao na guarda de camadas para esse arquivo
+    motivo: "(HIPOTESE) descoberta na T-01.01: CONVENCOES secao 5 (Dados e utilitarios nao chamam nada acima) e PR-17; o arquivo usa cookies e redirect do Next, que sao da apresentacao"
+    status: fechada
+    bloqueante: false
 ---
 
 # Decisões — fundacao
@@ -143,6 +155,8 @@ D-13 | Papel filho e campos de dominio fora desta feature | Antecipar o filho | 
 D-14 | Branch na arvore principal, docs/fundacao, sem worktree | Worktree por feature | (HIPOTESE) PR-24 (nova)
 D-15 | Segredos so do ambiente do comando; sem variavel nova | Arquivo de ambiente versionado | (HIPOTESE) PR-12, CONVENCOES secao 7
 D-16 | Definicao de pronto: fluxo do responsavel e do adulto, dois temas, celular, quatro comandos verdes | - | (HIPOTESE) MAPA.md FT-01; PROJETO.md criterios
+D-17 | Manter loading.tsx; negacao do adulto vira meta refresh (200) sem dado de administracao | Remover loading ou criar proxy | (HIPOTESE) descoberto na T-03.02; PR-16, PR-06
+D-18 | sessao-servidor sai de src/lib para src/app | Excecao na guarda de camadas | (HIPOTESE) descoberto na T-01.01; PR-17, CONVENCOES secao 5
 ```
 
 ## Eixos cobertos

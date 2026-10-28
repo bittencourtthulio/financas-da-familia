@@ -8,15 +8,15 @@ feature_id: FT-01
 titulo: Fundacao - acesso, papeis e esqueleto
 tipo_trabalho: feature
 tipo_ocorrencia: null
-estagio: f4
-status: em_andamento
+estagio: f6
+status: concluido
 criado_em: 2026-10-28
 atualizado_em: 2026-10-28
-concluido_em: null
+concluido_em: 2026-10-28
 sprints: [sprint-01, sprint-02, sprint-03, sprint-04]
 caminho_critico: [T-01.01, T-01.02, T-01.03, T-02.01, T-02.02, T-02.03, T-03.01, T-03.02, T-03.03, T-04.01, T-04.02, T-04.03, T-04.04, T-04.05]
 modulo_afetado: [apresentacao, aplicacao, dados, lib, estilos, testes, infra, documentacao]
-arquivos_alterados: []
+arquivos_alterados: [tests/ajuda-estatica.ts, tests/camadas.test.ts, src/lib/sessao-servidor.ts, src/app/sessao-servidor.ts, src/app/acoes.ts, src/app/(sistema)/layout.tsx, src/app/(sistema)/page.tsx, src/app/(sistema)/perfil/page.tsx, src/app/(sistema)/perfil/senha/page.tsx, src/app/(sistema)/configuracoes/usuarios/page.tsx, src/app/entrar/page.tsx, tests/tema.test.ts, src/estilos/tokens.css, src/estilos/global.css, tests/renderizar.ts, tests/harness-componentes.test.ts, src/lib/marca.ts, tests/marca.test.ts, tests/rotas.test.ts, src/app/layout.tsx, src/lib/papeis.ts, tests/papeis.test.ts, src/app/(sistema)/configuracoes/usuarios/LinhaDeUsuario.tsx, prisma/demonstracao.ts, tests/demonstracao.test.ts, prisma/seed.ts, README.md, src/lib/gaveta.ts, src/componentes/CascaDoSistema.tsx, src/componentes/BotaoDaGaveta.tsx, tests/gaveta.test.ts, src/componentes/EstadoDeCarregando.tsx, src/componentes/EstadoDeErro.tsx, src/app/(sistema)/loading.tsx, src/app/(sistema)/error.tsx, src/app/error.tsx, src/app/not-found.tsx, tests/estados.test.ts, src/lib/formato.ts, tests/formato.test.ts, src/lib/limite-de-tentativas.ts, tests/limite-de-tentativas.test.ts, src/servicos/autenticacao.ts, src/lib/erros.ts, tests/autenticacao.test.ts, src/app/api/sessao/renovar/route.ts, src/componentes/RenovadorDeSessao.tsx, src/lib/renovacao.ts, tests/renovacao.test.ts, tests/seguranca-base.test.ts, .github/workflows/verificar.yml, tests/qualidade.test.ts, package.json, package-lock.json, tests/convencoes.test.ts, tests/premissas.test.ts, docs/stack/LACUNAS.md, docs/fundacao/, docs/sprintx/estimativas/HISTORICO.md, docs/stack/CONVENCOES.md, docs/projeto/PREMISSAS.md, docs/projeto/MAPA.md, docs/projeto/PROJETO.md, .gitignore]
 palavras_chave: [acesso, papeis, painel, sessao, tema, celular, seed, convencoes]
 worktree: null
 ---
