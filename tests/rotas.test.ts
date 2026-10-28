@@ -554,3 +554,32 @@ describe('renovação da sessão', () => {
     }
   })
 })
+
+describe('rota pública de saúde (FT-08)', () => {
+  it('GET /api/saude responde 200 sem sessão e sem redirecionar para o login', async () => {
+    const r = await pedir('/api/saude')
+    expect(r.status).toBe(200)
+    expect(r.headers.get('location')).toBeNull()
+    expect(r.headers.get('set-cookie')).toBeNull()
+    expect(r.headers.get('cache-control')).toBe('no-store')
+    expect(await r.json()).toEqual({ status: 'ok', banco: 'ok' })
+  })
+
+  it('a resposta não leva dado pessoal, versão, caminho nem pilha', async () => {
+    const texto = await (await pedir('/api/saude')).text()
+    expect(texto).not.toMatch(/@|\/|\d+\.\d+\.\d+|stack|Rota|Marcador/)
+  })
+
+  it('só as rotas esperadas são públicas: a de saúde e a tela de entrada, não as de dados', async () => {
+    expect((await pedir('/api/saude')).status).toBe(200)
+    expect((await pedir('/entrar')).status).toBe(200)
+    expect((await pedir('/lancamentos')).status).toBe(307)
+    expect((await fetch(`${BASE}/api/privacidade/exportar`, { method: 'POST' })).status).toBe(401)
+    expect((await fetch(`${BASE}/api/sessao/renovar`, { method: 'POST' })).status).toBe(401)
+  })
+
+  it('outro método na rota de saúde não é aceito', async () => {
+    const r = await fetch(`${BASE}/api/saude`, { method: 'POST' })
+    expect(r.status).toBe(405)
+  })
+})
