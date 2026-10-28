@@ -90,7 +90,7 @@ describe('auditoria no CONVENCOES.md (FT-02)', () => {
       ['src/servicos/usuarios.ts', 86, /registrarAtividade/],
       ['src/servicos/usuarios.ts', 161, /registrarAtividade/],
       ['src/lib/atividade.ts', 9, /ACOES/],
-      ['prisma/schema.prisma', 36, /model Atividade/],
+      ['prisma/schema.prisma', 38, /model Atividade/],
       ['tests/atividade.test.ts', 122, /somente acréscimo/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {
@@ -116,7 +116,7 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
   it('a regra de dinheiro deixou de ser prescrita: tem evidência no esquema, no leitor e no teste', () => {
     const dinheiro = trecho('Dinheiro')
     expect(dinheiro).not.toContain('decidido_pelo_buildx')
-    for (const citacao of ['prisma/schema.prisma:71', 'src/lib/dinheiro.ts:19', 'src/lib/formato.ts:14', 'src/lib/datas.ts:35']) {
+    for (const citacao of ['prisma/schema.prisma:73', 'src/lib/dinheiro.ts:19', 'src/lib/formato.ts:14', 'src/lib/datas.ts:35']) {
       expect(dinheiro, citacao).toContain(`\`${citacao}\``)
     }
     expect(dinheiro).toMatch(/PR-02/)
@@ -125,9 +125,9 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
 
   it('cada citação da seção 7 nova aponta para a linha que contém o nome citado', () => {
     const esperado: Array<[string, number, RegExp]> = [
-      ['prisma/schema.prisma', 71, /valorCentavos\s+Int/],
-      ['prisma/schema.prisma', 54, /model Categoria/],
-      ['prisma/schema.prisma', 68, /model Lancamento/],
+      ['prisma/schema.prisma', 73, /valorCentavos\s+Int/],
+      ['prisma/schema.prisma', 56, /model Categoria/],
+      ['prisma/schema.prisma', 70, /model Lancamento/],
       ['prisma/migrations/20261028150000_lancamentos/migration.sql', 13, /"valorCentavos" INTEGER/],
       ['src/lib/dinheiro.ts', 7, /VALOR_MAXIMO_EM_CENTAVOS/],
       ['src/lib/dinheiro.ts', 19, /lerValorEmReais/],

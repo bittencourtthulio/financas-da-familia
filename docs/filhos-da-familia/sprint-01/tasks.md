@@ -9,7 +9,7 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-01
 sprint:
   titulo: Papel filho e cadastro do filho
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o papel filho tem rotulo, guarda e nao nasce pela tela Usuarios; um filho real e negado em todos os servicos existentes; o responsavel cadastra, edita e lista filhos em centavos inteiros, com a trilha sem valor
   riscos: [citacoes de linha do CONVENCOES.md deslocadas por linhas novas em usuarios.ts e atividade.ts, migration em banco SQLite]
   fora_de_escopo: [Login do filho, telas, seed]
@@ -23,7 +23,7 @@ fases:
     tasks: [T-01.01]
   - id: F-01.2
     titulo: Entidade e servico de cadastro
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -48,7 +48,7 @@ tasks:
   - id: T-01.02
     titulo: Entidade Filho, migration, trilha e servico de cadastro
     fase: F-01.2
-    status: pendente
+    status: concluida
     objetivo: Criar o modelo Filho (tabela filhos, mesadaCentavos Int, usuarioId unico opcional) com migration, incluir filhos em limparBanco, acrescentar as quatro acoes ao catalogo da trilha e a descricao delas, e criar src/servicos/filhos.ts com listarFilhos, obterFilho, cadastrarFilho e editarFilho, so para o responsavel, validados com zod e com o rastro na mesma transacao
     arquivos:
       cria: ["prisma/migrations/20261028170000_filhos/migration.sql", "src/servicos/filhos.ts", "tests/filhos-dados.test.ts", "tests/filhos.test.ts"]
@@ -58,8 +58,8 @@ tasks:
     criterio_aceite: tests/filhos-dados.test.ts e tests/filhos.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: pendente
+    concluida_em: 2026-10-28
+    suite: verde (807 testes)
 
 ---
 

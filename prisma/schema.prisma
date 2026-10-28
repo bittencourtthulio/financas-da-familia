@@ -25,6 +25,8 @@ model Usuario {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
+  filho Filho?
+
   @@map("usuarios")
 }
 
@@ -79,4 +81,26 @@ model Lancamento {
 
   @@index([data])
   @@map("lancamentos")
+}
+
+// Filhos da família (FT-05). Só o que a PR-09 permite para dado de menor:
+// nome, nascimento opcional (dia civil AAAA-MM-DD), e a mesada combinada, que é
+// apenas informativa (PR-30): valor em centavos inteiros (PR-02) e
+// periodicidade "semanal" | "mensal". Nenhum CPF, RG, telefone, endereço nem
+// foto. O login é opcional: um `Usuario` de papel `filho` ligado 1 para 1
+// (PR-31). Sem `onDelete: Cascade`: apagar a conta não leva o registro do
+// filho; a exclusão de verdade é da FT-07.
+model Filho {
+  id             String   @id @default(cuid())
+  nome           String
+  nascimento     String? // AAAA-MM-DD no fuso America/Sao_Paulo
+  mesadaCentavos Int // inteiro positivo, em centavos de real; informativo
+  periodicidade  String // "semanal" | "mensal"
+  usuarioId      String?  @unique
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@map("filhos")
 }

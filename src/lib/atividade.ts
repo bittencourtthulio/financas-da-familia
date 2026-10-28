@@ -14,6 +14,10 @@ export const ACOES: Record<string, string> = {
   'lancamento.alterado': 'Alterou o lançamento',
   'lancamento.apagado': 'Apagou o lançamento',
   'categoria.criada': 'Criou a categoria',
+  'filho.cadastrado': 'Cadastrou o filho',
+  'filho.alterado': 'Alterou o cadastro do filho',
+  'filho.login_criado': 'Criou o login do filho',
+  'filho.login_desativado': 'Desativou o login do filho',
 }
 
 /** O rótulo da ação; ação desconhecida volta como veio. */
@@ -45,6 +49,15 @@ export function rotuloDoTipo(tipo: string): string {
 
 const texto = (valor: unknown): string => (typeof valor === 'string' ? valor : '')
 
+// Os campos do filho que a edição pode ter mudado, como a tela os nomeia. O
+// registro leva só o nome do campo, nunca o valor (PR-25).
+const CAMPOS_DO_FILHO: Record<string, string> = {
+  nome: 'nome',
+  nascimento: 'data de nascimento',
+  mesada: 'mesada',
+  periodicidade: 'periodicidade',
+}
+
 /**
  * Traduz um registro para as quatro colunas da tela, em português: papéis
  * pelos rótulos da interface (Responsável, Adulto), data e hora no fuso da
@@ -62,6 +75,12 @@ export function descreverAtividade(registro: RegistroParaExibir): AtividadeDescr
   } else if (registro.acao.startsWith('lancamento.') || registro.acao === 'categoria.criada') {
     // Só o tipo: a trilha de lançamento nunca leva o valor (PR-25).
     detalhe = texto(d.tipo) ? rotuloDoTipo(texto(d.tipo)) : ''
+  } else if (registro.acao === 'filho.alterado') {
+    const campos = texto(d.campos)
+      .split(',')
+      .map((c) => CAMPOS_DO_FILHO[c])
+      .filter(Boolean)
+    detalhe = campos.length ? `Campos: ${campos.join(', ')}` : ''
   }
 
   return {
