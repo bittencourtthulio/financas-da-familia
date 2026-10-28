@@ -33,6 +33,17 @@ o extrato do mais recente ao mais antigo, 30 por página, só para leitura. O
 valor combinado continua só informativo: nada é creditado sozinho. O adulto não
 vê a mesada.
 
+A privacidade dos dados (FT-07): em **Privacidade** (`/privacidade`), o
+responsável baixa um arquivo JSON versionado (`versao_do_formato`) com os
+usuários, categorias, lançamentos, filhos com saldo, movimentos de mesada e a
+trilha, em centavos inteiros e datas ISO, sem hash de senha, token, segredo nem
+dado de sessão. O download é um POST em `/api/privacidade/exportar`, só do
+responsável, e fica registrado na trilha. Ali e na página do filho, o
+responsável apaga de verdade a conta de um filho, digitando o nome dele: o
+cadastro, os movimentos de mesada e o login saem numa transação, o token antigo
+deixa de valer, e na trilha o nome vira "filho removido" (fica o registro de que
+a exclusão ocorreu). Não há desfazer: baixe os dados antes.
+
 A trilha de atividade (FT-02) mostra ao responsável quem criou ou desativou um
 usuário e quem mudou o papel de alguém, com data e hora, e agora também o
 cadastro de filhos e o login deles (sem valor, e-mail nem nascimento). Os
@@ -48,7 +59,7 @@ descrição.
 | Autenticação | e-mail e senha, hash bcrypt, sessão JWT em cookie `httpOnly`, renovação deslizante, limite de tentativas de login |
 | Papéis | `admin` (responsável), `usuario` (adulto) e `filho` (só a própria mesada; nasce na página do filho, não na tela Usuários) |
 | Interface | tokens do VS Code (Dark+ e Light+), alternador de tema, menu em gaveta abaixo de 768px, estados carregando, erro e não encontrado |
-| Telas | painel `/` (com o resumo do mês), `/lancamentos` (lista, `/novo`, `/<id>`, `/categorias`; responsável e adulto), `/filhos` (lista, `/novo`, `/<id>`; só o responsável), `/filhos/<id>/mesada` e `/filhos/<id>/mesada/<movimento>` (só o responsável), `/mesada` (só o filho), `/atividade` (só o responsável), `/configuracoes/usuarios`, `/perfil`, `/perfil/senha` |
+| Telas | painel `/` (com o resumo do mês), `/lancamentos` (lista, `/novo`, `/<id>`, `/categorias`; responsável e adulto), `/filhos` (lista, `/novo`, `/<id>`; só o responsável), `/filhos/<id>/mesada` e `/filhos/<id>/mesada/<movimento>` (só o responsável), `/mesada` (só o filho), `/atividade` (só o responsável), `/privacidade` (só o responsável), `/configuracoes/usuarios`, `/perfil`, `/perfil/senha` |
 | Trilha | `registrarAtividade` (`src/servicos/atividade.ts`): quem, o quê e quando, na mesma transação da ação; nunca guarda senha, hash, token nem dado financeiro |
 | Formato brasileiro | valor em centavos inteiros (`src/lib/dinheiro.ts` lê "1.234,56", `src/lib/formato.ts` exibe) e data no fuso `America/Sao_Paulo` (`src/lib/datas.ts`) |
 | Qualidade | `npm run verificar` e fluxo de exemplo em `.github/workflows/verificar.yml` |

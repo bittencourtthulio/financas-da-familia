@@ -81,7 +81,7 @@ describe('criarLoginDoFilho', () => {
     const rastro = await prisma.atividade.findFirstOrThrow({ where: { acao: 'filho.login_criado' } })
     expect(rastro).toMatchObject({ atorId: admin.id, entidade: 'filho', entidadeId: ana.id })
     expect(JSON.parse(rastro.detalhe ?? '{}')).toEqual({ alvoNome: 'Ana' })
-    const linha = JSON.stringify(rastro)
+    const linha = `${rastro.detalhe} ${rastro.atorNome} ${rastro.acao}` // só o texto: id e instante aleatórios podem ter '5000' por acaso
     for (const proibido of ['ana@exemplo.local', SENHA, '5000', '50,00']) expect(linha).not.toContain(proibido)
   })
 

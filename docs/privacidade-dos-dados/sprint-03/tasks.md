@@ -16,7 +16,7 @@ sprint:
 fases:
   - id: F-03.1
     titulo: Seed e README
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-03.01
     titulo: "Seed continua idempotente, exportacao da demonstracao e README"
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Provar que a seed de demonstracao segue idempotente com a feature e que a exportacao dos dados semeados e valida e sem segredo; descrever a privacidade no README
     arquivos:
       cria: ["tests/privacidade-demonstracao.test.ts"]
@@ -42,8 +42,8 @@ tasks:
     criterio_aceite: tests/privacidade-demonstracao.test.ts e tests/demonstracao.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.03]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1314 testes)
 
   - id: T-03.02
     titulo: "PR-09 realizada, convencoes com evidencia e fechamento"
