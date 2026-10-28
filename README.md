@@ -8,7 +8,12 @@ senha, em português, com tema claro e escuro e usável no celular.
 Os lançamentos da casa (FT-03): o responsável ou o adulto registra receitas e
 despesas com valor, data, categoria e descrição, cria categorias, edita e apaga,
 filtrando por mês e tipo; cada alteração entra na trilha de atividade, sem o
-valor. O saldo e o resumo do mês chegam na FT-04.
+valor.
+
+O saldo e o resumo do mês (FT-04): ao entrar, o responsável ou o adulto vê no painel
+inicial o total de receitas, o total de despesas, o saldo e as despesas por
+categoria do mês, com seletor de mês (`/?mes=AAAA-MM`; mês inválido vale o mês
+corrente). O saldo é só do mês escolhido, sem acumulado (PR-29).
 
 A trilha de atividade (FT-02) mostra ao responsável quem criou ou desativou um
 usuário e quem mudou o papel de alguém, com data e hora. Lançamentos, saldo,
@@ -23,7 +28,7 @@ filhos e mesada chegam nas features seguintes (ver `docs/projeto/MAPA.md`).
 | Autenticação | e-mail e senha, hash bcrypt, sessão JWT em cookie `httpOnly`, renovação deslizante, limite de tentativas de login |
 | Papéis | `admin` (responsável) e `usuario` (adulto); o papel `filho` chega na FT-05 |
 | Interface | tokens do VS Code (Dark+ e Light+), alternador de tema, menu em gaveta abaixo de 768px, estados carregando, erro e não encontrado |
-| Telas | painel `/`, `/lancamentos` (lista, `/novo`, `/<id>`, `/categorias`; responsável e adulto), `/atividade` (só o responsável), `/configuracoes/usuarios`, `/perfil`, `/perfil/senha` |
+| Telas | painel `/` (com o resumo do mês), `/lancamentos` (lista, `/novo`, `/<id>`, `/categorias`; responsável e adulto), `/atividade` (só o responsável), `/configuracoes/usuarios`, `/perfil`, `/perfil/senha` |
 | Trilha | `registrarAtividade` (`src/servicos/atividade.ts`): quem, o quê e quando, na mesma transação da ação; nunca guarda senha, hash, token nem dado financeiro |
 | Formato brasileiro | valor em centavos inteiros (`src/lib/dinheiro.ts` lê "1.234,56", `src/lib/formato.ts` exibe) e data no fuso `America/Sao_Paulo` (`src/lib/datas.ts`) |
 | Qualidade | `npm run verificar` e fluxo de exemplo em `.github/workflows/verificar.yml` |

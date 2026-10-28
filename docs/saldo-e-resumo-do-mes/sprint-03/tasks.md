@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-03
 sprint:
   titulo: Convenções, premissas e fechamento
-  status: nao_iniciado
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o CONVENCOES.md cita a evidencia do resumo, a PR-08 e a PR-29 estao conferidas por teste, o README e o MAPA descrevem a entrega
   riscos: [Citacoes arquivo:linha do CONVENCOES.md deslocadas por linhas novas]
   fora_de_escopo: [Codigo de producao novo]
 fases:
   - id: F-03.1
     titulo: Convencoes e fechamento
-    status: nao_iniciado
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -25,7 +25,7 @@ tasks:
   - id: T-03.01
     titulo: Convencoes com evidencia, premissas conferidas e README
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Acrescentar ao CONVENCOES.md a evidencia do calculo do resumo em centavos, da guarda por lista de permitidos no resumo e do parametro de mes validado com zod; reconferir as citacoes deslocadas; cobrir a PR-08 e a PR-29 em tests/premissas.test.ts e a convencao nova em tests/convencoes.test.ts; atualizar README
     arquivos:
       cria: []
@@ -35,8 +35,8 @@ tasks:
     criterio_aceite: tests/convencoes.test.ts e tests/premissas.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.02]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde (696 testes)
 
 ---
 

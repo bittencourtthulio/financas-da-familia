@@ -177,6 +177,54 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
   })
 })
 
+describe('saldo e resumo do mês no CONVENCOES.md (FT-04)', () => {
+  const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
+  const trecho = (titulo: string) => {
+    const i = secao7.indexOf(`### ${titulo}`)
+    const j = secao7.indexOf('\n### ', i + 5)
+    return secao7.slice(i, j === -1 ? undefined : j)
+  }
+
+  it('cada citação nova do resumo aponta para a linha que contém o nome citado', () => {
+    const esperado: Array<[string, number, RegExp]> = [
+      ['src/servicos/resumo.ts', 37, /mesDaConsulta/],
+      ['src/servicos/resumo.ts', 56, /resumoDoMes/],
+      ['src/servicos/resumo.ts', 61, /exigirAdultoOuResponsavel/],
+      ['src/servicos/resumo.ts', 66, /groupBy/],
+      ['src/servicos/resumo.ts', 113, /saldoCentavos/],
+      ['src/app/(sistema)/page.tsx', 33, /papelPodeLancar/],
+      ['src/componentes/ResumoDoMes.tsx', 74, /data-saldo/],
+      ['tests/resumo.test.ts', 45, /0,10 \+ 0,20/],
+      ['tests/resumo.test.ts', 381, /não usa ponto flutuante/],
+      ['tests/resumo-papeis.test.ts', 24, /todas as funções do serviço de resumo negam/],
+      ['tests/resumo-tela.test.ts', 131, /saldo negativo sai com sinal/],
+    ]
+    for (const [arquivo, linha, padrao] of esperado) {
+      expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
+      const conteudo = readFileSync(path.join(RAIZ, arquivo), 'utf8').split('\n')[linha - 1]
+      expect(conteudo, `${arquivo}:${linha}`).toMatch(padrao)
+    }
+  })
+
+  it('a regra de dinheiro diz onde o saldo é somado: no servidor, em inteiros, só do mês', () => {
+    const dinheiro = trecho('Dinheiro')
+    expect(dinheiro).toMatch(/saldo/)
+    expect(dinheiro).toContain('groupBy')
+    expect(dinheiro).toMatch(/nunca no cliente/)
+    expect(dinheiro).toContain('PR-29')
+  })
+
+  it('a autorização diz que o resumo é por lista de permitidos e o painel não busca dado do filho', () => {
+    const autorizacao = trecho('Autorização')
+    expect(autorizacao).toContain('resumoDoMes')
+    expect(autorizacao).toMatch(/painel/)
+  })
+
+  it('o histórico registra a revisão da FT-04', () => {
+    expect(convencoes).toMatch(/\| FT-04 \|/)
+  })
+})
+
 describe('comandos do CONVENCOES.md', () => {
   const pacote = JSON.parse(readFileSync(path.join(RAIZ, 'package.json'), 'utf8')) as {
     scripts: Record<string, string>

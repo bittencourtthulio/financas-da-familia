@@ -159,3 +159,31 @@ describe('premissas que a FT-03 realiza (MAPA.md)', () => {
     expect(lista.find((p) => p.id === 'PR-06')?.realizadaEm).not.toBe('FT-03')
   })
 })
+
+describe('premissas que a FT-04 realiza (MAPA.md)', () => {
+  const bloco = /### FT-04 [\s\S]*?\*\*Premissas que realiza:\*\*\s*\[([^\]]*)\]/.exec(mapa)
+  const realizadas = (bloco?.[1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+
+  it('o MAPA lista a PR-08 para a FT-04', () => {
+    expect(realizadas).toContain('PR-08')
+  })
+
+  it('a PR-08 e a PR-29 (criada na F2 da FT-04) estão Realizada em FT-04', () => {
+    for (const id of ['PR-08', 'PR-29']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).toBe('FT-04')
+    }
+  })
+
+  it('a PR-29 é f2_autonoma e diz o que a invalidaria', () => {
+    const p = lista.find((x) => x.id === 'PR-29')
+    expect(p?.origem).toBe('f2_autonoma')
+    expect(p?.invalida.length).toBeGreaterThan(10)
+  })
+
+  it('as premissas de outras features não foram marcadas por engano', () => {
+    expect(lista.find((p) => p.id === 'PR-02')?.realizadaEm).toBe('FT-03')
+    for (const id of ['PR-01', 'PR-06', 'PR-09', 'PR-11', 'PR-13', 'PR-14']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).not.toBe('FT-04')
+    }
+  })
+})
