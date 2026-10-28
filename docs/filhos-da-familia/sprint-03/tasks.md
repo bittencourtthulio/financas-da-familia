@@ -16,7 +16,7 @@ sprint:
 fases:
   - id: F-03.1
     titulo: Seed de demonstracao
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-03.01
     titulo: Seed de demonstracao com dois filhos com login
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Estender prisma/demonstracao.ts e prisma/seed.ts com dois filhos ficticios, ambos com login de papel filho e credenciais de demonstracao ficticias, ids fixos e upsert sem sobrescrever, e documentar no README
     arquivos:
       cria: []
@@ -42,8 +42,8 @@ tasks:
     criterio_aceite: tests/demonstracao.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-02.03]
     paralelizavel: false
-    concluida_em: null
-    suite: pendente
+    concluida_em: 2026-10-28
+    suite: verde (951 testes)
 
   - id: T-03.02
     titulo: Convencoes com evidencia do papel filho, premissas e README

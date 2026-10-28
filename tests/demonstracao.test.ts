@@ -1,7 +1,7 @@
 /**
- * A seed de demonstração (PR-04): responsável e adulto fictícios, nada de
- * entidade de domínio (isso nasce nas FT-03, FT-05 e FT-06), e nunca em
- * produção. O QA entra com estas contas.
+ * A seed de demonstração (PR-04): responsável e adulto fictícios, lançamentos
+ * (FT-03, FT-04), dois filhos com login (FT-05; a mesada em si é da FT-06), e
+ * nunca em produção. O QA entra com estas contas.
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { prisma } from '@/lib/prisma'
@@ -10,7 +10,8 @@ import { ACOES } from '@/lib/atividade'
 import { dataCivilValida, mesAnterior, mesAtualEmSaoPaulo, mesDaData } from '@/lib/datas'
 import { listarLancamentos } from '@/servicos/lancamentos'
 import { resumoDoMes } from '@/servicos/resumo'
-import { DEMONSTRACAO, semearDemonstracao } from '../prisma/demonstracao'
+import { listarFilhos, minhaMesada } from '@/servicos/filhos'
+import { DEMONSTRACAO, DEMONSTRACAO_FILHOS, semearDemonstracao } from '../prisma/demonstracao'
 import { limparBanco } from './ajuda'
 
 beforeEach(limparBanco)
@@ -31,14 +32,14 @@ describe('semearDemonstracao', () => {
     await semearDemonstracao(prisma)
 
     const usuarios = await prisma.usuario.findMany({ orderBy: { email: 'asc' } })
-    expect(usuarios).toHaveLength(DEMONSTRACAO.length)
+    expect(usuarios).toHaveLength(DEMONSTRACAO.length + DEMONSTRACAO_FILHOS.length)
   })
 
-  it('cria exatamente um responsável e um adulto, e nenhum outro papel', async () => {
+  it('cria um responsável, um adulto e os dois logins de filho, e nenhum outro papel', async () => {
     await semearDemonstracao(prisma)
 
     const papeis = (await prisma.usuario.findMany()).map((u) => u.papel).sort()
-    expect(papeis).toEqual(['admin', 'usuario'])
+    expect(papeis).toEqual(['admin', 'filho', 'filho', 'usuario'])
   })
 
   it('usa e-mails fictícios do domínio reservado exemplo.local', () => {
@@ -222,6 +223,63 @@ describe('o resumo mostra o que a seed semeia (FT-04, PR-04)', () => {
   })
 })
 
+describe('filhos de demonstração (FT-05, PR-04)', () => {
+  it('cria dois filhos fictícios com mesada em centavos inteiros, cada um com login de papel filho', async () => {
+    await semearDemonstracao(prisma)
+
+    const responsavel = await entrar({ email: DEMONSTRACAO[0].email, senha: DEMONSTRACAO[0].senha })
+    const filhos = await listarFilhos(responsavel.usuario)
+    expect(filhos).toHaveLength(2)
+    expect(filhos.map((f) => f.nome).sort()).toEqual(DEMONSTRACAO_FILHOS.map((f) => f.nome).sort())
+    for (const f of filhos) {
+      expect(Number.isInteger(f.mesadaCentavos)).toBe(true)
+      expect(f.mesadaCentavos).toBeGreaterThan(0)
+      expect(['semanal', 'mensal']).toContain(f.periodicidade)
+      expect(f.login).toMatchObject({ ativo: true })
+    }
+  })
+
+  it('cada filho entra com a credencial de demonstração e lê só a própria mesada, nunca a do irmão', async () => {
+    await semearDemonstracao(prisma)
+
+    for (const conta of DEMONSTRACAO_FILHOS) {
+      const { usuario } = await entrar({ email: conta.email, senha: conta.senha })
+      expect(usuario.papel).toBe('filho')
+      const mesada = await minhaMesada(usuario)
+      expect(mesada.nome).toBe(conta.nome)
+      expect(mesada.mesadaCentavos).toBe(conta.mesadaCentavos)
+      const irmao = DEMONSTRACAO_FILHOS.find((o) => o.nome !== conta.nome)
+      expect(JSON.stringify(mesada)).not.toContain(irmao?.nome as string)
+    }
+  })
+
+  it('as credenciais são fictícias, do domínio reservado, e os ids são fixos', async () => {
+    for (const conta of DEMONSTRACAO_FILHOS) {
+      expect(conta.email.endsWith('@exemplo.local')).toBe(true)
+      expect(conta.senha.length).toBeGreaterThanOrEqual(8)
+    }
+    await semearDemonstracao(prisma)
+    const ids = (await prisma.filho.findMany({ orderBy: { id: 'asc' } })).map((f) => f.id)
+    expect(ids).toEqual(DEMONSTRACAO_FILHOS.map((f) => `demonstracao-filho-${f.slug}`).sort())
+  })
+
+  it('rodar duas vezes não duplica nem desfaz o que o responsável editou', async () => {
+    await semearDemonstracao(prisma)
+    await prisma.filho.update({ where: { id: 'demonstracao-filho-ana' }, data: { mesadaCentavos: 9999 } })
+    await semearDemonstracao(prisma)
+
+    expect(await prisma.filho.count()).toBe(2)
+    expect((await prisma.filho.findUniqueOrThrow({ where: { id: 'demonstracao-filho-ana' } })).mesadaCentavos).toBe(9999)
+    expect(await prisma.usuario.count({ where: { papel: 'filho' } })).toBe(2)
+  })
+
+  it('a seed não grava dado além do que a PR-09 permite', async () => {
+    await semearDemonstracao(prisma)
+    const texto = JSON.stringify(await prisma.filho.findMany())
+    expect(texto).not.toMatch(/cpf|telefone|endere|foto/i)
+  })
+})
+
 describe('proteção contra produção', () => {
   const anterior = process.env.NODE_ENV
   afterEach(() => {
@@ -236,5 +294,6 @@ describe('proteção contra produção', () => {
     expect(await prisma.atividade.count()).toBe(0)
     expect(await prisma.categoria.count()).toBe(0)
     expect(await prisma.lancamento.count()).toBe(0)
+    expect(await prisma.filho.count()).toBe(0)
   })
 })

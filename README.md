@@ -15,20 +15,30 @@ inicial o total de receitas, o total de despesas, o saldo e as despesas por
 categoria do mês, com seletor de mês (`/?mes=AAAA-MM`; mês inválido vale o mês
 corrente). O saldo é só do mês escolhido, sem acumulado (PR-29).
 
+Os filhos da família (FT-05): o responsável cadastra um filho (nome, valor de
+mesada combinado e periodicidade semanal ou mensal, ambos só informativos, e
+data de nascimento opcional) em **Filhos** e, se quiser, cria o login dele. O
+filho entra com o papel `filho` e vê só o painel neutro, a própria página
+**Minha mesada** (nome, valor combinado, periodicidade e o aviso de que ainda
+não há movimentos), o perfil e a troca de senha; o servidor nega todo o resto e
+um filho nunca alcança o registro do irmão. Os movimentos e o saldo da mesada
+chegam na FT-06.
+
 A trilha de atividade (FT-02) mostra ao responsável quem criou ou desativou um
-usuário e quem mudou o papel de alguém, com data e hora. Lançamentos, saldo,
-filhos e mesada chegam nas features seguintes (ver `docs/projeto/MAPA.md`).
+usuário e quem mudou o papel de alguém, com data e hora, e agora também o
+cadastro de filhos e o login deles (sem valor, e-mail nem nascimento). Os
+movimentos de mesada chegam nas features seguintes (ver `docs/projeto/MAPA.md`).
 
 ## O que já vem pronto
 
 | Camada | Conteúdo |
 |---|---|
 | Configuração | `package.json` com versões fixadas, TypeScript estrito, ESLint, Vitest, modelo de variáveis de ambiente |
-| Banco | SQLite via Prisma, migrations versionadas (`usuarios`, `atividades`, `categorias`, `lancamentos`), seed de demonstração |
+| Banco | SQLite via Prisma, migrations versionadas (`usuarios`, `atividades`, `categorias`, `lancamentos`, `filhos`), seed de demonstração |
 | Autenticação | e-mail e senha, hash bcrypt, sessão JWT em cookie `httpOnly`, renovação deslizante, limite de tentativas de login |
-| Papéis | `admin` (responsável) e `usuario` (adulto); o papel `filho` chega na FT-05 |
+| Papéis | `admin` (responsável), `usuario` (adulto) e `filho` (só a própria mesada; nasce na página do filho, não na tela Usuários) |
 | Interface | tokens do VS Code (Dark+ e Light+), alternador de tema, menu em gaveta abaixo de 768px, estados carregando, erro e não encontrado |
-| Telas | painel `/` (com o resumo do mês), `/lancamentos` (lista, `/novo`, `/<id>`, `/categorias`; responsável e adulto), `/atividade` (só o responsável), `/configuracoes/usuarios`, `/perfil`, `/perfil/senha` |
+| Telas | painel `/` (com o resumo do mês), `/lancamentos` (lista, `/novo`, `/<id>`, `/categorias`; responsável e adulto), `/filhos` (lista, `/novo`, `/<id>`; só o responsável), `/mesada` (só o filho), `/atividade` (só o responsável), `/configuracoes/usuarios`, `/perfil`, `/perfil/senha` |
 | Trilha | `registrarAtividade` (`src/servicos/atividade.ts`): quem, o quê e quando, na mesma transação da ação; nunca guarda senha, hash, token nem dado financeiro |
 | Formato brasileiro | valor em centavos inteiros (`src/lib/dinheiro.ts` lê "1.234,56", `src/lib/formato.ts` exibe) e data no fuso `America/Sao_Paulo` (`src/lib/datas.ts`) |
 | Qualidade | `npm run verificar` e fluxo de exemplo em `.github/workflows/verificar.yml` |
@@ -52,7 +62,12 @@ produção**:
 ```
 responsavel@exemplo.local   demo1234    responsável (admin)
 adulto@exemplo.local        demo1234    adulto (usuario)
+ana@exemplo.local           demo1234    filha (filho), mesada semanal
+pedro@exemplo.local         demo1234    filho (filho), mesada mensal
 ```
+
+Os dois filhos existem para provar o isolamento: cada um entra e vê só a
+própria mesada; o responsável os vê em **Filhos**.
 
 A seed também cria duas entradas fictícias na trilha (entre como responsável e
 abra **Atividade**) e, no mês corrente, sete categorias e seis lançamentos
@@ -74,7 +89,7 @@ fictícios (abra **Lançamentos**). As categorias são só dado de demonstraçã
 ## O que esta fundação não traz, de propósito
 
 **Poucas entidades de negócio.** O modelo tem `Usuario`, `Atividade` (a trilha,
-FT-02), `Categoria` e `Lancamento` (FT-03). Filhos e mesada nascem nas features do B4, planejadas pelo
+FT-02), `Categoria` e `Lancamento` (FT-03) e `Filho` (FT-05). A mesada em si nasce nas features do B4, planejadas pelo
 sprintx sob TDD; cada uma acrescenta a sua ação ao catálogo da trilha em
 `src/lib/atividade.ts`.
 

@@ -1,7 +1,7 @@
 // Dados de demonstração (PR-04). Contas fictícias para uso local e para o
-// roteiro do QA. Usuários e a trilha de atividade deles (FT-02) e categorias e
-// lançamentos de três meses (FT-03 e FT-04): filhos e mesada nascem nas features FT-05 e
-// FT-06, e cada uma acrescenta a sua parte aqui.
+// roteiro do QA. Usuários e a trilha de atividade deles (FT-02), categorias e
+// lançamentos de três meses (FT-03 e FT-04) e dois filhos com login (FT-05): os
+// movimentos de mesada nascem na FT-06, que acrescenta a sua parte aqui.
 import type { PrismaClient } from '../src/gerado/prisma/client.js'
 import { hashDeSenha } from '../src/lib/senha.js'
 import { hojeEmSaoPaulo, mesAnterior, mesDaData } from '../src/lib/datas.js'
@@ -21,12 +21,36 @@ export const DEMONSTRACAO = [
   },
 ] as const
 
+// Dois filhos fictícios, ambos com login, para demonstrar o isolamento entre
+// irmãos (FT-05). Mesada em centavos inteiros (PR-02); só os campos que a PR-09
+// permite. Credenciais de demonstração, conhecidas: nunca em produção.
+export const DEMONSTRACAO_FILHOS = [
+  {
+    slug: 'ana',
+    nome: 'Ana',
+    nascimento: '2015-03-20',
+    mesadaCentavos: 5000,
+    periodicidade: 'semanal',
+    email: 'ana@exemplo.local',
+    senha: 'demo1234',
+  },
+  {
+    slug: 'pedro',
+    nome: 'Pedro',
+    nascimento: '2011-09-30',
+    mesadaCentavos: 12000,
+    periodicidade: 'mensal',
+    email: 'pedro@exemplo.local',
+    senha: 'demo1234',
+  },
+] as const
+
 /**
  * Cria (sem sobrescrever) as contas de demonstração. Nunca roda em produção:
  * as contas têm senha conhecida.
  */
 export async function semearDemonstracao(
-  prisma: Pick<PrismaClient, 'usuario' | 'atividade' | 'categoria' | 'lancamento'>,
+  prisma: Pick<PrismaClient, 'usuario' | 'atividade' | 'categoria' | 'lancamento' | 'filho'>,
   agora: Date = new Date(),
 ): Promise<void> {
   if (process.env.NODE_ENV === 'production') {
@@ -50,6 +74,7 @@ export async function semearDemonstracao(
   }
   await semearAtividade(prisma)
   await semearLancamentos(prisma, agora)
+  await semearFilhos(prisma)
 }
 
 const DIA = 24 * 60 * 60 * 1000
@@ -179,6 +204,32 @@ async function semearLancamentos(
         data: `${mesAtras(l.meses ?? 0)}-${String(l.dia).padStart(2, '0')}`,
         descricao: l.descricao,
         categoriaId: `demonstracao-categoria-${l.categoria}`,
+      },
+    })
+  }
+}
+
+/**
+ * Dois filhos com login de papel `filho`. `upsert` sem atualizar, com id fixo:
+ * rodar de novo não duplica nem desfaz o que o responsável editou.
+ */
+async function semearFilhos(prisma: Pick<PrismaClient, 'usuario' | 'filho'>): Promise<void> {
+  for (const f of DEMONSTRACAO_FILHOS) {
+    const usuario = await prisma.usuario.upsert({
+      where: { email: f.email },
+      update: {},
+      create: { nome: f.nome, email: f.email, senhaHash: await hashDeSenha(f.senha), papel: 'filho' },
+    })
+    await prisma.filho.upsert({
+      where: { id: `demonstracao-filho-${f.slug}` },
+      update: {},
+      create: {
+        id: `demonstracao-filho-${f.slug}`,
+        nome: f.nome,
+        nascimento: f.nascimento,
+        mesadaCentavos: f.mesadaCentavos,
+        periodicidade: f.periodicidade,
+        usuarioId: usuario.id,
       },
     })
   }
