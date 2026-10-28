@@ -89,7 +89,7 @@ a { color: var(--fg-link); }
   padding: 0 4px;
   height: var(--altura-statusbar);
 }
-.barra-de-status button:hover { background: rgb(255 255 255 / 0.12); }
+.barra-de-status button:hover { background: var(--statusbar-hover); }
 .barra-de-status .espaco { margin-left: auto; }
 
 /* ---------- navegação ---------- */

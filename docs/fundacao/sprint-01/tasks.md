@@ -40,18 +40,18 @@ tasks:
   - id: T-01.02
     titulo: Guarda de tokens, temas e celular
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Provar por teste que os dois temas definem os mesmos tokens, que nao ha cor literal fora de tokens.css e que existe a regra de 768px
     arquivos:
       cria: [tests/tema.test.ts]
-      altera: [src/estilos/tokens.css, src/estilos/global.css]
+      altera: [src/estilos/tokens.css, src/estilos/global.css, tests/ajuda-estatica.ts]
     teste_integracao: Le tokens.css e global.css reais e afirma que o tema claro e o modo sistema redefinem todo token de cor que difere do escuro e que global.css nao tem cor literal
     teste_funcional: Dado o texto color com valor hexadecimal literal a varredura devolve um achado, e dado var(--fg-default) devolve zero
     criterio_aceite: tests/tema.test.ts termina com 0 failed e global.css nao contem rgb nem hexadecimal fora de tokens.css
     depende_de: [T-01.01]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-01.03
     titulo: Harness de componentes tsx
     fase: F-01.1
@@ -129,3 +129,4 @@ Os campos de cada task estão no frontmatter acima (fonte única; YAML e prosa d
 - **T-01.02** — Guarda de tokens, temas e celular: corrige o único literal de cor (`rgb(255 255 255 / 0.12)` em `src/estilos/global.css:92`) criando o token `--statusbar-hover`.
 - **T-01.03** — Harness de componentes `.tsx`: habilita as sprints 02 e 03.
 - **T-01.01** concluída em 2026-10-28 · suíte: 65 passed, 0 failed · real: 0,4 h (aprox.)
+- **T-01.02** concluída em 2026-10-28 · suíte: 75 passed, 0 failed · real: 0,5 h (aprox.)

@@ -47,6 +47,7 @@
   /* barra de status — a cor de identidade do VS Code */
   --statusbar-bg: #007acc;
   --statusbar-fg: #ffffff;
+  --statusbar-hover: rgb(255 255 255 / 0.12);
 
   /* tipografia */
   --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -102,6 +103,7 @@
 
   --statusbar-bg: #005fb8;
   --statusbar-fg: #ffffff;
+  --statusbar-hover: rgb(255 255 255 / 0.12);
 }
 
 /* Sem escolha explícita, segue a preferência do sistema. */

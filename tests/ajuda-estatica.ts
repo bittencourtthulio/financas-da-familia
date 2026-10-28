@@ -85,3 +85,38 @@ export function violacoesDeCamadas(raiz: string): Violacao[] {
   }
   return violacoes
 }
+
+/** Cores escritas por extenso (hexadecimal, rgb, hsl) fora de comentário. */
+export function coresLiterais(texto: string): string[] {
+  const semComentario = texto.replace(/\/\*[\s\S]*?\*\//g, '')
+  const padrao = /#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\([^)]*\)/g
+  return semComentario.match(padrao) ?? []
+}
+
+/** As declarações `--nome: valor;` de um bloco de CSS, em um mapa. */
+export function declaracoesDe(bloco: string): Record<string, string> {
+  const mapa: Record<string, string> = {}
+  for (const m of bloco.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
+    if (m[1] && m[2]) mapa[m[1]] = m[2].trim()
+  }
+  return mapa
+}
+
+/**
+ * O corpo `{ ... }` que começa no primeiro seletor que contém `seletor`,
+ * respeitando chaves aninhadas (o modo sistema vive dentro de um @media).
+ */
+export function corpoDe(css: string, seletor: string): string {
+  const inicio = css.indexOf(seletor)
+  if (inicio === -1) throw new Error(`Seletor não encontrado: ${seletor}`)
+  const abre = css.indexOf('{', inicio)
+  let nivel = 0
+  for (let i = abre; i < css.length; i += 1) {
+    if (css[i] === '{') nivel += 1
+    if (css[i] === '}') {
+      nivel -= 1
+      if (nivel === 0) return css.slice(abre + 1, i)
+    }
+  }
+  throw new Error(`Bloco sem fechamento: ${seletor}`)
+}
