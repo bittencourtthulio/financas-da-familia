@@ -37,3 +37,12 @@ export function lerFormularioDeLoginDoFilho(form: FormData) {
     senha: campo(form, 'senha'),
   }
 }
+
+export function lerFormularioDeMovimento(form: FormData) {
+  return {
+    tipo: campo(form, 'tipo'),
+    valor: campo(form, 'valor'),
+    data: campo(form, 'data'),
+    descricao: campo(form, 'descricao'),
+  }
+}

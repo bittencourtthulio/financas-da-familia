@@ -67,6 +67,7 @@ async function contagens() {
     atividades: await prisma.atividade.count(),
     lancamentos: await prisma.lancamento.count(),
     categorias: await prisma.categoria.count(),
+    movimentos: await prisma.movimentoDeMesada.count(),
   }
 }
 
@@ -128,6 +129,9 @@ describe('quem não é o responsável não grava nada por nenhuma ação sensív
     ['salvarFilho', acoes.salvarFilho, { ...FILHO, id: ID }],
     ['criarLoginDeFilho', acoes.criarLoginDeFilho, { id: ID, email: 'y@exemplo.local', senha: 'senha-12345' }],
     ['desativarLoginDeFilho', acoes.desativarLoginDeFilho, { id: ID }],
+    ['registrarMovimentoDeMesada', acoes.registrarMovimentoDeMesada, { filhoId: ID, tipo: 'credito', valor: '1,00', data: '2026-10-27' }],
+    ['salvarMovimentoDeMesada', acoes.salvarMovimentoDeMesada, { id: ID, tipo: 'credito', valor: '1,00', data: '2026-10-27' }],
+    ['excluirMovimentoDeMesada', acoes.excluirMovimentoDeMesada, { id: ID }],
     ['registrarLancamento', acoes.registrarLancamento, { tipo: 'despesa', valor: '1,00', data: '2026-10-27', categoriaId: ID }],
     ['salvarLancamento', acoes.salvarLancamento, { id: ID, tipo: 'despesa', valor: '1,00', data: '2026-10-27', categoriaId: ID }],
     ['excluirLancamento', acoes.excluirLancamento, { id: ID }],
@@ -163,7 +167,7 @@ describe('quem não é o responsável não grava nada por nenhuma ação sensív
   ]
 
   describe.each(quem)('%s', (_nome, preparar, destino) => {
-    it.each(sensiveis.filter(([n]) => ['criarUsuario', 'editarUsuario', 'desativarUsuario', 'registrarFilho', 'salvarFilho', 'criarLoginDeFilho', 'desativarLoginDeFilho'].includes(n)))(
+    it.each(sensiveis.filter(([n]) => ['criarUsuario', 'editarUsuario', 'desativarUsuario', 'registrarFilho', 'salvarFilho', 'criarLoginDeFilho', 'desativarLoginDeFilho', 'registrarMovimentoDeMesada', 'salvarMovimentoDeMesada', 'excluirMovimentoDeMesada'].includes(n)))(
       '%s é barrada e não grava',
       async (_n, acao, campos) => {
         await preparar()

@@ -142,8 +142,8 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
       ['src/app/sessao-servidor.ts', 32, /exigirUsuarioAdmin/],
       ['src/app/sessao-servidor.ts', 43, /exigirUsuarioDeLancamentos/],
       ['src/lib/atividade.ts', 13, /lancamento\.criado/],
-      ['src/app/acoes.ts', 47, /mensagemDe/],
-      ['src/app/acoes.ts', 49, /console\.error/],
+      ['src/app/acoes.ts', 54, /mensagemDe/],
+      ['src/app/acoes.ts', 56, /console\.error/],
       ['tests/ajuda.ts', 39, /limparBanco/],
       ['tests/rotas.test.ts', 108, /spawn/],
       ['tests/rotas.test.ts', 207, /cadastro de usuários é negado/],
@@ -245,7 +245,7 @@ describe('o papel filho e os filhos no CONVENCOES.md (FT-05)', () => {
       ['src/servicos/filhos.ts', 285, /registrarAtividade/],
       ['src/servicos/filhos.ts', 313, /minhaMesada/],
       ['src/servicos/usuarios.ts', 117, /alvo\.papel === 'filho'/],
-      ['src/app/acoes.ts', 235, /registrarFilho/],
+      ['src/app/acoes.ts', 242, /registrarFilho/],
       ['prisma/schema.prisma', 93, /model Filho/],
       ['prisma/migrations/20261028170000_filhos/migration.sql', 2, /CREATE TABLE "filhos"/],
       ['src/lib/atividade.ts', 17, /filho\.cadastrado/],
@@ -253,7 +253,7 @@ describe('o papel filho e os filhos no CONVENCOES.md (FT-05)', () => {
       ['tests/filhos-papeis.test.ts', 32, /todas as funções do serviço de filhos negam/],
       ['tests/filhos-login.test.ts', 220, /IDOR/],
       ['tests/filhos-mesada.test.ts', 204, /nada vaza a existência/],
-      ['tests/filhos-acoes.test.ts', 121, /não grava nada por nenhuma ação sensível/],
+      ['tests/filhos-acoes.test.ts', 122, /não grava nada por nenhuma ação sensível/],
       ['tests/filhos.test.ts', 259, /PR-02 no serviço de filhos/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {

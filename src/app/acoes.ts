@@ -18,13 +18,20 @@ import {
   editarFilho,
 } from '@/servicos/filhos'
 import {
+  apagarMovimento,
+  editarMovimento,
+  registrarMovimento,
+} from '@/servicos/mesada'
+import {
   lerFormularioDeCategoria,
   lerFormularioDeFilho,
   lerFormularioDeLancamento,
   lerFormularioDeLoginDoFilho,
+  lerFormularioDeMovimento,
 } from '@/app/formularios'
 import { mesDaData } from '@/lib/datas'
 import { enderecoDaLista } from '@/lib/lancamentos-links'
+import { avisoDeSaldoNegativo, enderecoDoExtratoDoFilho } from '@/lib/mesada'
 import { ErroDeAplicacao } from '@/lib/erros'
 import {
   exigirUsuario,
@@ -287,4 +294,64 @@ export async function desativarLoginDeFilho(
   }
   revalidatePath('/filhos')
   return { sucesso: 'Login desativado.' }
+}
+
+// As ações de mesada exigem o responsável FORA do try, como as de filho: o
+// redirecionamento da guarda é uma exceção do Next. O serviço verifica de novo.
+// O filho e o adulto nunca chegam ao serviço; o saldo negativo não bloqueia nada
+// (PR-32), só avisa.
+
+/** Atualiza as telas que mostram a mesada de um filho. */
+function atualizarMesada(filhoId: string): void {
+  revalidatePath(`/filhos/${filhoId}/mesada`)
+  revalidatePath('/filhos')
+  revalidatePath('/mesada')
+}
+
+export async function registrarMovimentoDeMesada(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  const filhoId = String(form.get('filhoId'))
+  let saldoCentavos: number
+  try {
+    saldoCentavos = (await registrarMovimento(autor, filhoId, lerFormularioDeMovimento(form))).saldoCentavos
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  atualizarMesada(filhoId)
+  const aviso = avisoDeSaldoNegativo(saldoCentavos)
+  return { sucesso: aviso ? `Movimento registrado. ${aviso}` : 'Movimento registrado.' }
+}
+
+export async function salvarMovimentoDeMesada(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  let filhoId: string
+  try {
+    const { movimento } = await editarMovimento(autor, String(form.get('id')), lerFormularioDeMovimento(form))
+    filhoId = movimento.filhoId
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  atualizarMesada(filhoId)
+  redirect(enderecoDoExtratoDoFilho(filhoId))
+}
+
+export async function excluirMovimentoDeMesada(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  let filhoId: string
+  try {
+    filhoId = (await apagarMovimento(autor, String(form.get('id')))).filhoId
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  atualizarMesada(filhoId)
+  redirect(enderecoDoExtratoDoFilho(filhoId))
 }
