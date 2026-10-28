@@ -133,7 +133,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 
 ### Sinalização de erro
 Serviço sinaliza erro lançando `ErroDeAplicacao` pelos construtores `naoAutenticado`, `naoAutorizado`, `naoEncontrado`, `entradaInvalida`, `limiteExcedido` e `conflito`; a ação converte em mensagem para a tela e nenhum rastro de pilha chega ao usuário: erro desconhecido vira frase genérica e a tela de erro nunca lê `message` nem `stack`.
-**Evidência:** `src/lib/erros.ts:4`, `src/lib/erros.ts:27`, `src/app/acoes.ts:36`, `src/componentes/EstadoDeErro.tsx:7`, `tests/estados.test.ts:38`
+**Evidência:** `src/lib/erros.ts:4`, `src/lib/erros.ts:27`, `src/app/acoes.ts:47`, `src/componentes/EstadoDeErro.tsx:7`, `tests/estados.test.ts:38`
 
 ### Validação de entrada
 Esquema `zod` no servidor, na camada de aplicação, antes de tocar o banco.
@@ -144,7 +144,7 @@ Apenas `console.error` na ação de formulário; não há biblioteca, formato es
 **Nunca vai para o log:** — (LACUNA) ver `docs/stack/LACUNAS.md`, L-01
 > **PROPOSTA** — sem evidência no repositório. Não governa: as skills irmãs tratam este ponto como decisão a levantar, não como regra. Log estruturado sem segredo, com identificador de correlação, é a PR-14; chega na FT-08.
 
-**Evidência:** `src/app/acoes.ts:38`
+**Evidência:** `src/app/acoes.ts:49`
 
 ### Configuração e segredo
 Variável obrigatória ausente falha na leitura, com mensagem em português, não em produção; segredo só no arquivo local de ambiente, que o `.gitignore` exclui, e o modelo versionado traz o segredo vazio.

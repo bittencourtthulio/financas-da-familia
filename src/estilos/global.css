@@ -345,6 +345,33 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
 }
 .barra-de-categoria > span { display: block; height: 100%; background: var(--accent); }
 
+/* ---------- filhos (FT-05) ---------- */
+
+.lista-de-filhos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  max-width: 880px;
+}
+.cartao-de-filho {
+  padding: 14px 16px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border-focus);
+  border-radius: var(--raio);
+}
+.cartao-de-filho[data-login='ativo'] { border-left-color: var(--success); }
+.cartao-de-filho[data-login='desativado'] { border-left-color: var(--warning); }
+.nome-do-filho { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+.mesada-combinada { margin: 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* A situação do login é sempre dita em palavras: a cor da borda só reforça. */
+.situacao-do-login { margin: 6px 0 0; color: var(--fg-muted); }
+.nota-do-campo { max-width: 380px; margin: 0 0 12px; color: var(--fg-muted); }
+.login-do-filho { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); max-width: 380px; }
+
 /* ---------- celular ---------- */
 
 @media (max-width: 768px) {
@@ -368,4 +395,5 @@ button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 
   .cartoes-do-resumo { grid-template-columns: 1fr; }
   .seletor-do-resumo a { display: inline-flex; align-items: center; }
   .seletor-sem-vizinho { display: none; }
+  .lista-de-filhos { grid-template-columns: 1fr; }
 }

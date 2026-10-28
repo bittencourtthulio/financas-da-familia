@@ -23,7 +23,7 @@ fases:
     tasks: [T-02.01]
   - id: F-02.2
     titulo: Telas do responsavel
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -55,7 +55,7 @@ tasks:
   - id: T-02.02
     titulo: Acoes, telas /filhos e navegacao por papel
     fase: F-02.2
-    status: pendente
+    status: concluida
     objetivo: Criar as acoes de servidor de filho, as guardas de pagina exigirUsuarioFilho, as paginas /filhos, /filhos/novo e /filhos/[id] (editar e login), os componentes de formulario e lista, o item Filhos na navegacao do responsavel, e os estilos sobre os tokens, com o acabamento da skill frontend-design
     arquivos:
       cria: ["src/app/(sistema)/filhos/page.tsx", "src/app/(sistema)/filhos/novo/page.tsx", "src/app/(sistema)/filhos/[id]/page.tsx", "src/componentes/CamposDoFilho.tsx", "src/componentes/ListaDeFilhos.tsx", "src/componentes/LoginDoFilho.tsx", "tests/filhos-acoes.test.ts", "tests/filhos-tela.test.ts"]
@@ -65,8 +65,8 @@ tasks:
     criterio_aceite: tests/filhos-acoes.test.ts e tests/filhos-tela.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.01]
     paralelizavel: false
-    concluida_em: null
-    suite: pendente
+    concluida_em: 2026-10-28
+    suite: verde (929 testes)
 
   - id: T-02.03
     titulo: Pagina Minha mesada, painel neutro do filho e prova no servidor real

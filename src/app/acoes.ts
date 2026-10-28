@@ -11,7 +11,18 @@ import {
   criarLancamento,
   editarLancamento,
 } from '@/servicos/lancamentos'
-import { lerFormularioDeCategoria, lerFormularioDeLancamento } from '@/app/formularios'
+import {
+  cadastrarFilho,
+  criarLoginDoFilho,
+  desativarLoginDoFilho,
+  editarFilho,
+} from '@/servicos/filhos'
+import {
+  lerFormularioDeCategoria,
+  lerFormularioDeFilho,
+  lerFormularioDeLancamento,
+  lerFormularioDeLoginDoFilho,
+} from '@/app/formularios'
 import { mesDaData } from '@/lib/datas'
 import { enderecoDaLista } from '@/lib/lancamentos-links'
 import { ErroDeAplicacao } from '@/lib/erros'
@@ -60,12 +71,16 @@ export async function sair(): Promise<void> {
   redirect('/entrar')
 }
 
+// As ações de usuário exigem o responsável FORA do try: o redirecionamento da
+// guarda é uma exceção do Next e, dentro do try, viraria "Não foi possível
+// concluir" em vez de levar o intruso embora (defeito achado na FT-05).
+
 export async function criarUsuario(
   _estado: EstadoDoFormulario,
   form: FormData,
 ): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
   try {
-    const autor = await exigirUsuarioAdmin()
     await criar(autor, {
       nome: form.get('nome'),
       email: form.get('email'),
@@ -83,8 +98,8 @@ export async function editarUsuario(
   _estado: EstadoDoFormulario,
   form: FormData,
 ): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
   try {
-    const autor = await exigirUsuarioAdmin()
     const id = String(form.get('id'))
     await editar(autor, id, {
       nome: form.get('nome'),
@@ -102,8 +117,8 @@ export async function desativarUsuario(
   _estado: EstadoDoFormulario,
   form: FormData,
 ): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
   try {
-    const autor = await exigirUsuarioAdmin()
     await desativar(autor, String(form.get('id')))
   } catch (erro) {
     return { erro: mensagemDe(erro) }
@@ -212,4 +227,64 @@ export async function registrarCategoria(
   }
   revalidatePath('/lancamentos/categorias')
   return { sucesso: 'Categoria criada.' }
+}
+
+// As ações de filho exigem o responsável FORA do try, como as de lançamento: o
+// redirecionamento da guarda é uma exceção do Next. O serviço verifica de novo.
+
+export async function registrarFilho(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  let id: string
+  try {
+    id = (await cadastrarFilho(autor, lerFormularioDeFilho(form))).id
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/filhos')
+  redirect(`/filhos/${id}`)
+}
+
+export async function salvarFilho(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  try {
+    await editarFilho(autor, String(form.get('id')), lerFormularioDeFilho(form))
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/filhos')
+  return { sucesso: 'Filho atualizado.' }
+}
+
+export async function criarLoginDeFilho(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  try {
+    await criarLoginDoFilho(autor, String(form.get('id')), lerFormularioDeLoginDoFilho(form))
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/filhos')
+  return { sucesso: 'Login criado.' }
+}
+
+export async function desativarLoginDeFilho(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  try {
+    await desativarLoginDoFilho(autor, String(form.get('id')))
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/filhos')
+  return { sucesso: 'Login desativado.' }
 }

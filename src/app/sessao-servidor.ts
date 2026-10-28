@@ -46,6 +46,17 @@ export async function exigirUsuarioDeLancamentos(): Promise<UsuarioAutenticado> 
   return usuario
 }
 
+/**
+ * O usuário da requisição, que precisa ser filho: é a guarda da página de
+ * mesada (FT-05). Qualquer outro papel volta ao painel. O serviço verifica de
+ * novo: esta é a guarda da página, não a única.
+ */
+export async function exigirUsuarioFilho(): Promise<UsuarioAutenticado> {
+  const usuario = await exigirUsuario()
+  if (usuario.papel !== 'filho') redirect('/')
+  return usuario
+}
+
 export async function gravarCookieDeSessao(token: string): Promise<void> {
   ;(await cookies()).set(COOKIE_SESSAO, token, opcoesDoCookie())
 }

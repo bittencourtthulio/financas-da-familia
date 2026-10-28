@@ -45,6 +45,16 @@ export function Navegacao({
         </>
       )}
       {ehAdmin && (
+        <Link
+          href="/filhos"
+          {...(atual === '/filhos' || atual?.startsWith('/filhos/')
+            ? ({ 'aria-current': 'page' } as const)
+            : {})}
+        >
+          Filhos
+        </Link>
+      )}
+      {ehAdmin && (
         <Link href="/atividade" {...marca('/atividade')}>
           Atividade
         </Link>

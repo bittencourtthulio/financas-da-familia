@@ -21,3 +21,19 @@ export function lerFormularioDeCategoria(form: FormData) {
     tipo: campo(form, 'tipo'),
   }
 }
+
+export function lerFormularioDeFilho(form: FormData) {
+  return {
+    nome: campo(form, 'nome'),
+    nascimento: campo(form, 'nascimento'),
+    valor: campo(form, 'valor'),
+    periodicidade: campo(form, 'periodicidade'),
+  }
+}
+
+export function lerFormularioDeLoginDoFilho(form: FormData) {
+  return {
+    email: campo(form, 'email'),
+    senha: campo(form, 'senha'),
+  }
+}
