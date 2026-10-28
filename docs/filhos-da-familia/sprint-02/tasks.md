@@ -16,7 +16,7 @@ sprint:
 fases:
   - id: F-02.1
     titulo: Login e isolamento no servico
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -39,7 +39,7 @@ tasks:
   - id: T-02.01
     titulo: Login do filho, minhaMesada e isolamento entre irmaos
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Acrescentar a src/servicos/filhos.ts criarLoginDoFilho, desativarLoginDoFilho e minhaMesada; o login e um Usuario de papel filho ligado 1 para 1; provar isolamento entre irmaos (IDOR) e que o filho entra com o servico real de autenticacao
     arquivos:
       cria: ["tests/filhos-login.test.ts", "tests/filhos-papeis.test.ts"]
@@ -49,8 +49,8 @@ tasks:
     criterio_aceite: tests/filhos-login.test.ts e tests/filhos-papeis.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-01.02]
     paralelizavel: false
-    concluida_em: null
-    suite: pendente
+    concluida_em: 2026-10-28
+    suite: verde (885 testes)
 
   - id: T-02.02
     titulo: Acoes, telas /filhos e navegacao por papel
