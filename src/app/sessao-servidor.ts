@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { COOKIE_SESSAO, opcoesDoCookie } from '@/lib/sessao'
 import {
+  papelPodeLancar,
   usuarioDaSessao,
   type UsuarioAutenticado,
 } from '@/servicos/autenticacao'
@@ -31,6 +32,17 @@ export async function exigirUsuario(): Promise<UsuarioAutenticado> {
 export async function exigirUsuarioAdmin(): Promise<UsuarioAutenticado> {
   const usuario = await exigirUsuario()
   if (usuario.papel !== 'admin') redirect('/')
+  return usuario
+}
+
+/**
+ * O usuário da requisição, que precisa poder lançar (responsável ou adulto).
+ * Qualquer outro papel, como o filho de amanhã, volta ao painel. O serviço
+ * verifica de novo: esta é a guarda da página, não a única.
+ */
+export async function exigirUsuarioDeLancamentos(): Promise<UsuarioAutenticado> {
+  const usuario = await exigirUsuario()
+  if (!papelPodeLancar(usuario.papel)) redirect('/')
   return usuario
 }
 

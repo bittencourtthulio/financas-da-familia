@@ -127,7 +127,7 @@ a { color: var(--fg-link); }
 .campo { display: block; margin-bottom: 12px; max-width: 380px; }
 .campo span { display: block; margin-bottom: 4px; color: var(--fg-muted); }
 
-input[type='text'], input[type='email'], input[type='password'], select {
+input[type='text'], input[type='email'], input[type='password'], input[type='date'], select {
   width: 100%;
   height: var(--altura-controle);
   padding: 0 6px;
@@ -139,7 +139,7 @@ input[type='text'], input[type='email'], input[type='password'], select {
 }
 input:focus, select:focus { border-color: var(--border-focus); outline: none; }
 
-button.primario, button.secundario {
+button.primario, button.secundario, button.perigo {
   height: var(--altura-controle);
   padding: 0 14px;
   border: none;
@@ -194,6 +194,85 @@ tbody tr:hover { background: var(--bg-hover); }
 
 .vazio { color: var(--fg-muted); padding: 24px 0; }
 
+/* ---------- lançamentos (FT-03) ---------- */
+
+.cabecalho-da-tela {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+a.botao {
+  display: inline-flex;
+  align-items: center;
+  height: var(--altura-controle);
+  padding: 0 14px;
+  border-radius: var(--raio);
+  text-decoration: none;
+  font: inherit;
+}
+a.botao.primario { background: var(--accent); color: var(--accent-fg); }
+a.botao.primario:hover { background: var(--accent-hover); }
+
+.filtros-de-lancamentos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.seletor-de-mes { display: flex; align-items: center; gap: 16px; }
+.seletor-de-mes strong { min-width: 9em; text-align: center; font-weight: 600; }
+.seletor-de-tipo { display: flex; gap: 2px; }
+.seletor-de-tipo a {
+  padding: 3px 12px;
+  border-radius: var(--raio);
+  color: var(--fg-default);
+  text-decoration: none;
+  background: var(--secondary);
+}
+.seletor-de-tipo a:hover { background: var(--secondary-hover); }
+.seletor-de-tipo a[aria-current='true'] { background: var(--accent); color: var(--accent-fg); }
+
+/* Valor: alinhado à direita, algarismos de largura fixa, cor pelo tipo. */
+.valor { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.valor-receita { color: var(--success); }
+.valor-despesa { color: var(--danger); }
+
+.paginacao { display: flex; gap: 16px; align-items: center; margin-top: 16px; }
+
+.campo-de-opcao { border: none; padding: 0; margin: 0 0 12px; max-width: 380px; }
+.campo-de-opcao legend { padding: 0; margin-bottom: 4px; color: var(--fg-muted); }
+.campo-de-opcao .opcoes { display: flex; gap: 2px; }
+.campo-de-opcao label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--altura-controle);
+  background: var(--secondary);
+  color: var(--secondary-fg);
+  border-radius: var(--raio);
+  cursor: pointer;
+}
+.campo-de-opcao input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.campo-de-opcao label:has(input:checked) { background: var(--accent); color: var(--accent-fg); }
+.campo-de-opcao label:has(input:focus-visible) { outline: 1px solid var(--border-focus); outline-offset: 1px; }
+
+input[type='date'] { color-scheme: dark; }
+:root[data-theme='light'] input[type='date'] { color-scheme: light; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) input[type='date'] { color-scheme: light; }
+}
+
+.zona-de-perigo { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); max-width: 380px; }
+button.perigo { background: var(--danger-bg); color: var(--fg-default); border: 1px solid var(--danger); }
+
 /* ---------- celular ---------- */
 
 @media (max-width: 768px) {
@@ -209,7 +288,9 @@ tbody tr:hover { background: var(--bg-hover); }
   .aplicacao.gaveta-aberta .barra-de-atividade,
   .aplicacao.gaveta-aberta .barra-lateral { display: block; }
   .aplicacao.gaveta-aberta .conteudo { display: none; }
-  .navegacao a, input, button.primario, button.secundario { min-height: 44px; }
+  .navegacao a, input, button.primario, button.secundario, button.perigo, a.botao, .seletor-de-tipo a { min-height: 44px; }
+  .seletor-de-tipo a { display: inline-flex; align-items: center; }
+  .campo-de-opcao label { min-height: 44px; }
   .barra-de-status .botao-gaveta { display: inline-block; min-height: var(--altura-statusbar); }
   .conteudo { padding: 16px; }
 }

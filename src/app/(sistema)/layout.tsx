@@ -8,6 +8,7 @@ import { RenovadorDeSessao } from '@/componentes/RenovadorDeSessao'
 import { intervaloDeRenovacao } from '@/lib/renovacao'
 import { ambiente } from '@/lib/ambiente'
 import { sair } from '@/app/acoes'
+import { papelPodeLancar } from '@/servicos/autenticacao'
 import { NOME_DO_SISTEMA } from '@/lib/marca'
 import { rotuloDoPapel } from '@/lib/papeis'
 
@@ -29,7 +30,10 @@ export default async function LayoutDoSistema({
 
       <aside className="barra-lateral" id="barra-lateral">
         <div className="marca">{NOME_DO_SISTEMA}</div>
-        <Navegacao ehAdmin={usuario.papel === 'admin'} />
+        <Navegacao
+          ehAdmin={usuario.papel === 'admin'}
+          podeLancar={papelPodeLancar(usuario.papel)}
+        />
       </aside>
 
       <main className="conteudo">{children}</main>

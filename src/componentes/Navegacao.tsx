@@ -7,16 +7,43 @@ import { usePathname } from 'next/navigation'
  * A navegação padrão do P-9. As features do projeto acrescentam itens
  * aqui; não recriam a área de Configurações.
  */
-export function Navegacao({ ehAdmin }: { ehAdmin: boolean }) {
+export function Navegacao({
+  ehAdmin,
+  podeLancar = false,
+}: {
+  ehAdmin: boolean
+  podeLancar?: boolean
+}) {
   const atual = usePathname()
   const marca = (href: string) =>
     atual === href ? ({ 'aria-current': 'page' } as const) : {}
+
+  // Lançamentos fica marcado também em "novo" e na edição, mas não em Categorias.
+  const marcaLancamentos = (rota: string | null) =>
+    rota === '/lancamentos' ||
+    (rota?.startsWith('/lancamentos/') && rota !== '/lancamentos/categorias')
+      ? ({ 'aria-current': 'page' } as const)
+      : {}
 
   return (
     <nav className="navegacao" aria-label="Navegação principal">
       <Link href="/" {...marca('/')}>
         Painel
       </Link>
+      {podeLancar && (
+        <>
+          <Link href="/lancamentos" {...marcaLancamentos(atual)}>
+            Lançamentos
+          </Link>
+          <Link
+            href="/lancamentos/categorias"
+            className="aninhado"
+            {...marca('/lancamentos/categorias')}
+          >
+            Categorias
+          </Link>
+        </>
+      )}
       {ehAdmin && (
         <Link href="/atividade" {...marca('/atividade')}>
           Atividade

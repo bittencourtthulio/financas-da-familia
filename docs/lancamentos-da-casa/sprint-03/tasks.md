@@ -25,7 +25,7 @@ tasks:
   - id: T-03.01
     titulo: Navegacao e lista de lancamentos
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Item Lancamentos (com Categorias aninhado) na barra lateral para admin e usuario, guarda de pagina exigirUsuarioDeLancamentos, pagina /lancamentos com filtros de mes e tipo por link, tabela com valor em reais, estado vazio, paginacao, estilos de valor e filtro sobre os tokens
     arquivos:
       cria: [src/app/(sistema)/lancamentos/page.tsx, src/componentes/TabelaDeLancamentos.tsx, src/componentes/FiltrosDeLancamentos.tsx, src/componentes/PaginacaoDeLancamentos.tsx, tests/lancamentos-tela.test.ts]
@@ -35,6 +35,9 @@ tasks:
     criterio_aceite: tests/lancamentos-tela.test.ts e tests/atividade-tela.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-02.04]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (533 testes)
+
   - id: T-03.02
     titulo: Formularios, acoes, edicao, exclusao e categorias
     fase: F-03.1

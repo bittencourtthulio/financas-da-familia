@@ -138,5 +138,10 @@ const PAPEIS_DOS_LANCAMENTOS = ['admin', 'usuario']
  * verificação é aqui, no servidor (L2).
  */
 export function exigirAdultoOuResponsavel(usuario: UsuarioAutenticado): void {
-  if (!PAPEIS_DOS_LANCAMENTOS.includes(usuario.papel)) throw naoAutorizado()
+  if (!papelPodeLancar(usuario.papel)) throw naoAutorizado()
+}
+
+/** O papel lança e lê o dinheiro da casa? Também decide o item do menu. */
+export function papelPodeLancar(papel: string): boolean {
+  return PAPEIS_DOS_LANCAMENTOS.includes(papel)
 }
