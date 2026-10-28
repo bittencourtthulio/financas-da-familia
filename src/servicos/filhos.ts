@@ -166,7 +166,10 @@ export async function editarFilho(
   }
   const { nome, nascimento, valor, periodicidade } = dados.data
 
-  const atual = await prisma.filho.findUnique({ where: { id } })
+  const atual = await prisma.filho.findUnique({
+    where: { id },
+    include: { usuario: { select: { nome: true } } },
+  })
   if (!atual) throw naoEncontrado('Filho não encontrado.')
 
   // Só a mudança real deixa rastro, e o rastro leva os nomes dos campos.
@@ -176,7 +179,16 @@ export async function editarFilho(
   if (valor !== atual.mesadaCentavos) campos.push('mesada')
   if (periodicidade !== atual.periodicidade) campos.push('periodicidade')
 
+  // O login acompanha o cadastro (PR-39): o usuário ligado ao filho leva o
+  // mesmo nome. Compara com o nome do usuário, não com o antigo do filho, para
+  // também curar o login que já divergia. O e-mail é credencial: nunca muda.
+  const renomeiaLogin = atual.usuarioId !== null && atual.usuario?.nome !== nome
+  if (renomeiaLogin) campos.push('login')
+
   const atualizado = await prisma.$transaction(async (tx) => {
+    if (renomeiaLogin) {
+      await tx.usuario.update({ where: { id: atual.usuarioId as string }, data: { nome } })
+    }
     const filho = await tx.filho.update({
       where: { id },
       data: { nome, nascimento, mesadaCentavos: valor, periodicidade },

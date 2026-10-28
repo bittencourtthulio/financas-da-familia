@@ -165,7 +165,7 @@ describe('a trilha é anonimizada, não apagada (PR-10, PR-25, PR-35)', () => {
     }
     // O fato de a ação ter ocorrido fica: ator, ação, quando e o resto do detalhe.
     const alterada = depois.find((a) => a.acao === 'filho.alterado')
-    expect(JSON.parse(alterada?.detalhe as string)).toEqual({ alvoNome: MARCADOR_DO_FILHO_REMOVIDO, campos: 'nome' })
+    expect(JSON.parse(alterada?.detalhe as string)).toEqual({ alvoNome: MARCADOR_DO_FILHO_REMOVIDO, campos: 'nome,login' })
     const original = antes.find((a) => a.acao === 'filho.alterado')
     expect(alterada).toMatchObject({ atorId: original?.atorId, atorNome: original?.atorNome, criadoEm: original?.criadoEm })
     const mesada = depois.find((a) => a.acao === 'mesada.registrada')

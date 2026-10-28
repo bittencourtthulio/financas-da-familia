@@ -62,9 +62,9 @@ describe('depois da exclusão não sobra nada do filho em tabela alguma', () => 
     await registrarMovimento(admin, outro.id, { tipo: 'credito', valor: '1,00', data: '2026-10-05', descricao: 'Moedinha do Tomás' })
 
     const antes = await bancoInteiro()
-    // O login guarda o nome de quando foi criado (o antigo); o filho, o novo.
-    expect(achadosEm(antes, AGULHAS.nome).sort()).toEqual(['atividades', 'filhos'])
-    expect(achadosEm(antes, AGULHAS.nomeAntigo).sort()).toEqual(['atividades', 'usuarios'])
+    // O login acompanha o cadastro (FT-09, PR-39): filho e login têm o nome novo.
+    expect(achadosEm(antes, AGULHAS.nome).sort()).toEqual(['atividades', 'filhos', 'usuarios'])
+    expect(achadosEm(antes, AGULHAS.nomeAntigo)).toEqual(['atividades'])
     expect(achadosEm(antes, AGULHAS.email)).toEqual(['usuarios'])
     expect(achadosEm(antes, AGULHAS.nascimento)).toEqual(['filhos'])
     expect(achadosEm(antes, AGULHAS.descricaoDoCredito)).toEqual(['movimentos_de_mesada'])
