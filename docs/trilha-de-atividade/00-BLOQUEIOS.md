@@ -1,0 +1,16 @@
+---
+expx_schema: 1
+expx_tool: sprintx
+kind: bloqueios
+trabalho_id: trilha-de-atividade
+origem_buildx: financas-da-familia
+feature_id: FT-02
+atualizado_em: 2026-10-28
+bloqueios: []
+---
+
+# Bloqueios
+
+> Criado vazio na F1 e preenchido na execução (F6). Um bloqueio nunca vira pergunta ao usuário: registre aqui, marque a task `bloqueada` e siga para a próxima paralelizável.
+
+Nenhum bloqueio registrado.

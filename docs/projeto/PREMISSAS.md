@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 24
+total: 25
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 4
+  f2_autonoma: 5
   recursao: 0
   template: 5
 ---
@@ -150,7 +150,7 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Origem:** catalogo_lacunas
 **Etapa:** b1
 **Provisória:** false
-**Realizada em:** null
+**Realizada em:** FT-02
 
 ---
 
@@ -333,3 +333,16 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** false
 **Realizada em:** FT-01
+
+---
+
+### PR-25 — Forma do registro de atividade
+
+**Assunto:** FT-02, forma e limites do registro da PR-10
+**Decisão:** o registro guarda o id e o nome do autor como estavam na hora, a ação (de um catálogo fechado, com rótulo em português), a entidade e o id da entidade, o instante e um detalhe pequeno e plano (texto, número, booleano ou nulo). O detalhe nunca recebe senha, hash, token, segredo, valor ou saldo, e-mail nem CPF: o serviço recusa chave com esses nomes e texto que pareça hash de senha ou token. O nome do usuário afetado entra no detalhe para a tela dizer "quem" sem consulta. Não há chave estrangeira para usuários, o registro é só de acréscimo e é gravado na mesma transação da ação. Só o responsável (`admin`) o lê. Mudança de papel, criação e desativação de usuário são as ações de hoje; reativação, edição de nome e e-mail não são auditadas.
+**Por quê:** a PR-10 pede quem, o quê e quando e "nada além"; guardar o nome da hora mantém o histórico legível mesmo se a conta mudar de nome, e a ausência de chave estrangeira evita que a exclusão de uma conta (FT-07, PR-09) seja barrada ou apague o rastro por cascata. O nome do usuário afetado é dado pessoal mínimo, e a FT-07 decide se o apaga ou anonimiza.
+**O que invalida:** se a família quiser ver o histórico também dos adultos sobre a própria conta, se quiser auditar reativação ou edição de perfil, ou se o registro precisar guardar o antes e o depois de dado financeiro (aí o detalhe passa a ter regra própria).
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** false
+**Realizada em:** FT-02
