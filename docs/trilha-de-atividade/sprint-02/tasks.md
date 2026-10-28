@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-02
 sprint:
   titulo: Ligar as acoes de usuario ao registro
-  status: pendente
+  status: concluido
   criterio_saida: Criar usuario, mudar papel e desativar usuario gravam o registro na mesma transacao; a suite inteira esta verde
   riscos: [A tela de edicao manda o papel mesmo quando nao muda, o registro deve ocorrer so na mudanca real, As citacoes de linha do CONVENCOES.md em src/servicos/usuarios.ts deslocam]
   fora_de_escopo: [Reativacao e edicao de nome ou e-mail, Tela]
 fases:
   - id: F-02.1
     titulo: Ligacao
-    status: pendente
+    status: concluido
     criterio_saida: Os quatro testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -40,7 +40,7 @@ tasks:
   - id: T-02.02
     titulo: Mudar papel e desativar registram a atividade
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: editar registra usuario.papel_alterado (de, para) so quando o papel muda, e usuario.desativado quando o usuario passa de ativo para desativado, na mesma transacao da gravacao
     arquivos:
       cria: []
@@ -50,6 +50,8 @@ tasks:
     criterio_aceite: Os casos novos de tests/usuarios-atividade.test.ts passam e a suite inteira esta verde
     depende_de: [T-02.01]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (221 testes)
 ---
 
 # Plano — Sprint 02 — Ligar as ações de usuário ao registro

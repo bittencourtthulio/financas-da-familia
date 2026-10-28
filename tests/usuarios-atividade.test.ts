@@ -61,3 +61,91 @@ describe('criar usuário', () => {
     expect(await prisma.atividade.count()).toBe(1)
   })
 })
+
+describe('mudar o papel', () => {
+  it('registra usuario.papel_alterado com o papel de antes e o de depois', async () => {
+    const admin = await criarAdmin()
+    const adulto = await criarUsuario()
+    await editar(admin, adulto.id, { papel: 'admin' })
+
+    const linhas = await trilha()
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0]).toMatchObject({
+      atorId: admin.id,
+      acao: 'usuario.papel_alterado',
+      entidade: 'usuario',
+      entidadeId: adulto.id,
+    })
+    expect(JSON.parse(linhas[0]!.detalhe!)).toEqual({
+      alvoNome: adulto.nome,
+      de: 'usuario',
+      para: 'admin',
+    })
+  })
+
+  it('editar com o mesmo papel, ou só o nome, não registra nada', async () => {
+    const admin = await criarAdmin()
+    const adulto = await criarUsuario()
+    await editar(admin, adulto.id, { papel: 'usuario' })
+    await editar(admin, adulto.id, { nome: 'Outro Nome' })
+    await editar(admin, adulto.id, { nome: 'Mais Um', papel: 'usuario', email: 'novo@teste.local' })
+    expect(await prisma.atividade.count()).toBe(0)
+  })
+
+  it('a mudança e o registro caem juntos: se o registro falha, o papel não muda', async () => {
+    const admin = await criarAdmin()
+    const adulto = await criarUsuario()
+    vi.spyOn(atividade, 'registrarAtividade').mockRejectedValueOnce(new Error('disco cheio'))
+    await expect(editar(admin, adulto.id, { papel: 'admin' })).rejects.toThrow('disco cheio')
+    const depois = await prisma.usuario.findUniqueOrThrow({ where: { id: adulto.id } })
+    expect(depois.papel).toBe('usuario')
+  })
+
+  it('a guarda do último administrador não deixa registro', async () => {
+    const admin = await criarAdmin()
+    await expect(editar(admin, admin.id, { papel: 'usuario' })).rejects.toMatchObject({ status: 409 })
+    expect(await prisma.atividade.count()).toBe(0)
+  })
+
+  it('quem não é responsável não muda papel nem deixa registro', async () => {
+    const comum = await criarUsuario()
+    await expect(editar(comum, comum.id, { papel: 'admin' })).rejects.toMatchObject({ status: 403 })
+    expect(await prisma.atividade.count()).toBe(0)
+  })
+})
+
+describe('desativar', () => {
+  it('registra usuario.desativado uma vez, com o nome de quem foi desativado', async () => {
+    const admin = await criarAdmin()
+    const adulto = await criarUsuario()
+    await desativar(admin, adulto.id)
+
+    const linhas = await trilha()
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0]).toMatchObject({
+      atorId: admin.id,
+      acao: 'usuario.desativado',
+      entidadeId: adulto.id,
+    })
+    expect(JSON.parse(linhas[0]!.detalhe!)).toEqual({ alvoNome: adulto.nome })
+  })
+
+  it('desativar quem já está desativado não registra de novo', async () => {
+    const admin = await criarAdmin()
+    const adulto = await criarUsuario()
+    await desativar(admin, adulto.id)
+    await desativar(admin, adulto.id)
+    expect(await prisma.atividade.count()).toBe(1)
+  })
+
+  it('editar papel e desativar na mesma chamada registra as duas ações', async () => {
+    const admin = await criarAdmin()
+    await criarAdmin() // outro admin ativo, para a guarda do último não interferir
+    const alvo = await criarUsuario({ papel: 'admin' })
+    await editar(admin, alvo.id, { papel: 'usuario', ativo: false })
+    expect((await trilha()).map((l) => l.acao).sort()).toEqual([
+      'usuario.desativado',
+      'usuario.papel_alterado',
+    ])
+  })
+})

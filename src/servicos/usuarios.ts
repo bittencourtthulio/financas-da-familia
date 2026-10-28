@@ -134,15 +134,48 @@ export async function editar(
     }
   }
 
-  return prisma.usuario.update({
-    where: { id },
-    data: {
-      ...(dados.data.nome !== undefined && { nome: dados.data.nome }),
-      ...(dados.data.email !== undefined && { email: dados.data.email }),
-      ...(dados.data.papel !== undefined && { papel: dados.data.papel }),
-      ...(dados.data.ativo !== undefined && { ativo: dados.data.ativo }),
-    },
-    select: camposListados,
+  const mudouPapel = dados.data.papel !== undefined && dados.data.papel !== alvo.papel
+  const foiDesativado = dados.data.ativo === false && alvo.ativo
+
+  // A edição e o rastro caem juntos (PR-10). Só a mudança real deixa
+  // registro: o formulário reenvia o papel atual, e isso não é mudança.
+  return prisma.$transaction(async (tx) => {
+    const atualizado = await tx.usuario.update({
+      where: { id },
+      data: {
+        ...(dados.data.nome !== undefined && { nome: dados.data.nome }),
+        ...(dados.data.email !== undefined && { email: dados.data.email }),
+        ...(dados.data.papel !== undefined && { papel: dados.data.papel }),
+        ...(dados.data.ativo !== undefined && { ativo: dados.data.ativo }),
+      },
+      select: camposListados,
+    })
+
+    if (mudouPapel) {
+      await registrarAtividade(
+        {
+          ator: autor,
+          acao: 'usuario.papel_alterado',
+          entidade: 'usuario',
+          entidadeId: id,
+          detalhe: { alvoNome: atualizado.nome, de: alvo.papel, para: atualizado.papel },
+        },
+        tx,
+      )
+    }
+    if (foiDesativado) {
+      await registrarAtividade(
+        {
+          ator: autor,
+          acao: 'usuario.desativado',
+          entidade: 'usuario',
+          entidadeId: id,
+          detalhe: { alvoNome: atualizado.nome },
+        },
+        tx,
+      )
+    }
+    return atualizado
   })
 }
 
