@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 20
+total: 24
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 0
+  f2_autonoma: 4
   recursao: 0
   template: 5
 ---
@@ -283,3 +283,53 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Realizada em:** null
 
 ---
+
+### PR-21 — Renovação deslizante da sessão
+
+**Assunto:** FT-01, refresh da PR-05
+**Decisão:** enquanto a aba do sistema está aberta, a sessão é renovada na metade do tempo de vida do token (padrão 15 min, renovação a cada 7,5 min). A renovação passa sempre pela mesma verificação de uma sessão normal (conta ativa e corte de troca de senha), de modo que sessão derrubada por troca de senha ou conta desativada não ressuscita. Sem a aba aberta, a sessão expira no TTL.
+**Por quê:** a PR-05 promete "expiração curta com refresh"; sem renovação, quem está preenchendo um lançamento é jogado para o login a cada 15 minutos.
+**O que invalida:** se a família preferir sessão longa fixa (por exemplo 30 dias) ou exigir login a cada visita.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** false
+**Realizada em:** null
+
+---
+
+### PR-22 — Limite de tentativas de login
+
+**Assunto:** FT-01, limite da PR-12
+**Decisão:** cinco falhas de login seguidas para o mesmo e-mail dentro de 15 minutos bloqueiam novas tentativas desse e-mail por 15 minutos (erro 429 com mensagem em português); login correto zera o contador. O contador fica em memória do processo.
+**Por quê:** a PR-12 exige limite de tentativas, sem números; o contador em memória atende uma instalação de uma família (PR-18) e não exige serviço externo. O custo conhecido é que um terceiro pode travar o login de um e-mail por 15 minutos.
+**O que invalida:** se a instalação rodar em mais de um processo ou for exposta à internet aberta (aí o limite precisa ser compartilhado e por origem).
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** false
+**Realizada em:** null
+
+---
+
+### PR-23 — Pipeline de verificação independente de plataforma
+
+**Assunto:** FT-01, pipeline da PR-15
+**Decisão:** a verificação completa é um comando do projeto (`npm run verificar`: lint, checagem de tipos, testes e auditoria de dependência), mais um fluxo de exemplo para GitHub Actions que apenas chama esse comando. Não há remoto configurado, então o fluxo não foi exercitado em serviço.
+**Por quê:** a PR-15 exige pipeline a cada mudança; o comando é o que importa e funciona em qualquer plataforma, o fluxo é só o gatilho.
+**O que invalida:** se o repositório for hospedado fora do GitHub (troca-se só o gatilho).
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** false
+**Realizada em:** null
+
+---
+
+### PR-24 — Processo de construção: branch por feature, sem worktree
+
+**Assunto:** FT-01, regra 21 do sprintx
+**Decisão:** cada feature do B4 é construída na branch `feat/ft-NN-<slug>` na árvore de trabalho principal, uma feature por vez, sem `git worktree`; os artefatos do sprintx e da mergex ficam em `docs/<slug>/`, não em `docs/sprintx/features/<slug>/`.
+**Por quê:** o laço do B4 é sequencial (nenhuma feature é paralelizável no MAPA), então não há sessão concorrente para isolar; o orquestrador do buildx definiu esse layout.
+**O que invalida:** se duas features passarem a ser construídas ao mesmo tempo.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** false
+**Realizada em:** null

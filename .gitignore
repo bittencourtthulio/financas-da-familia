@@ -20,3 +20,7 @@ next-env.d.ts
 # client do Prisma: gerado por `prisma generate`, reconstruível
 src/gerado/
 tsconfig.tsbuildinfo
+
+# rastro e estado de exibição do sprintx (locais da máquina)
+docs/eventos/
+.expx/estado.json
