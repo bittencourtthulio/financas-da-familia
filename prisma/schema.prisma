@@ -102,5 +102,30 @@ model Filho {
 
   usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
 
+  movimentos MovimentoDeMesada[]
+
   @@map("filhos")
+}
+
+// Movimentos de mesada (FT-06, PR-32 e PR-33). Crédito ou gasto de um filho,
+// em centavos inteiros positivos, BRL (PR-02): o sinal vem do tipo e nunca
+// Float nem Decimal. `data` é o dia civil como texto AAAA-MM-DD (PR-26). O
+// saldo não é guardado: é sempre a soma dos créditos menos a dos gastos,
+// calculada no servidor. A chave estrangeira usa Cascade de propósito: apagar
+// o filho leva o histórico dele (PR-09), e a FT-07 exporta e apaga por filho
+// com uma consulta por `filhoId`.
+model MovimentoDeMesada {
+  id            String   @id @default(cuid())
+  filhoId       String
+  tipo          String // "credito" | "gasto"
+  valorCentavos Int // inteiro positivo, em centavos de real
+  data          String // AAAA-MM-DD no fuso America/Sao_Paulo
+  descricao     String   @default("")
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  filho Filho @relation(fields: [filhoId], references: [id], onDelete: Cascade)
+
+  @@index([filhoId, data])
+  @@map("movimentos_de_mesada")
 }

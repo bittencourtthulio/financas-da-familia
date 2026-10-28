@@ -55,7 +55,7 @@ describe('tabela de atividades', () => {
 })
 
 describe('catálogo de ações', () => {
-  it('traz as ações de usuário e as das features seguintes (FT-03, FT-05), com rótulo em português', () => {
+  it('traz as ações de usuário e as das features seguintes (FT-03, FT-05, FT-06), com rótulo em português', () => {
     expect(Object.keys(ACOES).sort()).toEqual([
       'categoria.criada',
       'filho.alterado',
@@ -65,6 +65,9 @@ describe('catálogo de ações', () => {
       'lancamento.alterado',
       'lancamento.apagado',
       'lancamento.criado',
+      'mesada.alterada',
+      'mesada.apagada',
+      'mesada.registrada',
       'usuario.criado',
       'usuario.desativado',
       'usuario.papel_alterado',

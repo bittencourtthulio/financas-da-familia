@@ -18,6 +18,9 @@ export const ACOES: Record<string, string> = {
   'filho.alterado': 'Alterou o cadastro do filho',
   'filho.login_criado': 'Criou o login do filho',
   'filho.login_desativado': 'Desativou o login do filho',
+  'mesada.registrada': 'Registrou movimento de mesada de',
+  'mesada.alterada': 'Alterou movimento de mesada de',
+  'mesada.apagada': 'Apagou movimento de mesada de',
 }
 
 /** O rótulo da ação; ação desconhecida volta como veio. */
@@ -40,7 +43,12 @@ export interface AtividadeDescrita {
   detalhe: string
 }
 
-const TIPOS: Record<string, string> = { receita: 'Receita', despesa: 'Despesa' }
+const TIPOS: Record<string, string> = {
+  receita: 'Receita',
+  despesa: 'Despesa',
+  credito: 'Crédito',
+  gasto: 'Gasto',
+}
 
 /** "despesa" → "Despesa"; desconhecido volta como veio. */
 export function rotuloDoTipo(tipo: string): string {
@@ -74,6 +82,9 @@ export function descreverAtividade(registro: RegistroParaExibir): AtividadeDescr
     detalhe = `De ${rotuloDoPapel(texto(d.de))} para ${rotuloDoPapel(texto(d.para))}`
   } else if (registro.acao.startsWith('lancamento.') || registro.acao === 'categoria.criada') {
     // Só o tipo: a trilha de lançamento nunca leva o valor (PR-25).
+    detalhe = texto(d.tipo) ? rotuloDoTipo(texto(d.tipo)) : ''
+  } else if (registro.acao.startsWith('mesada.')) {
+    // Só o tipo: a trilha da mesada nunca leva o valor nem o saldo (PR-25).
     detalhe = texto(d.tipo) ? rotuloDoTipo(texto(d.tipo)) : ''
   } else if (registro.acao === 'filho.alterado') {
     const campos = texto(d.campos)
