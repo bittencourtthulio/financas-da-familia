@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { entradaInvalida } from '@/lib/erros'
 import { exigirAdmin, type UsuarioAutenticado } from '@/servicos/autenticacao'
 import { ACOES } from '@/lib/atividade'
+import { CHAVE_PROIBIDA, VALOR_PROIBIDO } from '@/lib/chaves-proibidas'
 import type { PrismaClient } from '@/gerado/prisma/client'
 
 /**
@@ -33,15 +34,6 @@ export interface EntradaDeAtividade {
   entidadeId: string
   detalhe?: Record<string, string | number | boolean | null>
 }
-
-// Substrings (sem diferenciar maiúscula) que não podem aparecer no nome de
-// uma chave do detalhe. Conservador de propósito: é melhor recusar uma chave
-// inocente do que gravar um segredo.
-const CHAVE_PROIBIDA =
-  /senha|password|hash|token|jwt|segredo|secret|valor|centavo|saldo|e-?mail|cpf/i
-
-// Texto que tem cara de hash bcrypt ou de JWT.
-const VALOR_PROIBIDO = /^\$2[abxy]?\$|^eyJ[\w-]+\.[\w-]+\./
 
 const TAMANHO_MAXIMO_DO_DETALHE = 1000
 
