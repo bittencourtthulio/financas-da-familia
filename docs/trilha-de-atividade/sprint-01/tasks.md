@@ -25,7 +25,7 @@ tasks:
   - id: T-01.01
     titulo: Entidade Atividade, migration e catalogo de acoes
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Criar o modelo Atividade no Prisma com migration versionada, a limpeza da tabela na ajuda de teste e o catalogo de acoes com rotulo em portugues em src/lib/atividade.ts
     arquivos:
       cria: [prisma/migrations/NNNN_atividade/migration.sql, src/lib/atividade.ts, tests/atividade-dados.test.ts]
@@ -35,6 +35,9 @@ tasks:
     criterio_aceite: tests/atividade-dados.test.ts termina com 0 failed e a suite inteira esta verde; npx prisma migrate deploy num banco novo cria a tabela atividades
     depende_de: []
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (179 testes)
+    nota: teste de premissas da FT-01 ajustado aqui (D-13) porque a PR-25 criada na F2 o quebrava; a T-03.03 so confere
   - id: T-01.02
     titulo: Servico registrarAtividade
     fase: F-01.1

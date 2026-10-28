@@ -90,8 +90,12 @@ describe('premissas que a FT-01 realiza (MAPA.md)', () => {
   })
 
   it('as premissas f2_autonoma criadas pela FT-01 também apontam para ela', () => {
-    const f2 = lista.filter((p) => p.origem === 'f2_autonoma')
-    expect(f2.length).toBeGreaterThanOrEqual(4)
+    // PR-21 a PR-24 nasceram na F2 da FT-01; as f2_autonoma seguintes
+    // (PR-25 em diante) pertencem à feature que as criou.
+    const f2 = lista.filter(
+      (p) => p.origem === 'f2_autonoma' && Number(p.id.slice(3)) <= 24,
+    )
+    expect(f2).toHaveLength(4)
     for (const p of f2) expect(p.realizadaEm, p.id).toBe('FT-01')
   })
 

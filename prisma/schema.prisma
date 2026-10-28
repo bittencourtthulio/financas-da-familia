@@ -27,3 +27,22 @@ model Usuario {
 
   @@map("usuarios")
 }
+
+// Trilha de atividade (PR-10): quem fez, o quê e quando. Só acréscimo (PR-11).
+// Sem chave estrangeira para `usuarios` de propósito: o registro sobrevive à
+// conta (exclusão de verdade na FT-07, PR-09) e guarda o nome do ator como
+// estava na hora. O `detalhe` é um JSON plano e pequeno e nunca recebe
+// senha, hash, token nem dado financeiro (PR-25); o serviço recusa.
+model Atividade {
+  id         String   @id @default(cuid())
+  atorId     String
+  atorNome   String
+  acao       String // código do catálogo em src/lib/atividade.ts
+  entidade   String // "usuario", e depois "lancamento", "mesada"...
+  entidadeId String
+  detalhe    String? // JSON plano, ver acima
+  criadoEm   DateTime @default(now())
+
+  @@index([criadoEm])
+  @@map("atividades")
+}
