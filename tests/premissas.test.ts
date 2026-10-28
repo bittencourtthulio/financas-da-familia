@@ -187,3 +187,39 @@ describe('premissas que a FT-04 realiza (MAPA.md)', () => {
     }
   })
 })
+
+describe('premissas que a FT-05 realiza (MAPA.md)', () => {
+  const bloco = /### FT-05 [\s\S]*?\*\*Premissas que realiza:\*\*\s*\[([^\]]*)\]/.exec(mapa)
+  const realizadas = (bloco?.[1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+
+  it('o MAPA lista a PR-06 para a FT-05', () => {
+    expect(realizadas).toContain('PR-06')
+  })
+
+  it('a PR-06 e as premissas PR-30 e PR-31 (criadas na F2 da FT-05) estão Realizada em FT-05', () => {
+    for (const id of ['PR-06', 'PR-30', 'PR-31']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).toBe('FT-05')
+    }
+  })
+
+  it('a PR-30 e a PR-31 são f2_autonoma, provisórias, e dizem o que as invalidaria', () => {
+    for (const id of ['PR-30', 'PR-31']) {
+      const p = lista.find((x) => x.id === id)
+      expect(p?.origem, id).toBe('f2_autonoma')
+      expect(p?.invalida.length, id).toBeGreaterThan(10)
+    }
+    const bloco30 = premissas.slice(premissas.indexOf('### PR-30'), premissas.indexOf('### PR-31'))
+    const bloco31 = premissas.slice(premissas.indexOf('### PR-31'))
+    for (const b of [bloco30, bloco31]) {
+      expect(b).toMatch(/\*\*Provisória:\*\* true/)
+      expect(b).toMatch(/decisao_humana/)
+    }
+  })
+
+  it('as premissas de outras features não foram marcadas por engano', () => {
+    expect(lista.find((p) => p.id === 'PR-08')?.realizadaEm).toBe('FT-04')
+    for (const id of ['PR-01', 'PR-09', 'PR-11', 'PR-13', 'PR-14']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).not.toBe('FT-05')
+    }
+  })
+})

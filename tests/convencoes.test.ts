@@ -58,11 +58,11 @@ describe('evidência do CONVENCOES.md', () => {
     expect(citacoesQuebradas('só `package.json:1`', RAIZ)).toEqual([])
   })
 
-  it('toda regra ainda prescrita diz em que feature a evidência nasce', () => {
+  it('toda regra ainda prescrita diz em que feature a evidência nasce (depois da FT-05 não sobra nenhuma)', () => {
     const prescritas = convencoes
       .split('\n')
       .filter((l) => l.includes('decidido_pelo_buildx'))
-    expect(prescritas.length).toBeGreaterThan(0)
+    expect(prescritas).toEqual([])
     for (const linha of prescritas) {
       expect(linha, linha).toMatch(/evidência na FT-0[1-8]/)
     }
@@ -222,6 +222,74 @@ describe('saldo e resumo do mês no CONVENCOES.md (FT-04)', () => {
 
   it('o histórico registra a revisão da FT-04', () => {
     expect(convencoes).toMatch(/\| FT-04 \|/)
+  })
+})
+
+describe('o papel filho e os filhos no CONVENCOES.md (FT-05)', () => {
+  const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
+  const trecho = (titulo: string) => {
+    const i = secao7.indexOf(`### ${titulo}`)
+    const j = secao7.indexOf('\n### ', i + 5)
+    return secao7.slice(i, j === -1 ? undefined : j)
+  }
+
+  it('cada citação nova dos filhos aponta para a linha que contém o nome citado', () => {
+    const esperado: Array<[string, number, RegExp]> = [
+      ['src/servicos/autenticacao.ts', 153, /exigirFilho/],
+      ['src/app/sessao-servidor.ts', 54, /exigirUsuarioFilho/],
+      ['src/servicos/filhos.ts', 47, /esquemaDoFilho/],
+      ['src/servicos/filhos.ts', 120, /cadastrarFilho/],
+      ['src/servicos/filhos.ts', 140, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 186, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 252, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 285, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 313, /minhaMesada/],
+      ['src/servicos/usuarios.ts', 117, /alvo\.papel === 'filho'/],
+      ['src/app/acoes.ts', 235, /registrarFilho/],
+      ['prisma/schema.prisma', 93, /model Filho/],
+      ['prisma/migrations/20261028170000_filhos/migration.sql', 2, /CREATE TABLE "filhos"/],
+      ['src/lib/atividade.ts', 17, /filho\.cadastrado/],
+      ['tests/papel-filho.test.ts', 52, /a tabela cobre/],
+      ['tests/filhos-papeis.test.ts', 32, /todas as funções do serviço de filhos negam/],
+      ['tests/filhos-login.test.ts', 220, /IDOR/],
+      ['tests/filhos-mesada.test.ts', 204, /nada vaza a existência/],
+      ['tests/filhos-acoes.test.ts', 121, /não grava nada por nenhuma ação sensível/],
+      ['tests/filhos.test.ts', 259, /PR-02 no serviço de filhos/],
+    ]
+    for (const [arquivo, linha, padrao] of esperado) {
+      expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
+      const conteudo = readFileSync(path.join(RAIZ, arquivo), 'utf8').split('\n')[linha - 1]
+      expect(conteudo, `${arquivo}:${linha}`).toMatch(padrao)
+    }
+  })
+
+  it('a autorização deixou de ser prescrita: o papel filho tem evidência, por lista de permitidos e sem id na página', () => {
+    const autorizacao = trecho('Autorização')
+    expect(autorizacao).not.toContain('decidido_pelo_buildx')
+    for (const termo of ['`filho`', 'exigirFilho', 'minhaMesada', 'lista de permitidos', 'IDOR', 'PR-31']) {
+      expect(autorizacao, termo).toContain(termo)
+    }
+    expect(autorizacao).toMatch(/não recebe id/)
+  })
+
+  it('os dados dizem que o filho tem tabela própria, valor em centavos e só os campos da PR-09', () => {
+    const dados = trecho('Dados do domínio')
+    expect(dados).toContain('Filho')
+    expect(dados).toContain('PR-09')
+    expect(dados).toMatch(/centavos/)
+  })
+
+  it('a auditoria cita as quatro ações dos filhos e diz o que nunca entra', () => {
+    const auditoria = trecho('Auditoria')
+    for (const acao of ['filho.cadastrado', 'filho.alterado', 'filho.login_criado', 'filho.login_desativado']) {
+      expect(auditoria, acao).toContain(acao)
+    }
+    expect(auditoria).toMatch(/nunca o valor/)
+    expect(auditoria).toMatch(/nascimento/)
+  })
+
+  it('o histórico registra a revisão da FT-05', () => {
+    expect(convencoes).toMatch(/\| FT-05 \|/)
   })
 })
 

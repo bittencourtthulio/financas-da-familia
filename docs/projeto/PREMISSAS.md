@@ -98,7 +98,7 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Origem:** catalogo_lacunas
 **Etapa:** b1
 **Provisória:** true
-**Realizada em:** null
+**Realizada em:** FT-05
 
 ---
 

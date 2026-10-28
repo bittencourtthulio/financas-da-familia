@@ -9,7 +9,7 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-03
 sprint:
   titulo: Seed, convencoes e fechamento
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; a seed cria dois filhos com login e o isolamento e provado sobre ela; o CONVENCOES.md tem a evidencia do papel filho; PR-06 realizada; README e MAPA descrevem a entrega
   riscos: [citacoes arquivo:linha do CONVENCOES.md deslocadas por linhas novas]
   fora_de_escopo: [Codigo de producao novo]
@@ -23,7 +23,7 @@ fases:
     tasks: [T-03.01]
   - id: F-03.2
     titulo: Convencoes e fechamento
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -48,7 +48,7 @@ tasks:
   - id: T-03.02
     titulo: Convencoes com evidencia do papel filho, premissas e README
     fase: F-03.2
-    status: pendente
+    status: concluida
     objetivo: Atualizar a secao de autorizacao, dados e auditoria do CONVENCOES.md com a evidencia do papel filho, reconferir todas as citacoes deslocadas, marcar a PR-06 como realizada em FT-05, cobrir PR-06, PR-30 e PR-31 em tests/premissas.test.ts e a convencao nova em tests/convencoes.test.ts, e atualizar o README
     arquivos:
       cria: []
@@ -58,8 +58,8 @@ tasks:
     criterio_aceite: tests/convencoes.test.ts e tests/premissas.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: [T-03.01]
     paralelizavel: false
-    concluida_em: null
-    suite: pendente
+    concluida_em: 2026-10-28
+    suite: verde (960 testes)
 
 ---
 
