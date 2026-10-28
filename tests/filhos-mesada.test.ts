@@ -1,5 +1,5 @@
 /**
- * A prova no servidor de produção real (PR-06, FT-05): o filho abre só o
+ * A prova no servidor de produção real (PR-06, FT-05; o saldo e o extrato são da FT-06, em mesada-rotas.test.ts): o filho abre só o
  * painel neutro, a própria mesada, o perfil e a troca de senha; é barrado em
  * todo o resto e nunca alcança o irmão, por id ou por parâmetro. O servidor
  * responde igual ao id de um irmão e ao de um id que não existe. O responsável
@@ -115,9 +115,9 @@ describe('o filho abre o que é dele', () => {
     expect(r.html).toMatch(/Ainda não há movimentos de mesada/)
   })
 
-  it('a página não tem saldo, extrato nem botão de ação, e o valor é dito como combinado', async () => {
+  it('a página tem o saldo (FT-06), mas nenhum formulário nem botão de ação, e o combinado é dito como combinado', async () => {
     const { html } = await abrir('/mesada', 'ana.mesada@teste.local')
-    expect(html).not.toMatch(/Saldo|Extrato/)
+    expect(html).toContain('Saldo zerado')
     const principal = /<main class="conteudo">[\s\S]*?<\/main>/.exec(html)?.[0] ?? ''
     expect(principal).toContain('Minha mesada')
     expect(principal).not.toMatch(/<form|<button/)
