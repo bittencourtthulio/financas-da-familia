@@ -9,7 +9,7 @@ criado_em: 2026-10-28
 atualizado_em: 2026-10-28
 etapa: b4
 total_features: 8
-features_entregues: 6
+features_entregues: 7
 features_bloqueadas: 0
 ciclos_recursao: 0
 ---

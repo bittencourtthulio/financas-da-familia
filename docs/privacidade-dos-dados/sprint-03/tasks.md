@@ -9,7 +9,7 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-03
 sprint:
   titulo: Seed, premissas e convencoes
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; a seed segue idempotente; PR-09, PR-34 e PR-35 realizadas; CONVENCOES.md com evidencia conferida; quatro comandos verdes
   riscos: [citacoes de linha deslocadas por linhas novas, ordem dos testes que leem o MAPA]
   fora_de_escopo: [Backup e saude (FT-08)]
@@ -23,7 +23,7 @@ fases:
     tasks: [T-03.01]
   - id: F-03.2
     titulo: Premissas e convencoes
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -48,7 +48,7 @@ tasks:
   - id: T-03.02
     titulo: "PR-09 realizada, convencoes com evidencia e fechamento"
     fase: F-03.2
-    status: pendente
+    status: concluida
     objetivo: Marcar PR-09, PR-34 e PR-35 como Realizada em FT-07, atualizar a secao de dados e privacidade do CONVENCOES.md com evidencia arquivo:linha, reconferir as citacoes deslocadas e fechar MAPA e PROJETO
     arquivos:
       cria: []
@@ -58,8 +58,8 @@ tasks:
     criterio_aceite: tests/convencoes.test.ts e tests/premissas.test.ts terminam com 0 failed e npm run verificar passa
     depende_de: [T-03.01]
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1324 testes)
 
 ---
 

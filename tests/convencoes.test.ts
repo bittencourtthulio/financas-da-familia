@@ -384,3 +384,68 @@ describe('comandos do CONVENCOES.md', () => {
     expect(existsSync(path.join(RAIZ, 'docs/stack/LACUNAS.md'))).toBe(true)
   })
 })
+
+describe('privacidade dos dados no CONVENCOES.md (FT-07)', () => {
+  const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
+  const trecho = (titulo: string) => {
+    const i = secao7.indexOf(`### ${titulo}`)
+    const j = secao7.indexOf('\n### ', i + 5)
+    return secao7.slice(i, j === -1 ? undefined : j)
+  }
+
+  it('cada citação nova da privacidade aponta para a linha que contém o nome citado', () => {
+    const esperado: Array<[string, number, RegExp]> = [
+      ['src/servicos/privacidade.ts', 52, /exportarDadosDaFamilia/],
+      ['src/servicos/privacidade.ts', 60, /usuario\.findMany/],
+      ['src/servicos/privacidade.ts', 175, /anonimizarTrilha/],
+      ['src/servicos/privacidade.ts', 228, /excluirFilho/],
+      ['src/lib/privacidade.ts', 8, /VERSAO_DO_FORMATO/],
+      ['src/lib/privacidade.ts', 26, /camposProibidosEm/],
+      ['src/app/api/privacidade/exportar/route.ts', 11, /POST/],
+      ['src/app/acoes.ts', 362, /excluirContaDoFilho/],
+      ['src/servicos/autenticacao.ts', 161, /esquecerTentativasDeLogin/],
+      ['src/lib/atividade.ts', 24, /familia\.exportada/],
+      ['src/lib/atividade.ts', 25, /filho\.excluido/],
+      ['src/componentes/ApagarFilho.tsx', 11, /ApagarFilho/],
+      ['src/componentes/PainelDePrivacidade.tsx', 10, /PainelDePrivacidade/],
+      ['tests/privacidade-exportacao.test.ts', 150, /campos proibidos/],
+      ['tests/privacidade-banco.test.ts', 47, /varredura acha o filho/],
+      ['tests/privacidade-exclusao.test.ts', 222, /token emitido antes/],
+      ['tests/privacidade-papeis.test.ts', 27, /nega quem não é admin/],
+      ['tests/privacidade-acoes.test.ts', 116, /não apaga nada/],
+      ['tests/privacidade-rotas.test.ts', 183, /cookie emitido antes/],
+      ['tests/mesada-dados.test.ts', 4, /Cascade/],
+    ]
+    for (const [arquivo, linha, padrao] of esperado) {
+      expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
+      const conteudo = readFileSync(path.join(RAIZ, arquivo), 'utf8').split('\n')[linha - 1]
+      expect(conteudo, `${arquivo}:${linha}`).toMatch(padrao)
+    }
+  })
+
+  it('"Dados do domínio" fecha a nota para a FT-07: exporta e apaga por filho, anonimiza a trilha', () => {
+    const dados = trecho('Dados do domínio')
+    expect(dados).toMatch(/PR-09/)
+    expect(dados).toMatch(/anonimiz/)
+    expect(dados).toContain('versao_do_formato')
+    expect(dados).not.toMatch(/a FT-07 decide se o apaga ou anonimiza/)
+  })
+
+  it('"Autorização" diz que só o responsável exporta e exclui, e que a rota é só POST', () => {
+    const autorizacao = trecho('Autorização')
+    expect(autorizacao).toContain('exportarDadosDaFamilia')
+    expect(autorizacao).toContain('excluirFilho')
+    expect(autorizacao).toMatch(/só POST/)
+  })
+
+  it('"Auditoria" cita as duas ações novas e diz que o rastro da exclusão não leva dado pessoal', () => {
+    const auditoria = trecho('Auditoria')
+    expect(auditoria).toContain('familia.exportada')
+    expect(auditoria).toContain('filho.excluido')
+    expect(auditoria).toMatch(/filho removido/)
+  })
+
+  it('o histórico registra a revisão da FT-07', () => {
+    expect(convencoes).toMatch(/\| FT-07 \|/)
+  })
+})
