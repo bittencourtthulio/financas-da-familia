@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 25
+total: 28
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 5
+  f2_autonoma: 8
   recursao: 0
   template: 5
 ---
@@ -46,7 +46,7 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Origem:** catalogo_lacunas
 **Etapa:** b1
 **Provisória:** false
-**Realizada em:** null
+**Realizada em:** FT-03
 
 ---
 
@@ -346,3 +346,42 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** false
 **Realizada em:** FT-02
+
+---
+
+### PR-26 — Forma do lançamento: valor, data e descrição
+
+**Assunto:** FT-03, forma do lançamento e do que se digita
+**Decisão:** o lançamento tem tipo (receita ou despesa), valor, data, categoria e descrição. O valor é um inteiro positivo de centavos (o sinal vem do tipo) e vai até R$ 1.000.000,00; a entrada é lida em formato brasileiro ("1.234,56", "12,5", "1234", com "R$" opcional), com o ponto só como separador de milhar, por leitor de texto que não passa por ponto flutuante. A data é um dia (sem hora) guardado como texto AAAA-MM-DD no fuso `America/Sao_Paulo`; qualquer dia de 2000 a 2100 vale, inclusive futuro. A descrição é opcional, até 200 caracteres.
+**Por quê:** a PR-02 manda centavos inteiros e a PR-16 manda o fuso da família; um `DateTime` em UTC faria um lançamento das 23h de 27/10 cair em 28/10, e "1.234" lido como número seria ambíguo entre mil e um vírgula duzentos e trinta e quatro. Nenhum arquivo do projeto diz que a data futura é proibida nem que a descrição é obrigatória; a escolha menos restritiva é a mais reversível. O teto de R$ 1.000.000,00 existe para barrar erro de digitação e fica folgado dentro do inteiro do banco.
+**O que invalida:** se a família lançar em outra moeda, lançar valor acima de R$ 1.000.000,00, quiser impedir data futura ou exigir descrição.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** false
+**Realizada em:** FT-03
+
+---
+
+### PR-27 — Categorias de lançamento
+
+**Assunto:** FT-03, categoria
+**Decisão:** toda categoria pertence a um tipo (receita ou despesa), tem nome de 1 a 40 caracteres, único dentro do tipo sem diferenciar maiúscula, e é criada pelo responsável ou pelo adulto. Um lançamento só aceita categoria que existe e que é do mesmo tipo dele. Nesta feature não se edita, oculta nem apaga categoria, e o sistema não traz conjunto oficial nem categoria obrigatória: as categorias de exemplo existem só na seed de demonstração (PR-04). Pendência `decisao_humana` não bloqueante: a família quer conjunto padrão, ou renomear e apagar categorias?
+**Por quê:** o pedido diz "cria categorias novas" e nada mais; quais categorias existem é regra de negócio que o buildx não decide. Criar sem poder apagar é a opção mais reversível, porque acrescentar renomear e apagar depois não desfaz nada.
+**O que invalida:** se a família quiser renomear, apagar ou ocultar categoria, ou um conjunto padrão de categorias.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-03
+
+---
+
+### PR-28 — Apagar lançamento é definitivo
+
+**Assunto:** FT-03, exclusão de lançamento
+**Decisão:** apagar um lançamento remove a linha do banco. A trilha de atividade registra quem apagou, quando, o id, o tipo e a categoria, e nunca o valor (PR-25); a tela pede confirmação em dois passos. Pendência `decisao_humana` não bloqueante: a família quer lixeira ou desfazer?
+**Por quê:** a PR-10 pede registrar quem apagou, não guardar o que foi apagado. A remoção lógica deixaria dado "apagado" ao alcance do saldo (FT-04) e da exportação (FT-07), exigindo filtro em toda consulta futura, e um filtro esquecido mostraria dinheiro que a família mandou apagar. A PR-11 trata de retenção do histórico, não de impedir que o usuário apague.
+**O que invalida:** se a família quiser desfazer uma exclusão, uma lixeira, ou se passar a exigir guardar o conteúdo de lançamento apagado.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** FT-03
