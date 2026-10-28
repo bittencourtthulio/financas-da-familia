@@ -4,12 +4,12 @@ expx_tool: buildx
 kind: premissas
 projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
-total: 31
+total: 33
 por_origem:
   catalogo_lacunas: 13
   briefing: 0
   decisao_de_stack: 2
-  f2_autonoma: 11
+  f2_autonoma: 13
   recursao: 0
   template: 5
 ---
@@ -424,3 +424,29 @@ a premissa precisa da sua atenção. Se não é, siga em frente.
 **Etapa:** b4
 **Provisória:** true
 **Realizada em:** FT-05
+
+---
+
+### PR-32 — Forma do movimento de mesada e o saldo do filho
+
+**Assunto:** FT-06, o que é um movimento de mesada e como o saldo sai
+**Decisão:** o movimento de mesada pertence a um filho e tem tipo (`credito` ou `gasto`), valor, data e descrição. O valor é um inteiro positivo de centavos (o sinal vem do tipo), lido pelo mesmo leitor em formato brasileiro e com o mesmo teto da PR-26 (R$ 0,01 a R$ 1.000.000,00); a data é um dia civil `AAAA-MM-DD` no fuso `America/Sao_Paulo`, de 2000 a 2100, inclusive futura; a descrição é opcional, até 200 caracteres. O saldo do filho é a soma de todos os créditos menos a soma de todos os gastos dele, sem corte por data nem por mês, calculado no servidor por soma de inteiros no banco (`groupBy`), nunca em ponto flutuante nem no cliente. O saldo pode ser negativo: o sistema não bloqueia o gasto, mostra o saldo negativo com sinal de menos e uma frase que o diz (não só pela cor) e avisa o responsável ao registrar o gasto que o deixou negativo. O extrato lista do movimento de dia mais recente para o mais antigo, 30 por página. O valor combinado da FT-05 continua só informativo: não gera crédito (nada de mesada automática ou recorrente). Pendência `decisao_humana` não bloqueante: a família quer impedir gasto acima do saldo, mesada automática, aprovação de gasto, pedido de gasto pelo filho, metas ou poupança, juros, tarefas que rendem mesada ou transferência entre filhos?
+**Por quê:** a PR-02 manda centavos inteiros e a PR-26 já fixou a forma de valor, data e descrição do lançamento, então o movimento a repete para não ter dois jeitos de digitar dinheiro. Nenhum arquivo do projeto diz que o gasto é limitado pelo saldo, que a data futura é proibida ou que o saldo se divide em períodos; o PROJETO.md põe mesada automática, aprovação, metas, juros e tarefas em fora de escopo. Permitir e sinalizar é a opção mais simples e reversível: acrescentar um bloqueio depois não desfaz nada, enquanto bloquear agora esconderia um gasto que a criança de fato fez e faria o saldo divergir do que a família conferiu à mão.
+**O que invalida:** se a família quiser bloquear gasto acima do saldo, mesada gerada sozinha pelo valor combinado, saldo por período, valor acima de R$ 1.000.000,00, data futura proibida, ou mais de uma moeda.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** null
+
+---
+
+### PR-33 — Quem mexe na mesada, apagar movimento e o vínculo com o filho
+
+**Assunto:** FT-06, autorização, exclusão e chave estrangeira do movimento
+**Decisão:** só o responsável (`admin`) registra, edita, apaga e lê os movimentos e o saldo de qualquer filho; o adulto (`usuario`) não mexe em mesada nem a vê (padrão mais restritivo, igual ao cadastro do filho da PR-30); o `filho` só lê o extrato e o saldo do próprio registro, por uma função que não recebe id (o registro vem do usuário da sessão), e nunca cria, edita nem apaga movimento. Toda função do serviço começa pela guarda de papel, por lista de permitidos. O movimento não muda de filho depois de criado (sem transferência). Apagar um movimento remove a linha do banco, com confirmação em dois passos na tela, como o lançamento (PR-28); a trilha registra quem apagou, quando, o id, o tipo e o filho, nunca o valor (PR-25). Criar, editar e apagar entram na trilha na mesma transação. O movimento tem chave estrangeira para o filho com `onDelete: Cascade`: apagar o registro do filho leva o histórico dele, que é o que a PR-09 pede (exclusão de verdade); a tabela `movimentos_de_mesada` é única e indexada por filho, de modo que a FT-07 exporta e apaga por filho com uma consulta. Esta feature não apaga filho. Pendência `decisao_humana` não bloqueante: o adulto deve ver ou lançar a mesada dos filhos? A família quer lixeira ou desfazer ao apagar movimento?
+**Por quê:** a PR-06 manda o filho ler só o que é dele, checado no servidor, e a descrição diz que o responsável registra. Dar acesso ao adulto seria ampliar acesso a dado de menor sem pedido; começar fechado e abrir depois não desfaz nada. A exclusão definitiva repete a lógica da PR-28 (remoção lógica deixaria dinheiro apagado ao alcance do saldo e da exportação). O `Cascade` é a política que evita registro órfão de menor depois que a FT-07 apagar o filho; sem ele, o apagar da FT-07 teria de lembrar de limpar a tabela na ordem certa.
+**O que invalida:** se o adulto também gerir a mesada, se a família quiser lixeira ou desfazer, se o histórico de mesada precisar sobreviver à exclusão do filho, ou se um movimento puder mudar de filho.
+**Origem:** f2_autonoma
+**Etapa:** b4
+**Provisória:** true
+**Realizada em:** null
