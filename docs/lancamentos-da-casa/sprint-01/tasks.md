@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-01
 sprint:
   titulo: Valor, data e dados
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; existe o leitor de valor em centavos, a data civil no fuso de Sao Paulo, as tabelas de categorias e lancamentos por migration e o catalogo da trilha com as acoes novas
   riscos: [Gerar a migration sem banco interativo, Chave estrangeira entre categoria e lancamento no SQLite]
   fora_de_escopo: [Servico, tela, seed]
 fases:
   - id: F-01.1
     titulo: Regras puras e dados
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -41,7 +41,7 @@ tasks:
   - id: T-01.02
     titulo: Entidades Categoria e Lancamento, migration e catalogo de acoes
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Criar os modelos Categoria e Lancamento no Prisma (valorCentavos Int, data texto, categoriaId com chave estrangeira) com migration versionada, limpar as tabelas em limparBanco e acrescentar lancamento.criado, lancamento.alterado, lancamento.apagado e categoria.criada ao catalogo com descricao em portugues na tela
     arquivos:
       cria: [prisma/migrations/NNNN_lancamentos/migration.sql, tests/lancamentos-dados.test.ts]
@@ -51,6 +51,10 @@ tasks:
     criterio_aceite: tests/lancamentos-dados.test.ts e tests/atividade-tela.test.ts terminam com 0 failed; npx prisma migrate deploy num banco novo cria as tabelas categorias e lancamentos; suite inteira verde
     depende_de: [T-01.01]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (367 testes)
+    nota: tests/atividade-dados.test.ts (FT-02) afirmava as tres acoes exatas do catalogo; passou a afirmar o catalogo com as quatro acoes novas
+
 ---
 
 # Plano — Sprint 01 — Valor, data e dados

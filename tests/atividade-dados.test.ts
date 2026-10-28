@@ -55,8 +55,12 @@ describe('tabela de atividades', () => {
 })
 
 describe('catálogo de ações', () => {
-  it('traz as três ações de hoje, com rótulo em português', () => {
+  it('traz as ações de usuário e as das features seguintes (FT-03), com rótulo em português', () => {
     expect(Object.keys(ACOES).sort()).toEqual([
+      'categoria.criada',
+      'lancamento.alterado',
+      'lancamento.apagado',
+      'lancamento.criado',
       'usuario.criado',
       'usuario.desativado',
       'usuario.papel_alterado',

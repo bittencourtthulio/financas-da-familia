@@ -59,6 +59,35 @@ describe('descreverAtividade', () => {
     })
   })
 
+  it('lançamento: diz o que foi feito e o tipo, nunca o código nem um valor', () => {
+    const registro: RegistroParaExibir = {
+      atorNome: 'Adulto de demonstração',
+      acao: 'lancamento.criado',
+      detalhe: { tipo: 'despesa', categoriaId: 'cat-1' },
+      criadoEm: new Date('2026-10-28T15:00:00Z'),
+    }
+    const d = descreverAtividade(registro)
+    expect(d.acao).toBe('Criou o lançamento')
+    expect(d.detalhe).toBe('Despesa')
+    expect(descreverAtividade({ ...registro, acao: 'lancamento.alterado' }).acao).toBe('Alterou o lançamento')
+    expect(descreverAtividade({ ...registro, acao: 'lancamento.apagado', detalhe: { tipo: 'receita' } })).toMatchObject({
+      acao: 'Apagou o lançamento',
+      detalhe: 'Receita',
+    })
+    expect(JSON.stringify(d)).not.toMatch(/despesa|lancamento\.|cat-1/)
+  })
+
+  it('categoria: diz o nome da categoria e o tipo', () => {
+    const d = descreverAtividade({
+      atorNome: 'Responsável de demonstração',
+      acao: 'categoria.criada',
+      detalhe: { alvoNome: 'Mercado', tipo: 'despesa' },
+      criadoEm: new Date('2026-10-28T15:00:00Z'),
+    })
+    expect(d.acao).toBe('Criou a categoria Mercado')
+    expect(d.detalhe).toBe('Despesa')
+  })
+
   it('ação desconhecida e detalhe faltando não derrubam a tela nem mostram "undefined"', () => {
     const d = descreverAtividade({ ...criado, acao: 'coisa.nova', detalhe: {} })
     expect(d.acao).toBe('coisa.nova')

@@ -46,3 +46,37 @@ model Atividade {
   @@index([criadoEm])
   @@map("atividades")
 }
+
+// Lançamentos da casa (FT-03). Todo valor é inteiro em centavos, BRL, sempre
+// positivo: o sinal vem do tipo (PR-02, PR-26). Nunca Float nem Decimal.
+// `data` é o dia civil da família como texto AAAA-MM-DD, não um instante
+// (PR-16, PR-26). Quem lançou fica na trilha de atividade, não aqui.
+model Categoria {
+  id       String   @id @default(cuid())
+  nome     String
+  tipo     String // "receita" | "despesa"
+  criadoEm DateTime @default(now())
+
+  lancamentos Lancamento[]
+
+  // Nome único dentro do tipo; a comparação sem diferenciar maiúscula é do
+  // serviço (PR-27).
+  @@unique([tipo, nome])
+  @@map("categorias")
+}
+
+model Lancamento {
+  id            String   @id @default(cuid())
+  tipo          String // "receita" | "despesa"
+  valorCentavos Int // inteiro positivo, em centavos de real
+  data          String // AAAA-MM-DD no fuso America/Sao_Paulo
+  descricao     String   @default("")
+  categoriaId   String
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  categoria Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+
+  @@index([data])
+  @@map("lancamentos")
+}

@@ -10,6 +10,10 @@ export const ACOES: Record<string, string> = {
   'usuario.criado': 'Criou o usuário',
   'usuario.papel_alterado': 'Alterou o papel de',
   'usuario.desativado': 'Desativou o usuário',
+  'lancamento.criado': 'Criou o lançamento',
+  'lancamento.alterado': 'Alterou o lançamento',
+  'lancamento.apagado': 'Apagou o lançamento',
+  'categoria.criada': 'Criou a categoria',
 }
 
 /** O rótulo da ação; ação desconhecida volta como veio. */
@@ -32,6 +36,13 @@ export interface AtividadeDescrita {
   detalhe: string
 }
 
+const TIPOS: Record<string, string> = { receita: 'Receita', despesa: 'Despesa' }
+
+/** "despesa" → "Despesa"; desconhecido volta como veio. */
+export function rotuloDoTipo(tipo: string): string {
+  return TIPOS[tipo] ?? tipo
+}
+
 const texto = (valor: unknown): string => (typeof valor === 'string' ? valor : '')
 
 /**
@@ -48,6 +59,9 @@ export function descreverAtividade(registro: RegistroParaExibir): AtividadeDescr
     detalhe = `Papel: ${rotuloDoPapel(texto(d.papel))}`
   } else if (registro.acao === 'usuario.papel_alterado') {
     detalhe = `De ${rotuloDoPapel(texto(d.de))} para ${rotuloDoPapel(texto(d.para))}`
+  } else if (registro.acao.startsWith('lancamento.') || registro.acao === 'categoria.criada') {
+    // Só o tipo: a trilha de lançamento nunca leva o valor (PR-25).
+    detalhe = texto(d.tipo) ? rotuloDoTipo(texto(d.tipo)) : ''
   }
 
   return {
