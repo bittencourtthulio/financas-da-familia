@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-03
 sprint:
   titulo: Telas, seed e fechamento
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; o responsavel e o adulto lancam, editam e apagam lancamento e criam categoria pela interface em dois temas e no celular; a seed demonstra; o servidor real prova as telas e a negacao do filho
   riscos: [Formulario com campo dependente (tipo filtra categoria) em componente de cliente, tests/rotas.test.ts depende do build]
   fora_de_escopo: [Saldo, resumo, exportacao]
 fases:
   - id: F-03.1
     titulo: Interface e fechamento
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -57,7 +57,7 @@ tasks:
   - id: T-03.03
     titulo: Seed, prova no servidor real e fechamento das convencoes
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Seed de demonstracao com categorias e lancamentos do mes; tests/rotas.test.ts prova as telas no servidor de producao (papel, filtros, filho negado, valor fora da trilha); CONVENCOES.md (dinheiro, autorizacao, dados, auditoria) com evidencia arquivo:linha; premissas e README
     arquivos:
       cria: []
@@ -67,6 +67,9 @@ tasks:
     criterio_aceite: npm test, npm run lint, npm run typecheck, npm run build e npm audit --audit-level=high com codigo 0
     depende_de: [T-03.02]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (588 testes)
+
 ---
 
 # Plano — Sprint 03 — Telas, seed e fechamento

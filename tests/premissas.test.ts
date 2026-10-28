@@ -100,7 +100,7 @@ describe('premissas que a FT-01 realiza (MAPA.md)', () => {
   })
 
   it('o papel filho e as premissas de outras features não foram marcadas por engano', () => {
-    for (const id of ['PR-01', 'PR-02', 'PR-06', 'PR-08', 'PR-09', 'PR-10', 'PR-11', 'PR-13', 'PR-14']) {
+    for (const id of ['PR-01', 'PR-06', 'PR-08', 'PR-09', 'PR-10', 'PR-11', 'PR-13', 'PR-14']) {
       expect(lista.find((p) => p.id === id)?.realizadaEm, id).not.toBe('FT-01')
     }
   })
@@ -129,5 +129,33 @@ describe('premissas que a FT-02 realiza (MAPA.md)', () => {
 
   it('a PR-11 (retenção) não é marcada por esta feature: o limite de 90 dias do log é da FT-08', () => {
     expect(lista.find((p) => p.id === 'PR-11')?.realizadaEm).not.toBe('FT-02')
+  })
+})
+
+describe('premissas que a FT-03 realiza (MAPA.md)', () => {
+  const bloco = /### FT-03 [\s\S]*?\*\*Premissas que realiza:\*\*\s*\[([^\]]*)\]/.exec(mapa)
+  const realizadas = (bloco?.[1] ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+
+  it('o MAPA lista a PR-02 para a FT-03', () => {
+    expect(realizadas).toContain('PR-02')
+  })
+
+  it('a PR-02 e as PR-26 a PR-28 (criadas na F2 da FT-03) estão Realizada em FT-03', () => {
+    for (const id of ['PR-02', 'PR-26', 'PR-27', 'PR-28']) {
+      expect(lista.find((p) => p.id === id)?.realizadaEm, id).toBe('FT-03')
+    }
+  })
+
+  it('as PR-26 a PR-28 são f2_autonoma e dizem o que as invalidaria', () => {
+    for (const id of ['PR-26', 'PR-27', 'PR-28']) {
+      const p = lista.find((x) => x.id === id)
+      expect(p?.origem, id).toBe('f2_autonoma')
+      expect(p?.invalida.length, id).toBeGreaterThan(10)
+    }
+  })
+
+  it('a PR-25 continua da FT-02 e a PR-06 (papéis, filho) não foi marcada por engano', () => {
+    expect(lista.find((p) => p.id === 'PR-25')?.realizadaEm).toBe('FT-02')
+    expect(lista.find((p) => p.id === 'PR-06')?.realizadaEm).not.toBe('FT-03')
   })
 })

@@ -13,6 +13,8 @@ import { COOKIE_SESSAO } from '@/lib/sessao'
 import { hashDeSenha } from '@/lib/senha'
 import { prisma } from '@/lib/prisma'
 import { registrarAtividade } from '@/servicos/atividade'
+import { criarCategoria, criarLancamento } from '@/servicos/lancamentos'
+import { hojeEmSaoPaulo } from '@/lib/datas'
 
 const PORTA = 3178
 const BASE = `http://localhost:${PORTA}`
@@ -39,6 +41,8 @@ const pedir = (caminho: string, cookie?: string) =>
   })
 
 beforeAll(async () => {
+  await prisma.lancamento.deleteMany()
+  await prisma.categoria.deleteMany()
   await prisma.atividade.deleteMany()
   await prisma.usuario.deleteMany()
   await prisma.usuario.createMany({
@@ -54,6 +58,14 @@ beforeAll(async () => {
         email: 'comum.rota@teste.local',
         senhaHash: await hashDeSenha('senha-de-rota-123'),
         papel: 'usuario',
+      },
+      {
+        // O papel filho só nasce na FT-05; aqui basta um papel que não é
+        // admin nem usuario para provar que o servidor real nega.
+        nome: 'Filho de Rota',
+        email: 'filho.rota@teste.local',
+        senhaHash: await hashDeSenha('senha-de-rota-123'),
+        papel: 'filho',
       },
     ],
   })
@@ -76,6 +88,23 @@ beforeAll(async () => {
     detalhe: { alvoNome: 'Alvo Marcador', de: 'usuario', para: 'admin' },
   })
 
+  const mercado = await criarCategoria(admin, { nome: 'Mercado de Rota', tipo: 'despesa' })
+  const salario = await criarCategoria(admin, { nome: 'Salário de Rota', tipo: 'receita' })
+  await criarLancamento(admin, {
+    tipo: 'despesa',
+    valor: '12,34',
+    data: hojeEmSaoPaulo(),
+    categoriaId: mercado.id,
+    descricao: 'Marcador de Despesa',
+  })
+  await criarLancamento(admin, {
+    tipo: 'receita',
+    valor: '1.234,56',
+    data: hojeEmSaoPaulo(),
+    categoriaId: salario.id,
+    descricao: 'Marcador de Receita',
+  })
+
   servidor = spawn('npx', ['next', 'start', '-p', String(PORTA)], {
     env: { ...process.env, NODE_ENV: 'production' },
     stdio: 'ignore',
@@ -93,7 +122,17 @@ async function cookieDe(email: string): Promise<string> {
 }
 
 describe('sem sessão', () => {
-  it.each(['/', '/perfil', '/perfil/senha', '/configuracoes/usuarios', '/atividade'])(
+  it.each([
+  '/',
+  '/perfil',
+  '/perfil/senha',
+  '/configuracoes/usuarios',
+  '/atividade',
+  '/lancamentos',
+  '/lancamentos/novo',
+  '/lancamentos/categorias',
+  '/lancamentos/qualquer-id',
+])(
     'manda %s para o login',
     async (rota) => {
       const r = await pedir(rota)
@@ -271,6 +310,113 @@ describe('a tela Atividade (FT-02)', () => {
     const r = await pedir('/atividade?pagina=999', await cookieDe('admin.rota@teste.local'))
     expect(r.status).toBe(200)
     expect(await r.text()).toContain('Alvo Marcador')
+  })
+})
+
+describe('as telas de Lançamentos (FT-03)', () => {
+  const abrir = async (caminho: string, email: string) =>
+    pedir(caminho, await cookieDe(email))
+
+  it('o adulto abre a lista do mês corrente com valor em reais, despesa negativa e receita positiva', async () => {
+    const r = await abrir('/lancamentos', 'comum.rota@teste.local')
+    const html = await r.text()
+    expect(r.status).toBe(200)
+    expect(html).toContain('Lançamentos')
+    expect(html).toContain('Marcador de Despesa')
+    expect(html).toContain('Marcador de Receita')
+    expect(html).toContain('Mercado de Rota')
+    expect(html).toMatch(/valor-despesa[^>]*>-R\$\s12,34</)
+    expect(html).toMatch(/valor-receita[^>]*>R\$\s1\.234,56</)
+    expect(html).toMatch(/\d{2}\/\d{2}\/\d{4}/)
+    expect(html).toMatch(/<div class="tabela-rolavel"><table>/)
+    expect(html).toContain('Novo lançamento')
+    expect(html).toContain('Mês anterior')
+  })
+
+  it('o responsável também abre; o menu traz Lançamentos e Categorias', async () => {
+    const html = await (await abrir('/', 'admin.rota@teste.local')).text()
+    expect(html).toMatch(/<a[^>]*href="\/lancamentos"[^>]*>Lançamentos<\/a>/)
+    expect(html).toMatch(/<a[^>]*href="\/lancamentos\/categorias"[^>]*>Categorias<\/a>/)
+    expect(html).not.toContain('configuracoes/categorias')
+  })
+
+  it('o filtro de tipo e o de mês valem no servidor', async () => {
+    const receitas = await (await abrir('/lancamentos?tipo=receita', 'comum.rota@teste.local')).text()
+    expect(receitas).toContain('Marcador de Receita')
+    expect(receitas).not.toContain('Marcador de Despesa')
+    // O React separa nós de texto vizinhos com comentários no HTML do servidor.
+    const antigo = (await (await abrir('/lancamentos?mes=2020-01', 'comum.rota@teste.local')).text()).replaceAll('<!-- -->', '')
+    expect(antigo).toContain('Nenhum lançamento em janeiro de 2020')
+    expect(antigo).not.toContain('Marcador de')
+    const invalido = await abrir('/lancamentos?mes=lixo&tipo=lixo&pagina=-4', 'comum.rota@teste.local')
+    expect(invalido.status).toBe(200)
+    expect(await invalido.text()).toContain('Marcador de Despesa')
+  })
+
+  it('o formulário de novo lançamento abre com os campos e a data de hoje', async () => {
+    const html = await (await abrir('/lancamentos/novo', 'comum.rota@teste.local')).text()
+    for (const nome of ['tipo', 'valor', 'data', 'categoriaId', 'descricao']) {
+      expect(html).toContain(`name="${nome}"`)
+    }
+    expect(html).toContain(`value="${hojeEmSaoPaulo()}"`)
+    expect(html).toMatch(/<option[^>]*>Mercado de Rota<\/option>/)
+    // Receita é outro tipo: a categoria dela não é oferecida como opção.
+    expect(html).not.toMatch(/<option[^>]*>Salário de Rota<\/option>/)
+  })
+
+  it('a edição abre preenchida com o valor no formato do campo; id inexistente é 404', async () => {
+    const l = await prisma.lancamento.findFirstOrThrow({ where: { descricao: 'Marcador de Receita' } })
+    const html = await (await abrir(`/lancamentos/${l.id}`, 'comum.rota@teste.local')).text()
+    expect(html).toContain('value="1234,56"')
+    expect(html).toContain('value="Marcador de Receita"')
+    expect(html).toContain('Apagar lançamento')
+    expect(html).not.toContain('Confirmar exclusão')
+
+    // A tela já começou a ser enviada (carregando) quando o serviço responde
+    // 404, então o Next mantém o status 200 e troca o corpo pela página de
+    // "não encontrado": o que importa é que o formulário não aparece.
+    const inexistente = await (await abrir('/lancamentos/nao-existe', 'comum.rota@teste.local')).text()
+    expect(inexistente).toContain('Página não encontrada')
+    expect(inexistente).not.toContain('name="valor"')
+  })
+
+  it('a tela de categorias lista por tipo e traz o formulário', async () => {
+    const html = await (await abrir('/lancamentos/categorias', 'comum.rota@teste.local')).text()
+    expect(html).toContain('Mercado de Rota')
+    expect(html).toContain('Salário de Rota')
+    expect(html).toContain('Nova categoria')
+    expect(html).toContain('name="nome"')
+  })
+
+  it.each([
+    '/lancamentos',
+    '/lancamentos/novo',
+    '/lancamentos/categorias',
+    '/lancamentos/qualquer-id',
+  ])('quem não é responsável nem adulto (o filho de amanhã) é negado em %s, sem dado no corpo', async (caminho) => {
+    const r = await abrir(caminho, 'filho.rota@teste.local')
+    const html = await r.text()
+    const redirecionou =
+      r.status === 307 ||
+      /<meta[^>]*http-equiv="refresh"[^>]*content="[^"]*url=\/"/.test(html)
+    expect(redirecionou).toBe(true)
+    for (const proibido of ['Marcador de', 'Mercado de Rota', 'Salário de Rota', 'tabela-rolavel']) {
+      expect(html).not.toContain(proibido)
+    }
+  })
+
+  it('o item Lançamentos não aparece no menu de quem não lança', async () => {
+    const html = await (await abrir('/', 'filho.rota@teste.local')).text()
+    expect(html).not.toContain('/lancamentos')
+  })
+
+  it('a Atividade do responsável mostra os lançamentos e as categorias, sem nenhum valor', async () => {
+    const html = await (await abrir('/atividade', 'admin.rota@teste.local')).text()
+    expect(html).toContain('Criou o lançamento')
+    expect(html).toContain('Criou a categoria Mercado de Rota')
+    for (const proibido of ['1.234,56', '1234,56', '123456', '12,34', 'Marcador de']) {
+      expect(html).not.toContain(proibido)
+    }
   })
 })
 

@@ -1,9 +1,10 @@
 // Dados de demonstração (PR-04). Contas fictícias para uso local e para o
-// roteiro do QA. Usuários e a trilha de atividade deles (FT-02): lançamentos,
-// filhos e mesada nascem nas features FT-03, FT-05 e FT-06, e cada uma
-// acrescenta a sua parte aqui.
+// roteiro do QA. Usuários e a trilha de atividade deles (FT-02) e categorias e
+// lançamentos do mês (FT-03): filhos e mesada nascem nas features FT-05 e
+// FT-06, e cada uma acrescenta a sua parte aqui.
 import type { PrismaClient } from '../src/gerado/prisma/client.js'
 import { hashDeSenha } from '../src/lib/senha.js'
+import { hojeEmSaoPaulo, mesDaData } from '../src/lib/datas.js'
 
 export const DEMONSTRACAO = [
   {
@@ -25,7 +26,8 @@ export const DEMONSTRACAO = [
  * as contas têm senha conhecida.
  */
 export async function semearDemonstracao(
-  prisma: Pick<PrismaClient, 'usuario' | 'atividade'>,
+  prisma: Pick<PrismaClient, 'usuario' | 'atividade' | 'categoria' | 'lancamento'>,
+  agora: Date = new Date(),
 ): Promise<void> {
   if (process.env.NODE_ENV === 'production') {
     throw new Error(
@@ -47,6 +49,7 @@ export async function semearDemonstracao(
     })
   }
   await semearAtividade(prisma)
+  await semearLancamentos(prisma, agora)
 }
 
 const DIA = 24 * 60 * 60 * 1000
@@ -96,4 +99,61 @@ async function semearAtividade(
       criadoEm: new Date(agora - 4 * DIA),
     },
   })
+}
+
+// As categorias são dado de demonstração, não regra do sistema: a família cria
+// as suas (PR-27). Id fixo, para a seed ser idempotente.
+const CATEGORIAS_DA_DEMONSTRACAO = [
+  { slug: 'mercado', nome: 'Mercado', tipo: 'despesa' },
+  { slug: 'moradia', nome: 'Moradia', tipo: 'despesa' },
+  { slug: 'transporte', nome: 'Transporte', tipo: 'despesa' },
+  { slug: 'saude', nome: 'Saúde', tipo: 'despesa' },
+  { slug: 'lazer', nome: 'Lazer', tipo: 'despesa' },
+  { slug: 'salario', nome: 'Salário', tipo: 'receita' },
+  { slug: 'outras-receitas', nome: 'Outras receitas', tipo: 'receita' },
+] as const
+
+// Valores em centavos inteiros (PR-02); o dia é do mês corrente.
+const LANCAMENTOS_DA_DEMONSTRACAO = [
+  { n: 1, categoria: 'salario', tipo: 'receita', valorCentavos: 520000, dia: 5, descricao: 'Salário do mês' },
+  { n: 2, categoria: 'outras-receitas', tipo: 'receita', valorCentavos: 35000, dia: 12, descricao: 'Venda de móveis usados' },
+  { n: 3, categoria: 'moradia', tipo: 'despesa', valorCentavos: 180000, dia: 6, descricao: 'Aluguel' },
+  { n: 4, categoria: 'mercado', tipo: 'despesa', valorCentavos: 64235, dia: 9, descricao: 'Compras da semana' },
+  { n: 5, categoria: 'transporte', tipo: 'despesa', valorCentavos: 12000, dia: 15, descricao: 'Combustível' },
+  { n: 6, categoria: 'lazer', tipo: 'despesa', valorCentavos: 8990, dia: 18, descricao: 'Cinema em família' },
+] as const
+
+/**
+ * Sete categorias e seis lançamentos fictícios do mês corrente em São Paulo.
+ * `upsert` sem atualizar: rodar de novo não duplica nem desfaz o que a
+ * família editou na demonstração.
+ */
+async function semearLancamentos(
+  prisma: Pick<PrismaClient, 'categoria' | 'lancamento'>,
+  agora: Date,
+): Promise<void> {
+  const mes = mesDaData(hojeEmSaoPaulo(agora))
+
+  for (const c of CATEGORIAS_DA_DEMONSTRACAO) {
+    await prisma.categoria.upsert({
+      where: { id: `demonstracao-categoria-${c.slug}` },
+      update: {},
+      create: { id: `demonstracao-categoria-${c.slug}`, nome: c.nome, tipo: c.tipo },
+    })
+  }
+
+  for (const l of LANCAMENTOS_DA_DEMONSTRACAO) {
+    await prisma.lancamento.upsert({
+      where: { id: `demonstracao-lancamento-${l.n}` },
+      update: {},
+      create: {
+        id: `demonstracao-lancamento-${l.n}`,
+        tipo: l.tipo,
+        valorCentavos: l.valorCentavos,
+        data: `${mes}-${String(l.dia).padStart(2, '0')}`,
+        descricao: l.descricao,
+        categoriaId: `demonstracao-categoria-${l.categoria}`,
+      },
+    })
+  }
 }

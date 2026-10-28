@@ -105,6 +105,78 @@ describe('auditoria no CONVENCOES.md (FT-02)', () => {
   })
 })
 
+describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
+  const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
+  const trecho = (titulo: string) => {
+    const i = secao7.indexOf(`### ${titulo}`)
+    const j = secao7.indexOf('\n### ', i + 5)
+    return secao7.slice(i, j === -1 ? undefined : j)
+  }
+
+  it('a regra de dinheiro deixou de ser prescrita: tem evidência no esquema, no leitor e no teste', () => {
+    const dinheiro = trecho('Dinheiro')
+    expect(dinheiro).not.toContain('decidido_pelo_buildx')
+    for (const citacao of ['prisma/schema.prisma:71', 'src/lib/dinheiro.ts:19', 'src/lib/formato.ts:14', 'src/lib/datas.ts:35']) {
+      expect(dinheiro, citacao).toContain(`\`${citacao}\``)
+    }
+    expect(dinheiro).toMatch(/PR-02/)
+    expect(dinheiro).toMatch(/Float/)
+  })
+
+  it('cada citação da seção 7 nova aponta para a linha que contém o nome citado', () => {
+    const esperado: Array<[string, number, RegExp]> = [
+      ['prisma/schema.prisma', 71, /valorCentavos\s+Int/],
+      ['prisma/schema.prisma', 54, /model Categoria/],
+      ['prisma/schema.prisma', 68, /model Lancamento/],
+      ['prisma/migrations/20261028150000_lancamentos/migration.sql', 13, /"valorCentavos" INTEGER/],
+      ['src/lib/dinheiro.ts', 7, /VALOR_MAXIMO_EM_CENTAVOS/],
+      ['src/lib/dinheiro.ts', 19, /lerValorEmReais/],
+      ['src/lib/dinheiro.ts', 39, /centavosParaCampo/],
+      ['src/lib/formato.ts', 14, /formatarMoeda/],
+      ['src/lib/datas.ts', 35, /dataCivilValida/],
+      ['src/lib/datas.ts', 60, /hojeEmSaoPaulo/],
+      ['src/servicos/lancamentos.ts', 178, /criarLancamento/],
+      ['src/servicos/lancamentos.ts', 88, /registrarAtividade/],
+      ['src/servicos/lancamentos.ts', 264, /registrarAtividade/],
+      ['src/servicos/autenticacao.ts', 140, /exigirAdultoOuResponsavel/],
+      ['src/app/sessao-servidor.ts', 32, /exigirUsuarioAdmin/],
+      ['src/app/sessao-servidor.ts', 43, /exigirUsuarioDeLancamentos/],
+      ['src/lib/atividade.ts', 13, /lancamento\.criado/],
+      ['src/app/acoes.ts', 36, /mensagemDe/],
+      ['src/app/acoes.ts', 38, /console\.error/],
+      ['tests/ajuda.ts', 39, /limparBanco/],
+      ['tests/rotas.test.ts', 108, /spawn/],
+      ['tests/rotas.test.ts', 206, /cadastro de usuários é negado/],
+      ['tests/lancamentos-papeis.test.ts', 68, /todas as funções do serviço negam/],
+      ['tests/lancamentos-dados.test.ts', 114, /nenhum modelo usa Float/],
+      ['tests/dinheiro.test.ts', 123, /PR-02 no código do leitor/],
+    ]
+    for (const [arquivo, linha, padrao] of esperado) {
+      expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
+      const conteudo = readFileSync(path.join(RAIZ, arquivo), 'utf8').split('\n')[linha - 1]
+      expect(conteudo, `${arquivo}:${linha}`).toMatch(padrao)
+    }
+  })
+
+  it('a autorização dos lançamentos é por lista de permitidos e diz que o filho é negado', () => {
+    const autorizacao = trecho('Autorização')
+    expect(autorizacao).toContain('lista de permitidos')
+    expect(autorizacao).toContain('`filho`')
+  })
+
+  it('a auditoria cita as quatro ações novas e diz que o valor nunca vai para a trilha', () => {
+    const auditoria = trecho('Auditoria')
+    for (const acao of ['lancamento.criado', 'lancamento.alterado', 'lancamento.apagado', 'categoria.criada']) {
+      expect(auditoria, acao).toContain(acao)
+    }
+    expect(auditoria).toMatch(/nunca o valor/)
+  })
+
+  it('o histórico registra a revisão da FT-03', () => {
+    expect(convencoes).toMatch(/\| FT-03 \|/)
+  })
+})
+
 describe('comandos do CONVENCOES.md', () => {
   const pacote = JSON.parse(readFileSync(path.join(RAIZ, 'package.json'), 'utf8')) as {
     scripts: Record<string, string>

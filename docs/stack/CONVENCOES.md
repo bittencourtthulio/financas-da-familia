@@ -74,13 +74,13 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 | Eixo | Tratamento | Evidência |
 | ---- | ---------- | --------- |
 | HTTP de saída | não existe no projeto | — |
-| HTTP de entrada | real: o teste de rotas sobe `next start` e faz `fetch` | `tests/rotas.test.ts:59` |
+| HTTP de entrada | real: o teste de rotas sobe `next start` e faz `fetch` | `tests/rotas.test.ts:108` |
 | Relógio | injetado por parâmetro nos componentes que dependem dele | `src/lib/limite-de-tentativas.ts:19` |
 | Sistema de arquivos | diretório temporário criado e apagado no próprio teste | `tests/camadas.test.ts:21` |
 | Fila / mensageria | não existe no projeto | — |
 | Serviço externo | não existe no projeto | — |
 
-**Evidência:** `tests/usuarios.test.ts:7`, `tests/ajuda.ts:10`, `tests/rotas.test.ts:59`, `vitest.config.ts:14`
+**Evidência:** `tests/usuarios.test.ts:7`, `tests/ajuda.ts:10`, `tests/rotas.test.ts:108`, `vitest.config.ts:14`
 
 ---
 
@@ -90,7 +90,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 | ---- | ----- |
 | Engine e versão | SQLite (arquivo), `prisma/schema.prisma:10` |
 | ORM / camada de acesso | Prisma 7.10.1, `src/lib/prisma.ts:13` |
-| **Isolamento entre testes** | arquivo SQLite próprio (`prisma/test.db`), recriado por arquivo de teste, com as migrations reais — `tests/setup.ts:9`, `tests/setup.ts:25`; cada arquivo limpa as tabelas que usa — `tests/ajuda.ts:40` |
+| **Isolamento entre testes** | arquivo SQLite próprio (`prisma/test.db`), recriado por arquivo de teste, com as migrations reais — `tests/setup.ts:9`, `tests/setup.ts:25`; cada arquivo limpa as tabelas que usa — `tests/ajuda.ts:39` |
 | Combinação isolamento × paralelismo | um arquivo de banco só, por isso `fileParallelism: false` — `vitest.config.ts:14` |
 | Semeadura de dado de teste | funções de ajuda no próprio teste — `tests/ajuda.ts:10`; a seed de demonstração tem teste próprio — `tests/demonstracao.test.ts:15` |
 | Onde vivem as migrações | `prisma/migrations/` — `prisma/migrations/20260830193658_esquema_inicial/migration.sql:2` |
@@ -98,7 +98,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 | Comando de reverter migração | — (LACUNA) ver `docs/stack/LACUNAS.md`, L-04 |
 | Migrações têm reversão declarada? | não |
 
-**Evidência:** `tests/setup.ts:9`, `tests/setup.ts:25`, `tests/ajuda.ts:40`, `vitest.config.ts:14`
+**Evidência:** `tests/setup.ts:9`, `tests/setup.ts:25`, `tests/ajuda.ts:39`, `vitest.config.ts:14`
 
 ---
 
@@ -110,14 +110,14 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 | Aplicação | `src/servicos` | `src/lib` | `src/app`, `src/componentes` |
 | Dados e utilitários | `src/lib`, `prisma/` | nada acima | `src/servicos`, `src/app`, `src/componentes` |
 
-**Força da evidência de dependência:** teste que falha (`tests/camadas.test.ts:14`, regras em `tests/ajuda-estatica.ts`), nenhuma regra de lint. A guarda achou, na primeira execução, uma violação existente: `src/lib/sessao-servidor.ts` importava `@/servicos/autenticacao`. O arquivo foi movido para a apresentação (`src/app/sessao-servidor.ts:31`), que é o seu lugar (usa `cookies()` e `redirect()` do Next).
+**Força da evidência de dependência:** teste que falha (`tests/camadas.test.ts:14`, regras em `tests/ajuda-estatica.ts`), nenhuma regra de lint. A guarda achou, na primeira execução, uma violação existente: `src/lib/sessao-servidor.ts` importava `@/servicos/autenticacao`. O arquivo foi movido para a apresentação (`src/app/sessao-servidor.ts:32`), que é o seu lugar (usa `cookies()` e `redirect()` do Next).
 
 **Onde entra código novo**
 
 | Tipo | Pasta | Arquivo exemplar |
 | ---- | ----- | ---------------- |
 | Caso de uso | `src/servicos` | `src/servicos/usuarios.ts:54` |
-| Utilitário puro / acesso a dados | `src/lib` | `src/lib/formato.ts:12` |
+| Utilitário puro / acesso a dados | `src/lib` | `src/lib/formato.ts:14` |
 | Ação de formulário | `src/app/acoes.ts` | `src/app/acoes.ts:1` |
 | Rota de API | `src/app/api/<assunto>/<ação>/route.ts` | `src/app/api/sessao/renovar/route.ts:11` |
 | Componente de interface | `src/componentes` | `src/componentes/Formulario.tsx:20` |
@@ -125,7 +125,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 
 **Violações existentes:** nenhuma depois da correção acima (`tests/camadas.test.ts:14`).
 
-**Evidência:** `tests/camadas.test.ts:14`, `src/app/sessao-servidor.ts:31`, `src/lib/prisma.ts:13`
+**Evidência:** `tests/camadas.test.ts:14`, `src/app/sessao-servidor.ts:32`, `src/lib/prisma.ts:13`
 
 ---
 
@@ -133,7 +133,7 @@ Variáveis exigidas: `DATABASE_URL` e `JWT_SECRET` (modelo no arquivo de exemplo
 
 ### Sinalização de erro
 Serviço sinaliza erro lançando `ErroDeAplicacao` pelos construtores `naoAutenticado`, `naoAutorizado`, `naoEncontrado`, `entradaInvalida`, `limiteExcedido` e `conflito`; a ação converte em mensagem para a tela e nenhum rastro de pilha chega ao usuário: erro desconhecido vira frase genérica e a tela de erro nunca lê `message` nem `stack`.
-**Evidência:** `src/lib/erros.ts:4`, `src/lib/erros.ts:27`, `src/app/acoes.ts:26`, `src/componentes/EstadoDeErro.tsx:7`, `tests/estados.test.ts:38`
+**Evidência:** `src/lib/erros.ts:4`, `src/lib/erros.ts:27`, `src/app/acoes.ts:36`, `src/componentes/EstadoDeErro.tsx:7`, `tests/estados.test.ts:38`
 
 ### Validação de entrada
 Esquema `zod` no servidor, na camada de aplicação, antes de tocar o banco.
@@ -144,7 +144,7 @@ Apenas `console.error` na ação de formulário; não há biblioteca, formato es
 **Nunca vai para o log:** — (LACUNA) ver `docs/stack/LACUNAS.md`, L-01
 > **PROPOSTA** — sem evidência no repositório. Não governa: as skills irmãs tratam este ponto como decisão a levantar, não como regra. Log estruturado sem segredo, com identificador de correlação, é a PR-14; chega na FT-08.
 
-**Evidência:** `src/app/acoes.ts:28`
+**Evidência:** `src/app/acoes.ts:38`
 
 ### Configuração e segredo
 Variável obrigatória ausente falha na leitura, com mensagem em português, não em produção; segredo só no arquivo local de ambiente, que o `.gitignore` exclui, e o modelo versionado traz o segredo vazio.
@@ -156,7 +156,7 @@ Variável obrigatória ausente falha na leitura, com mensagem em português, nã
 | -------- | ----- | ---------- |
 | Arquivo de serviço e de lib | minúsculo, sem acento; hífen quando composto — `limite-de-tentativas.ts` | `src/lib/limite-de-tentativas.ts:19` |
 | Componente | PascalCase em português — `EstadoDeErro.tsx` | `src/componentes/EstadoDeErro.tsx:7` |
-| Função / método | camelCase em português — `formatarMoeda`, `renovarSessao` | `src/lib/formato.ts:12`, `src/servicos/autenticacao.ts:118` |
+| Função / método | camelCase em português — `formatarMoeda`, `renovarSessao` | `src/lib/formato.ts:14`, `src/servicos/autenticacao.ts:118` |
 | Variável de ambiente | MAIÚSCULAS com sublinhado — `JWT_SECRET` | `src/lib/ambiente.ts:26` |
 
 ---
@@ -164,21 +164,21 @@ Variável obrigatória ausente falha na leitura, com mensagem em português, nã
 ## 7. Regras do projeto (dos premissas, com a evidência que existe hoje)
 
 ### Dinheiro
-Todo valor monetário é inteiro em centavos (BRL); a formatação recusa não inteiro e não passa por ponto flutuante — `src/lib/formato.ts:13`, `tests/formato.test.ts:29`. Nunca `Float` no esquema: `decidido_pelo_buildx` (PR-02, evidência na FT-03), porque o esquema ainda não tem coluna de dinheiro.
+Todo valor monetário é inteiro em centavos (BRL), sempre positivo no lançamento: o sinal vem do tipo (receita ou despesa), e a despesa só ganha o menos na exibição. No esquema a coluna é `valorCentavos Int` (`prisma/schema.prisma:71`) e a migration a declara `INTEGER` (`prisma/migrations/20261028150000_lancamentos/migration.sql:13`); nunca `Float` nem `Decimal`, e `tests/lancamentos-dados.test.ts:114` falha se um dos dois aparecer no esquema. A entrada digitada em formato brasileiro ("1.234,56") entra por um único leitor, `lerValorEmReais` (`src/lib/dinheiro.ts:19`), que trabalha só com texto e inteiros e devolve `null` para valor não positivo, acima de R$ 1.000.000,00 (`src/lib/dinheiro.ts:7`), com ponto decimal ou em notação científica; `tests/dinheiro.test.ts:123` proíbe `parseFloat`, `Number(` e aritmética de ponto flutuante nesse arquivo. O serviço converte e valida com `zod` antes de tocar o banco (`src/servicos/lancamentos.ts:178`) e o campo de edição volta do centavo ao texto por `centavosParaCampo` (`src/lib/dinheiro.ts:39`). A exibição usa `formatarMoeda`, que recusa não inteiro (`src/lib/formato.ts:14`, `tests/formato.test.ts:29`). A data do lançamento é um dia civil `AAAA-MM-DD` no fuso `America/Sao_Paulo` (`src/lib/datas.ts:35`, `src/lib/datas.ts:60`), não um instante. Premissas: PR-02, PR-26.
 
 ### Autorização
-Papéis gravados `admin` e `usuario` (interface: Responsável e Adulto); a checagem acontece no servidor, em serviço ou ação, nunca só na interface — `src/app/sessao-servidor.ts:31`, `src/servicos/autenticacao.ts:127`, `src/servicos/usuarios.ts:54`, `tests/rotas.test.ts:147`. O papel `filho`: `decidido_pelo_buildx` (PR-06, evidência na FT-05).
+Papéis gravados `admin` e `usuario` (interface: Responsável e Adulto); a checagem acontece no servidor, em serviço ou ação, nunca só na interface — `src/app/sessao-servidor.ts:32`, `src/servicos/autenticacao.ts:127`, `src/servicos/usuarios.ts:54`, `tests/rotas.test.ts:206`. Quem lança e lê os lançamentos é `admin` ou `usuario`, por lista de permitidos: `exigirAdultoOuResponsavel` (`src/servicos/autenticacao.ts:140`) é a primeira linha de toda função de `src/servicos/lancamentos.ts` (`src/servicos/lancamentos.ts:178`), a guarda de página é `exigirUsuarioDeLancamentos` (`src/app/sessao-servidor.ts:43`), e `tests/lancamentos-papeis.test.ts:68` varre todas as funções exportadas do serviço com papel `filho`, vazio e desconhecido, que recebem 403; o servidor real nega o mesmo papel nas quatro telas (`tests/rotas.test.ts`, bloco "as telas de Lançamentos"). O papel `filho` em si: `decidido_pelo_buildx` (PR-06, evidência na FT-05).
 
 ### Dados do domínio
-Toda entidade de domínio nasce numa feature do B4, sob TDD, com migration, e entrada validada com `zod` no servidor — validação: `src/servicos/usuarios.ts:21`; migration: `prisma/migrations/20260830193658_esquema_inicial/migration.sql:2`. Primeira entidade nova sob esta regra: `Atividade` (FT-02) — esquema `prisma/schema.prisma:36`, migration `prisma/migrations/20261028143052_atividade/migration.sql:2`, validação `src/servicos/atividade.ts:83`. Toda tabela nova entra também em `limparBanco` (`tests/ajuda.ts:40`), senão um teste enxerga o que o outro criou. A primeira entidade com dado do negócio (lançamento) continua para a FT-03.
+Toda entidade de domínio nasce numa feature do B4, sob TDD, com migration, e entrada validada com `zod` no servidor — validação: `src/servicos/usuarios.ts:21`; migration: `prisma/migrations/20260830193658_esquema_inicial/migration.sql:2`. Primeira entidade nova sob esta regra: `Atividade` (FT-02) — esquema `prisma/schema.prisma:36`, migration `prisma/migrations/20261028143052_atividade/migration.sql:2`, validação `src/servicos/atividade.ts:83`. Toda tabela nova entra também em `limparBanco` (`tests/ajuda.ts:39`), senão um teste enxerga o que o outro criou. Primeiras entidades com dado do negócio, FT-03: `Categoria` e `Lancamento` — esquema `prisma/schema.prisma:54`, `prisma/schema.prisma:68`, migration `prisma/migrations/20261028150000_lancamentos/migration.sql:2`, validação `src/servicos/lancamentos.ts:178`; ambas entram em `limparBanco` (`tests/ajuda.ts:39`).
 
 ### Auditoria
-Toda ação auditada (PR-10) passa por `registrarAtividade` (`src/servicos/atividade.ts:83`), chamada dentro da mesma transação da ação — `src/servicos/usuarios.ts:86`, `src/servicos/usuarios.ts:155`. O código da ação é `entidade.verbo` e precisa estar no catálogo `src/lib/atividade.ts:9`, com rótulo em português. O `detalhe` é plano e pequeno e nunca recebe senha, hash, token, segredo, valor, saldo, e-mail nem CPF (a barreira é `src/servicos/atividade.ts:40`, testada em `tests/atividade.test.ts:88`); o módulo não oferece editar nem apagar (`tests/atividade.test.ts:122`). Só o responsável lê (`src/servicos/atividade.ts:142`, `tests/atividade-leitura.test.ts:28`). Feature nova que altera dado de negócio acrescenta a sua ação ao catálogo e chama o serviço.
+Toda ação auditada (PR-10) passa por `registrarAtividade` (`src/servicos/atividade.ts:83`), chamada dentro da mesma transação da ação — `src/servicos/usuarios.ts:86`, `src/servicos/usuarios.ts:155`. O código da ação é `entidade.verbo` e precisa estar no catálogo `src/lib/atividade.ts:9`, com rótulo em português. O `detalhe` é plano e pequeno e nunca recebe senha, hash, token, segredo, valor, saldo, e-mail nem CPF (a barreira é `src/servicos/atividade.ts:40`, testada em `tests/atividade.test.ts:88`); o módulo não oferece editar nem apagar (`tests/atividade.test.ts:122`). Só o responsável lê (`src/servicos/atividade.ts:142`, `tests/atividade-leitura.test.ts:28`). Feature nova que altera dado de negócio acrescenta a sua ação ao catálogo e chama o serviço. Lançamento e categoria fazem isso (`lancamento.criado`, `lancamento.alterado`, `lancamento.apagado`, `categoria.criada` em `src/lib/atividade.ts:13`): o rastro é gravado na mesma transação (`src/servicos/lancamentos.ts:88`, `src/servicos/lancamentos.ts:264`) e leva só o tipo e o id da categoria, nunca o valor — `tests/lancamentos.test.ts` e `tests/lancamentos-edicao.test.ts` afirmam que valor e descrição não aparecem em nenhuma coluna do registro.
 
 ### Versionamento
 Uma branch por feature, `feat/ft-NN-<slug>`, na árvore principal, um commit por task, sem push forçado nem merge no fluxo automático — `docs/projeto/PREMISSAS.md:326` (PR-24). Mensagens de commit seguem Conventional Commits em português (`git log`).
 
-**Evidência:** `src/lib/formato.ts:13`, `src/app/sessao-servidor.ts:31`, `src/servicos/atividade.ts:83`, `docs/projeto/PREMISSAS.md:326`
+**Evidência:** `src/lib/formato.ts:14`, `src/app/sessao-servidor.ts:32`, `src/servicos/atividade.ts:83`, `docs/projeto/PREMISSAS.md:326`
 
 ---
 
@@ -199,6 +199,7 @@ Nenhum.
 | 2026-10-28 | inicial | B2 do buildx: regras prescritas, só comandos com evidência |
 | 2026-10-28 | e83574e | FT-01: stackx-detectar converteu as regras em evidência `arquivo:linha`, adicionou comandos `typecheck` e `verificar`, e corrigiu a camada de `sessao-servidor` |
 | 2026-10-28 | FT-02 | Seção 7 ganhou "Auditoria" (`registrarAtividade`, catálogo de ações, barreira do detalhe); a entidade `Atividade` é a primeira entidade nova sob a regra de dados; citações de `src/servicos/usuarios.ts` deslocadas por causa do import novo |
+| 2026-10-28 | FT-03 | Seção 7: "Dinheiro" passou de prescrita a com evidência (centavos inteiros, leitor de valor, data civil, `Int` no esquema); "Autorização" ganhou a lista de permitidos `admin`/`usuario` com teste que varre o serviço; "Dados do domínio" e "Auditoria" citam `Categoria`, `Lancamento` e as quatro ações novas; citações deslocadas por imports novos conferidas (`formato.ts`, `acoes.ts`, `sessao-servidor.ts`, `ajuda.ts`, `rotas.test.ts`) |
 
 ---
 
