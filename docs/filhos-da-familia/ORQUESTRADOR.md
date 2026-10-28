@@ -9,10 +9,10 @@ titulo: Filhos da família
 tipo_trabalho: feature
 tipo_ocorrencia: null
 estagio: f6
-status: em_andamento
+status: concluido
 criado_em: 2026-10-28
 atualizado_em: 2026-10-28
-concluido_em: null
+concluido_em: 2026-10-28
 sprints: [sprint-01, sprint-02, sprint-03]
 caminho_critico: [T-01.01, T-01.02, T-02.01, T-02.02, T-02.03, T-03.01, T-03.02]
 modulo_afetado: [aplicacao, apresentacao, lib, estilos, dados, testes, documentacao]

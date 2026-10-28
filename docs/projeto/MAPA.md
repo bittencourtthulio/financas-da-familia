@@ -6,8 +6,8 @@ projeto_id: financas-da-familia
 atualizado_em: 2026-10-28
 total_features: 8
 pendentes: 3
-em_andamento: 1
-entregues: 4
+em_andamento: 0
+entregues: 5
 bloqueadas: 0
 ---
 
@@ -23,7 +23,7 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 | FT-02 | Trilha de atividade | entregue | — (branch feat/ft-02-trilha-de-atividade, sem remote) |
 | FT-03 | Lançamentos da casa | entregue | — (branch feat/ft-03-lancamentos-da-casa, sem remote) |
 | FT-04 | Saldo e resumo do mês | entregue | — (branch feat/ft-04-saldo-e-resumo-do-mes, sem remote) |
-| FT-05 | Filhos da família | em_andamento | — |
+| FT-05 | Filhos da família | entregue | — (branch feat/ft-05-filhos-da-familia, sem remote) |
 | FT-06 | Mesada dos filhos | pendente | — |
 | FT-07 | Privacidade dos dados da família | pendente | — |
 | FT-08 | Backup, restauração e saúde | pendente | — |
@@ -108,7 +108,10 @@ Ordem de dependência. Nenhuma feature precede aquilo de que depende. O escopo m
 **Premissas que realiza:** [PR-06]
 **Módulo disponível:** -
 **Fatias candidatas:** -
-**Status:** em_andamento
+**Status:** entregue
+**PR:** — (branch `feat/ft-05-filhos-da-familia`, sem remote; empilhada sobre `feat/ft-04-saldo-e-resumo-do-mes`; descrição pronta em `docs/filhos-da-familia/PR.md`)
+**Sprints:** 3
+**Testes:** 264 novos (960 na suíte)
 
 ---
 
