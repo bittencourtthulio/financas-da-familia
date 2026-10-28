@@ -9,14 +9,14 @@ sprint_id: sprint-04
 atualizado_em: 2026-10-28
 sprint:
   titulo: Seguranca, qualidade e convencoes
-  status: em_andamento
+  status: concluido
   criterio_saida: A suite inteira, o lint, o build e a auditoria de dependencia terminam verdes e o CONVENCOES.md nao tem mais regra sem evidencia
   riscos: [Renovar sessao sem revalidar ressuscitaria sessao derrubada por troca de senha, Pinar versoes exige atualizar o lock sem rede]
   fora_de_escopo: [Log estruturado, rota de saude, backup, trilha de atividade, papel filho]
 fases:
   - id: F-04.1
     titulo: Seguranca, pipeline e convencoes
-    status: em_andamento
+    status: concluido
     criterio_saida: Os cinco conjuntos de testes da sprint passam e a suite inteira, lint, build e audit estao verdes
     paralelizavel: false
     paralela_com: []
@@ -85,18 +85,18 @@ tasks:
   - id: T-04.05
     titulo: Convencoes com evidencia e premissas coerentes
     fase: F-04.1
-    status: pendente
+    status: concluida
     objetivo: Rodar o stackx-detectar, converter decidido_pelo_buildx em evidencia arquivo e linha e registrar Realizada em FT-01 nas premissas
     arquivos:
-      cria: [tests/convencoes.test.ts, tests/premissas.test.ts, docs/fundacao/]
+      cria: [tests/convencoes.test.ts, tests/premissas.test.ts, docs/stack/LACUNAS.md, docs/fundacao/]
       altera: [docs/stack/CONVENCOES.md, docs/projeto/PREMISSAS.md, docs/projeto/MAPA.md, docs/projeto/PROJETO.md, README.md, .gitignore]
     teste_integracao: Toda citacao arquivo e linha de CONVENCOES.md aponta para arquivo que existe com a linha dentro do tamanho, e toda regra ainda marcada decidido_pelo_buildx traz no mesmo item o texto evidencia na FT- seguido do numero da feature que a produzira
     teste_funcional: Os totais do frontmatter de PREMISSAS.md batem com os blocos PR-NN e toda premissa que a FT-01 realiza no MAPA.md tem Realizada em FT-01
     criterio_aceite: tests/convencoes.test.ts e tests/premissas.test.ts terminam com 0 failed
     depende_de: [T-04.04]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
 ---
 
 # Plano — Sprint 04 — Segurança, qualidade e convenções
@@ -167,3 +167,5 @@ Os campos de cada task estão no frontmatter acima (fonte única).
 - Divergência da T-04.02: `src/lib/renovacao.ts` foi acrescentado (a conta do intervalo precisa existir fora do componente cliente, porque o layout, do servidor, a chama); o teste passou a vermelho de verdade quando a função estava dentro do arquivo cliente (500 em todas as páginas).
 - **T-04.03** concluída em 2026-10-28 · suíte: 150 passed, 0 failed · real: 0,4 h (aprox.)
 - **T-04.04** concluída em 2026-10-28 · suíte: 158 passed, 0 failed (via npm run verificar) · real: 0,6 h (aprox.)
+- **T-04.05** concluída em 2026-10-28 · suíte: 173 passed, 0 failed · real: 1,0 h (aprox.)
+- Fechamento da sprint 04 em 2026-10-28: `npm run lint`, `npx tsc --noEmit`, `npm run build` e `npm test` → 19 arquivos, 173 passed, 0 failed; `npm run verificar` já tinha passado na T-04.04. Divergência: `docs/stack/LACUNAS.md` foi criado pelo stackx-detectar (não estava na lista).
