@@ -9,14 +9,14 @@ atualizado_em: 2026-10-28
 sprint_id: sprint-01
 sprint:
   titulo: Entidade e servico de registro
-  status: pendente
+  status: concluido
   criterio_saida: A suite inteira termina com 0 failed; existe a tabela de atividades por migration, registrarAtividade grava quem, o que e quando sem dado proibido, e listarAtividade so responde a admin
   riscos: [Transacao interativa do Prisma com o adaptador better-sqlite3 nao tem uso no repositorio (base/00-LACUNAS.md), Gerar a migration sem banco interativo]
   fora_de_escopo: [Ligar o registro as acoes de usuario, Tela, Seed]
 fases:
   - id: F-01.1
     titulo: Dados e servico
-    status: pendente
+    status: concluido
     criterio_saida: Os seis testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -56,7 +56,7 @@ tasks:
   - id: T-01.03
     titulo: Leitura do registro so para admin
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: listarAtividade(autor, opcoes) exige admin, ordena da mais recente para a mais antiga, pagina de 50 em 50 e devolve o detalhe como objeto
     arquivos:
       cria: [tests/atividade-leitura.test.ts]
@@ -66,6 +66,8 @@ tasks:
     criterio_aceite: tests/atividade-leitura.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-01.02]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (209 testes)
 ---
 
 # Plano — Sprint 01 — Entidade e serviço de registro

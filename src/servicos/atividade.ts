@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { entradaInvalida } from '@/lib/erros'
+import { exigirAdmin, type UsuarioAutenticado } from '@/servicos/autenticacao'
 import { ACOES } from '@/lib/atividade'
 import type { PrismaClient } from '@/gerado/prisma/client'
 
@@ -99,4 +100,66 @@ export async function registrarAtividade(
       detalhe: detalhe ? JSON.stringify(detalhe) : null,
     },
   })
+}
+
+export const POR_PAGINA = 50
+
+export interface AtividadeListada {
+  id: string
+  atorId: string
+  atorNome: string
+  acao: string
+  entidade: string
+  entidadeId: string
+  detalhe: Record<string, string | number | boolean | null>
+  criadoEm: Date
+}
+
+export interface PaginaDeAtividades {
+  itens: AtividadeListada[]
+  total: number
+  pagina: number
+  paginas: number
+}
+
+function lerDetalhe(texto: string | null): AtividadeListada['detalhe'] {
+  if (!texto) return {}
+  try {
+    const lido: unknown = JSON.parse(texto)
+    if (lido && typeof lido === 'object' && !Array.isArray(lido)) {
+      return lido as AtividadeListada['detalhe']
+    }
+  } catch {
+    // detalhe corrompido não derruba a tela: o registro continua visível
+  }
+  return {}
+}
+
+/**
+ * Só o responsável lê a trilha (D-06); a verificação é aqui, no servidor.
+ * Do mais recente para o mais antigo, `POR_PAGINA` por página.
+ */
+export async function listarAtividade(
+  autor: UsuarioAutenticado,
+  opcoes: { pagina?: number } = {},
+): Promise<PaginaDeAtividades> {
+  exigirAdmin(autor)
+
+  const total = await prisma.atividade.count()
+  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA))
+  const pedida = Number.isInteger(opcoes.pagina) ? (opcoes.pagina as number) : 1
+  const pagina = Math.min(Math.max(1, pedida), paginas)
+
+  const linhas = await prisma.atividade.findMany({
+    orderBy: [{ criadoEm: 'desc' }, { id: 'desc' }],
+    skip: (pagina - 1) * POR_PAGINA,
+    take: POR_PAGINA,
+  })
+
+  return {
+    itens: linhas.map((l) => ({ ...l, detalhe: lerDetalhe(l.detalhe) })),
+    total,
+    pagina,
+    paginas,
+  }
 }
