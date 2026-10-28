@@ -55,11 +55,13 @@ describe('tabela de atividades', () => {
 })
 
 describe('catálogo de ações', () => {
-  it('traz as ações de usuário e as das features seguintes (FT-03, FT-05, FT-06), com rótulo em português', () => {
+  it('traz as ações de usuário e as das features seguintes (FT-03, FT-05, FT-06, FT-07), com rótulo em português', () => {
     expect(Object.keys(ACOES).sort()).toEqual([
       'categoria.criada',
+      'familia.exportada',
       'filho.alterado',
       'filho.cadastrado',
+      'filho.excluido',
       'filho.login_criado',
       'filho.login_desativado',
       'lancamento.alterado',

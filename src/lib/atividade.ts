@@ -21,6 +21,8 @@ export const ACOES: Record<string, string> = {
   'mesada.registrada': 'Registrou movimento de mesada de',
   'mesada.alterada': 'Alterou movimento de mesada de',
   'mesada.apagada': 'Apagou movimento de mesada de',
+  'familia.exportada': 'Exportou os dados da família',
+  'filho.excluido': 'Excluiu a conta de um filho',
 }
 
 /** O rótulo da ação; ação desconhecida volta como veio. */

@@ -16,7 +16,7 @@ sprint:
 fases:
   - id: F-01.1
     titulo: Exportacao e catalogo da trilha
-    status: pendente
+    status: concluido
     criterio_saida: Os testes novos passam e a suite inteira esta verde
     paralelizavel: false
     paralela_com: []
@@ -32,7 +32,7 @@ tasks:
   - id: T-01.01
     titulo: "Servico de exportacao dos dados da familia, trilha e ordem do arquivo"
     fase: F-01.1
-    status: pendente
+    status: concluida
     objetivo: Criar src/servicos/privacidade.ts com exportarDadosDaFamilia (so admin) que monta o documento versionado (usuarios sem hash nem corte de sessao, categorias, lancamentos, filhos com saldo, movimentos de mesada e atividade), registra familia.exportada na trilha e devolve o objeto; criar src/lib/privacidade.ts (nome do arquivo com a data de Sao Paulo, versao do formato, campos proibidos) e acrescentar familia.exportada e filho.excluido ao catalogo
     arquivos:
       cria: ["src/servicos/privacidade.ts", "src/lib/privacidade.ts", "tests/privacidade-exportacao.test.ts", "tests/privacidade-papeis.test.ts"]
@@ -42,8 +42,8 @@ tasks:
     criterio_aceite: tests/privacidade-exportacao.test.ts, tests/privacidade-papeis.test.ts e tests/atividade-dados.test.ts terminam com 0 failed e a suite inteira esta verde
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: null
+    concluida_em: 2026-10-28
+    suite: verde (1218 testes)
 
   - id: T-01.02
     titulo: "Servico de exclusao do filho: transacao, trilha anonimizada, login e tentativas"
