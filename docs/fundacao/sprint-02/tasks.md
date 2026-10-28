@@ -40,7 +40,7 @@ tasks:
   - id: T-02.02
     titulo: Rotulos Responsavel e Adulto
     fase: F-02.1
-    status: pendente
+    status: concluida
     objetivo: Mostrar o papel admin como Responsavel e o papel usuario como Adulto em toda a interface
     arquivos:
       cria: [src/lib/papeis.ts, tests/papeis.test.ts]
@@ -50,8 +50,8 @@ tasks:
     criterio_aceite: tests/papeis.test.ts e tests/rotas.test.ts terminam com 0 failed e a palavra Administrador nao aparece em src
     depende_de: [T-02.01]
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-02.03
     titulo: Seed de demonstracao testavel
     fase: F-02.1
@@ -128,3 +128,4 @@ Os campos de cada task estão no frontmatter acima (fonte única).
 
 - **T-02.01** — D-03 e D-04. **T-02.02** — D-02. **T-02.03** — D-05 e D-13.
 - **T-02.01** concluída em 2026-10-28 · suíte: 84 passed, 0 failed · real: 0,6 h (aprox.)
+- **T-02.02** concluída em 2026-10-28 · suíte: 90 passed, 0 failed · real: 0,4 h (aprox.)

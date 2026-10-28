@@ -4,6 +4,7 @@ import { Navegacao } from '@/componentes/Navegacao'
 import { AlternadorDeTema } from '@/componentes/AlternadorDeTema'
 import { sair } from '@/app/acoes'
 import { NOME_DO_SISTEMA } from '@/lib/marca'
+import { rotuloDoPapel } from '@/lib/papeis'
 
 /**
  * A casca do sistema: barra de atividade, barra lateral, conteúdo e barra
@@ -31,7 +32,7 @@ export default async function LayoutDoSistema({
         <Link href="/perfil" style={{ color: 'inherit', textDecoration: 'none' }}>
           {usuario.nome}
         </Link>
-        <span>{usuario.papel === 'admin' ? 'Administrador' : 'Usuário'}</span>
+        <span>{rotuloDoPapel(usuario.papel)}</span>
         <span className="espaco" />
         <AlternadorDeTema />
         <form action={sair}>

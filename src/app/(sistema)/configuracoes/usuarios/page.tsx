@@ -2,6 +2,7 @@ import { exigirUsuarioAdmin } from '@/app/sessao-servidor'
 import { listar } from '@/servicos/usuarios'
 import { criarUsuario } from '@/app/acoes'
 import { Formulario, Campo } from '@/componentes/Formulario'
+import { PAPEIS_DA_INTERFACE } from '@/lib/papeis'
 import { LinhaDeUsuario } from '@/app/(sistema)/configuracoes/usuarios/LinhaDeUsuario'
 
 /**
@@ -44,8 +45,11 @@ export default async function Usuarios() {
         <label className="campo">
           <span>Papel</span>
           <select name="papel" defaultValue="usuario">
-            <option value="usuario">Usuário</option>
-            <option value="admin">Administrador</option>
+            {PAPEIS_DA_INTERFACE.map((p) => (
+              <option key={p.valor} value={p.valor}>
+                {p.rotulo}
+              </option>
+            ))}
           </select>
         </label>
       </Formulario>

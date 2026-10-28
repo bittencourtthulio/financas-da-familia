@@ -158,6 +158,24 @@ describe('com sessão de admin', () => {
     expect(html).toContain('comum.rota@teste.local')
   })
 
+  it('a tela de usuários mostra Responsável e Adulto, nunca Administrador', async () => {
+    const html = await (
+      await pedir('/configuracoes/usuarios', await cookieDe('admin.rota@teste.local'))
+    ).text()
+    expect(html).toContain('Responsável')
+    expect(html).toContain('Adulto')
+    expect(html).toMatch(/<option value="admin">Responsável<\/option>/)
+    expect(html).toMatch(/<option value="usuario"[^>]*>Adulto<\/option>/)
+    expect(html).not.toContain('Administrador')
+  })
+
+  it('a barra de status mostra o papel pelo rótulo do domínio', async () => {
+    const admin = await (await pedir('/', await cookieDe('admin.rota@teste.local'))).text()
+    const comum = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
+    expect(admin).toMatch(/<span>Responsável<\/span>/)
+    expect(comum).toMatch(/<span>Adulto<\/span>/)
+  })
+
   it('o item Usuários aparece na navegação', async () => {
     const r = await pedir('/', await cookieDe('admin.rota@teste.local'))
     expect(await r.text()).toContain('/configuracoes/usuarios')

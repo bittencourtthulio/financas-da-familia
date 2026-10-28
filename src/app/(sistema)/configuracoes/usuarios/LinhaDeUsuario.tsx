@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import { desativarUsuario } from '@/app/acoes'
+import { rotuloDoPapel } from '@/lib/papeis'
 
 interface Props {
   usuario: {
@@ -24,7 +25,7 @@ export function LinhaDeUsuario({ usuario }: Props) {
         {usuario.ehVoce && <span style={{ opacity: 0.6 }}> (você)</span>}
       </td>
       <td>{usuario.email}</td>
-      <td>{usuario.papel === 'admin' ? 'Administrador' : 'Usuário'}</td>
+      <td>{rotuloDoPapel(usuario.papel)}</td>
       <td>{usuario.ativo ? 'Ativo' : 'Desativado'}</td>
       <td style={{ textAlign: 'right' }}>
         {usuario.ativo && (
