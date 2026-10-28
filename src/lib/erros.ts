@@ -24,5 +24,9 @@ export const naoEncontrado = (msg = 'Recurso não encontrado.') =>
 export const entradaInvalida = (msg: string) =>
   new ErroDeAplicacao(msg, 422, 'entrada_invalida')
 
+export const limiteExcedido = (
+  msg = 'Muitas tentativas. Aguarde alguns minutos e tente de novo.',
+) => new ErroDeAplicacao(msg, 429, 'muitas_tentativas')
+
 export const conflito = (msg: string) =>
   new ErroDeAplicacao(msg, 409, 'conflito')

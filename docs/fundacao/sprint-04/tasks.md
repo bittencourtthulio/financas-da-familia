@@ -9,14 +9,14 @@ sprint_id: sprint-04
 atualizado_em: 2026-10-28
 sprint:
   titulo: Seguranca, qualidade e convencoes
-  status: nao_iniciado
+  status: em_andamento
   criterio_saida: A suite inteira, o lint, o build e a auditoria de dependencia terminam verdes e o CONVENCOES.md nao tem mais regra sem evidencia
   riscos: [Renovar sessao sem revalidar ressuscitaria sessao derrubada por troca de senha, Pinar versoes exige atualizar o lock sem rede]
   fora_de_escopo: [Log estruturado, rota de saude, backup, trilha de atividade, papel filho]
 fases:
   - id: F-04.1
     titulo: Seguranca, pipeline e convencoes
-    status: nao_iniciado
+    status: em_andamento
     criterio_saida: Os cinco conjuntos de testes da sprint passam e a suite inteira, lint, build e audit estao verdes
     paralelizavel: false
     paralela_com: []
@@ -25,7 +25,7 @@ tasks:
   - id: T-04.01
     titulo: Limite de tentativas de login
     fase: F-04.1
-    status: pendente
+    status: concluida
     objetivo: Bloquear por 15 minutos o e-mail que errou a senha cinco vezes seguidas, conforme a PR-22
     arquivos:
       cria: [src/lib/limite-de-tentativas.ts, tests/limite-de-tentativas.test.ts]
@@ -35,8 +35,8 @@ tasks:
     criterio_aceite: tests/limite-de-tentativas.test.ts e tests/autenticacao.test.ts terminam com 0 failed e a mensagem do bloqueio esta em portugues
     depende_de: []
     paralelizavel: false
-    concluida_em: null
-    suite: nao_executada
+    concluida_em: 2026-10-28
+    suite: verde
   - id: T-04.02
     titulo: Renovacao deslizante da sessao
     fase: F-04.1
@@ -162,3 +162,4 @@ flowchart LR
 Os campos de cada task estão no frontmatter acima (fonte única).
 
 - **T-04.01** — D-10. **T-04.02** — D-09. **T-04.03** — D-12 (confirma a PR-12 por teste). **T-04.04** — D-11. **T-04.05** — D-12, D-14; declara também os artefatos do planejamento (`docs/fundacao/`) e o `.gitignore`.
+- **T-04.01** concluída em 2026-10-28 · suíte: 131 passed, 0 failed · real: 0,6 h (aprox.)

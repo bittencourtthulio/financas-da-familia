@@ -2,7 +2,13 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { senhaConfere } from '@/lib/senha'
 import { assinarSessao, lerSessao, type Sessao } from '@/lib/sessao'
-import { entradaInvalida, naoAutenticado, naoAutorizado } from '@/lib/erros'
+import {
+  entradaInvalida,
+  limiteExcedido,
+  naoAutenticado,
+  naoAutorizado,
+} from '@/lib/erros'
+import { criarLimitador } from '@/lib/limite-de-tentativas'
 
 // O trim e o lowercase acontecem ANTES da validação: um e-mail digitado
 // com espaço à frente ou em caixa alta é o mesmo e-mail, e recusá-lo seria
@@ -17,6 +23,16 @@ export const entradaDeLogin = z.object({
   email: emailNormalizado,
   senha: z.string().min(1, 'Informe a senha.'),
 })
+
+// Cinco falhas por e-mail em 15 minutos bloqueiam esse e-mail por 15 minutos
+// (PR-22). A chave é o e-mail já normalizado, para caixa e espaço não
+// escaparem do contador.
+const limiteDeLogin = criarLimitador()
+
+/** Zera o contador de tentativas. Só os testes precisam disso. */
+export function reiniciarLimiteDeLogin(): void {
+  limiteDeLogin.limpar()
+}
 
 export interface UsuarioAutenticado {
   id: string
@@ -39,13 +55,23 @@ export async function entrar(entrada: unknown): Promise<{
     throw entradaInvalida(dados.error.issues[0]?.message ?? 'Entrada inválida.')
   }
 
+  const chave = dados.data.email
+  if (limiteDeLogin.restanteDoBloqueio(chave) > 0) throw limiteExcedido()
+
   const usuario = await prisma.usuario.findUnique({
-    where: { email: dados.data.email },
+    where: { email: chave },
   })
 
   const falha = naoAutenticado('E-mail ou senha incorretos.')
-  if (!usuario || !usuario.ativo) throw falha
-  if (!(await senhaConfere(dados.data.senha, usuario.senhaHash))) throw falha
+  if (!usuario || !usuario.ativo) {
+    limiteDeLogin.registrarFalha(chave)
+    throw falha
+  }
+  if (!(await senhaConfere(dados.data.senha, usuario.senhaHash))) {
+    limiteDeLogin.registrarFalha(chave)
+    throw falha
+  }
+  limiteDeLogin.registrarSucesso(chave)
 
   return {
     token: await assinarSessao(usuario.id, usuario.papel),
