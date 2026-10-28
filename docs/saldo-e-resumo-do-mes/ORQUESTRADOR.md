@@ -8,11 +8,11 @@ feature_id: FT-04
 titulo: Saldo e resumo do mês
 tipo_trabalho: feature
 tipo_ocorrencia: null
-estagio: f4
-status: em_andamento
+estagio: f6
+status: concluido
 criado_em: 2026-10-28
 atualizado_em: 2026-10-28
-concluido_em: null
+concluido_em: 2026-10-28
 sprints: [sprint-01, sprint-02, sprint-03]
 caminho_critico: [T-01.01, T-01.02, T-02.01, T-02.02, T-03.01]
 modulo_afetado: [aplicacao, apresentacao, lib, estilos, dados, testes, documentacao]
@@ -52,7 +52,7 @@ Nada roda em paralelo: as tasks tocam `src/servicos/resumo.ts`, `src/estilos/glo
 
 ## 4. Ferramentas
 
-- **MCPs / SDKs:** nenhum além do padrão; a skill `frontend-design:frontend-design` orienta o acabamento do painel (PR-08) e a skill `dataviz` a barra de categoria, sempre dentro dos tokens.
+- **MCPs / SDKs:** nenhum além do padrão; a skill `frontend-design:frontend-design` orienta o acabamento do painel (PR-08), sempre dentro dos tokens; a skill `dataviz` era opcional e não foi necessária (a barra é um trilho sob cada categoria, sem gráfico).
 - **Testes:** `npm test` (as variáveis `DATABASE_URL` e `JWT_SECRET` já vêm do ambiente local; se faltarem, `export` inline no comando). Antes, `npm run build` quando a task muda HTML, porque `tests/rotas.test.ts` serve o build.
 - **Lint:** `npm run lint`; **Typecheck:** `npm run typecheck`. Não há mudança de esquema, então não há `prisma generate` nem migration.
 - **Segredos:** nunca escreva o valor em arquivo versionado.

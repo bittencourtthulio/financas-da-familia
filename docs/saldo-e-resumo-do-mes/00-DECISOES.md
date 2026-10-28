@@ -83,7 +83,7 @@ decisoes:
     status: fechada
     bloqueante: false
   - id: D-12
-    decisao: Interface sobre os tokens - tres cartoes (Receitas, Despesas, Saldo do mes), lista de despesas por categoria com barra proporcional a parte da categoria no total de despesas, calculada em inteiros; skill frontend-design para o acabamento (PR-08) e dataviz para a barra, so com tokens; nenhuma cor literal, nenhum tema novo; celular abaixo de 768px com cartoes empilhados
+    decisao: Interface sobre os tokens - tres cartoes (Receitas, Despesas, Saldo do mes), lista de despesas por categoria com barra proporcional a parte da categoria no total de despesas, calculada em inteiros; skill frontend-design para o acabamento (PR-08), so com tokens (a skill dataviz foi opcional e nao foi necessaria: a barra e uma lista ordenada com trilho, sem grafico); nenhuma cor literal, nenhum tema novo; celular abaixo de 768px com cartoes empilhados
     alternativa_descartada: Cores e fontes proprias; grafico de pizza ou de evolucao
     motivo: "PR-07 e PR-08; 08-design-system.md; grafico de evolucao e fora de escopo"
     status: fechada
@@ -132,7 +132,7 @@ D-08 | src/servicos/resumo.ts; regras puras em src/lib; componentes novos | Dent
 D-09 | Saldo negativo com sinal e frase, nao so cor; rotulos textuais | So cor | tarefa; acessibilidade
 D-10 | Mes vazio: mensagem e atalho; estados herdados | Cartoes zerados | PR-16; D-13 da FT-03
 D-11 | Seletor por link; atalho Mes atual; limites 2000-01 e 2100-12 | type=month; FiltrosDeLancamentos | D-12 da FT-03
-D-12 | Tres cartoes, barra por categoria em inteiros, frontend-design e dataviz so com tokens | Cores proprias; pizza; evolucao | PR-07, PR-08
+D-12 | Tres cartoes, barra por categoria em inteiros, frontend-design so com tokens | Cores proprias; pizza; evolucao | PR-07, PR-08
 D-13 | Seed: mes anterior e segundo lancamento por categoria | Seed igual | PR-04
 D-14 | Sem variavel, dependencia nem migration | - | PR-12; PR-20
 D-15 | Definicao de pronto: fluxo, negativo legivel, papel negado, 0,10+0,20, limites, temas, celular, 4 comandos | - | MAPA.md; PROJETO.md
