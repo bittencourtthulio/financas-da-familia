@@ -41,7 +41,7 @@ tasks:
   - id: T-03.02
     titulo: Formularios, acoes, edicao, exclusao e categorias
     fase: F-03.1
-    status: pendente
+    status: concluida
     objetivo: Acoes criarLancamento, editarLancamento, apagarLancamento e criarCategoria em acoes.ts; paginas /lancamentos/novo, /lancamentos/[id] e /lancamentos/categorias; campos de lancamento (tipo filtra categoria, valor, data, descricao) e confirmacao de exclusao em dois passos; estilos de data e opcao
     arquivos:
       cria: [src/app/(sistema)/lancamentos/novo/page.tsx, src/app/(sistema)/lancamentos/[id]/page.tsx, src/app/(sistema)/lancamentos/categorias/page.tsx, src/componentes/CamposDeLancamento.tsx, src/componentes/ApagarLancamento.tsx, tests/lancamentos-formulario.test.ts]
@@ -51,6 +51,9 @@ tasks:
     criterio_aceite: tests/lancamentos-formulario.test.ts termina com 0 failed e a suite inteira esta verde
     depende_de: [T-03.01]
     paralelizavel: false
+    concluida_em: 2026-10-28
+    suite: verde (558 testes)
+
   - id: T-03.03
     titulo: Seed, prova no servidor real e fechamento das convencoes
     fase: F-03.1

@@ -5,10 +5,20 @@ import { revalidatePath } from 'next/cache'
 import { entrar } from '@/servicos/autenticacao'
 import { criar, editar, desativar } from '@/servicos/usuarios'
 import { atualizarPerfil, trocarSenha } from '@/servicos/perfil'
+import {
+  apagarLancamento,
+  criarCategoria,
+  criarLancamento,
+  editarLancamento,
+} from '@/servicos/lancamentos'
+import { lerFormularioDeCategoria, lerFormularioDeLancamento } from '@/app/formularios'
+import { mesDaData } from '@/lib/datas'
+import { enderecoDaLista } from '@/lib/lancamentos-links'
 import { ErroDeAplicacao } from '@/lib/erros'
 import {
   exigirUsuario,
   exigirUsuarioAdmin,
+  exigirUsuarioDeLancamentos,
   gravarCookieDeSessao,
   apagarCookieDeSessao,
 } from '@/app/sessao-servidor'
@@ -137,4 +147,69 @@ export async function salvarSenha(
     return { erro: mensagemDe(erro) }
   }
   return { sucesso: 'Senha alterada. As outras sessões foram encerradas.' }
+}
+
+/** O mês do lançamento, para a lista abrir onde ele acabou de entrar. */
+function listaDoMesDe(data: FormDataEntryValue | null): string {
+  return enderecoDaLista({ mes: typeof data === 'string' ? mesDaData(data) : null })
+}
+
+// As ações de lançamento exigem quem lança FORA do try: o redirecionamento da
+// guarda é uma exceção do Next e não pode virar mensagem de erro. O serviço
+// verifica o papel de novo.
+
+export async function registrarLancamento(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioDeLancamentos()
+  try {
+    await criarLancamento(autor, lerFormularioDeLancamento(form))
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/lancamentos')
+  redirect(listaDoMesDe(form.get('data')))
+}
+
+export async function salvarLancamento(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioDeLancamentos()
+  try {
+    await editarLancamento(autor, String(form.get('id')), lerFormularioDeLancamento(form))
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/lancamentos')
+  redirect(listaDoMesDe(form.get('data')))
+}
+
+export async function excluirLancamento(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioDeLancamentos()
+  try {
+    await apagarLancamento(autor, String(form.get('id')))
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/lancamentos')
+  redirect('/lancamentos')
+}
+
+export async function registrarCategoria(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioDeLancamentos()
+  try {
+    await criarCategoria(autor, lerFormularioDeCategoria(form))
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  revalidatePath('/lancamentos/categorias')
+  return { sucesso: 'Categoria criada.' }
 }
