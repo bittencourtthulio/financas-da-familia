@@ -63,27 +63,33 @@ descrição.
 | Camada | Conteúdo |
 |---|---|
 | Configuração | `package.json` com versões fixadas, TypeScript estrito, ESLint, Vitest, modelo de variáveis de ambiente |
-| Banco | SQLite via Prisma, migrations versionadas (`usuarios`, `atividades`, `categorias`, `lancamentos`, `filhos`, `movimentos_de_mesada`), seed de demonstração |
+| Banco | PostgreSQL via Prisma (Neon em produção, Postgres local em desenvolvimento e nos testes), migrations versionadas (`usuarios`, `atividades`, `categorias`, `lancamentos`, `recorrencias`, `filhos`, `movimentos_de_mesada`), seed de demonstração |
 | Autenticação | e-mail e senha, hash bcrypt, sessão JWT em cookie `httpOnly`, renovação deslizante, limite de tentativas de login |
 | Papéis | `admin` (responsável), `usuario` (adulto) e `filho` (só a própria mesada; nasce na página do filho, não na tela Usuários) |
 | Interface | tokens do VS Code (Dark+ e Light+), alternador de tema, menu em gaveta abaixo de 768px, estados carregando, erro e não encontrado |
-| Telas | painel `/` (com o resumo do mês), `/lancamentos` (lista, `/novo`, `/<id>`, `/categorias`; responsável e adulto), `/filhos` (lista, `/novo`, `/<id>`; só o responsável), `/filhos/<id>/mesada` e `/filhos/<id>/mesada/<movimento>` (só o responsável), `/mesada` (só o filho), `/atividade` (só o responsável), `/privacidade` (só o responsável), `/configuracoes/usuarios`, `/perfil`, `/perfil/senha` |
+| Telas | painel `/` (resumo do mês, despesas por categoria e quem mais gasta), `/lancamentos` (lista, `/novo`, `/<id>`; com pago ou em aberto e lançamentos recorrentes; responsável e adulto), `/financas` (Nossas Finanças: despesas por categoria e por pessoa, com filtro por pessoa; responsável e adulto), `/familia` (cadastro de todos: `/nova`, `/adultos/<id>`, `/filhos/<id>` e a mesada em `/filhos/<id>/mesada`; só o responsável), `/mesada` (só o filho), `/atividade` (só o responsável), `/privacidade` (só o responsável), `/perfil`, `/perfil/senha` |
 | Trilha | `registrarAtividade` (`src/servicos/atividade.ts`): quem, o quê e quando, na mesma transação da ação; nunca guarda senha, hash, token nem dado financeiro |
 | Formato brasileiro | valor em centavos inteiros (`src/lib/dinheiro.ts` lê "1.234,56", `src/lib/formato.ts` exibe) e data no fuso `America/Sao_Paulo` (`src/lib/datas.ts`) |
 | Qualidade | `npm run verificar` e fluxo de exemplo em `.github/workflows/verificar.yml` |
 
 ## Como rodar
 
-Defina as duas variáveis de ambiente (veja o modelo de ambiente versionado na
+Precisa de um Postgres local (por exemplo `brew install postgresql@17`). Crie os
+bancos e defina as variáveis de ambiente (veja o modelo de ambiente versionado na
 raiz do projeto; o arquivo real fica fora do versionador):
 
 ```bash
+createdb financas_dev && createdb financas_teste
 npm install
-export DATABASE_URL="file:./dev.db"
+export DATABASE_URL="postgresql://$USER@localhost:5432/financas_dev"
 export JWT_SECRET="$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")"
-npm run setup           # generate + db push + seed de demonstração
+npm run setup           # generate + migrate deploy + seed de demonstração
 npm run dev
 ```
+
+Os testes usam o banco `financas_teste` (ou `DATABASE_URL_TESTE`; o nome precisa ter
+"test", porque os testes apagam as tabelas). Antes de `npm test`, rode `npm run build`
+se a mudança altera HTML.
 
 Contas de demonstração — fictícias, criadas pela seed, que **não roda em
 produção**:
@@ -116,55 +122,22 @@ fictícios (abra **Lançamentos**). As categorias são só dado de demonstraçã
 | `npm run verificar` | lint, tipos, build, testes e auditoria de dependência |
 | `npm run setup` | prepara o banco do zero |
 | `npm run db:seed` | só a seed |
-| `npm run backup` | gera um backup do banco em `backups/` (veja o runbook abaixo) |
-| `npm run restaurar -- <arquivo>` | restaura o banco de um backup, preservando uma cópia do atual |
+| `npm run responsavel:criar` | cria o primeiro responsável de um banco novo (`RESPONSAVEL_NOME`, `RESPONSAVEL_EMAIL`, `RESPONSAVEL_SENHA`); use em produção no lugar da seed |
 | `npm run log:limpar` | descarta os arquivos de log com mais de 90 dias |
 
-## Operação: backup, restauração, saúde e log
+## Operação: produção, backup, saúde e log
 
-O histórico financeiro da família é **um arquivo SQLite só** (`DATABASE_URL`).
-Sem backup, um disco ruim apaga tudo. Esta seção é o runbook de quem opera o
-sistema.
+**Produção.** O app roda na Vercel e o banco é um Postgres no Neon. As migrations
+rodam pela conexão **direta** (`DATABASE_URL_UNPOOLED`, sem `-pooler`); as requisições
+usam a conexão do **pooler** (`DATABASE_URL`). Num banco novo, aplique as migrations
+(`npx prisma migrate deploy` com a conexão direta) e crie o primeiro responsável com
+`npm run responsavel:criar`. **Não rode a seed de demonstração em produção**: ela cria
+contas de senha conhecida.
 
-### Gerar um backup
-
-```bash
-npm run backup
-```
-
-Cria `backups/backup-AAAA-MM-DD-HHMMSS.db` (horário de São Paulo), uma cópia
-consistente do banco feita com `VACUUM INTO`, que pode ser gerada com o sistema
-no ar. Nunca sobrescreve um backup anterior. A pasta é `backups/` na raiz do
-projeto, ou a indicada em `BACKUP_DIR`.
-
-**Guarde o arquivo com cuidado.** Ele leva tudo o que o banco tem: os hashes de
-senha de todos os usuários, o nome e a mesada dos filhos e todo o dinheiro da
-casa. A pasta `backups/` fica **fora do git** (`.gitignore`) e o comando a cria
-só para o dono (0700, arquivos 0600). Não a versione, não a mande por canal
-aberto e apague a cópia que não for mais precisar. O backup **não é
-criptografado** (pendência registrada, veja abaixo).
-
-### Restaurar
-
-1. **Pare o sistema** (`next start` ou `npm run dev`). Restaurar com o sistema no
-   ar deixa o servidor lendo o arquivo antigo.
-2. Rode:
-
-   ```bash
-   npm run restaurar -- backups/backup-2026-10-28-120405.db
-   ```
-
-3. O comando só aceita um arquivo SQLite íntegro que tenha as tabelas do sistema
-   (`usuarios`, `atividades`, `categorias`, `lancamentos`, `filhos`,
-   `movimentos_de_mesada`); qualquer outra coisa é recusada com uma mensagem, e o
-   banco atual **não é tocado**.
-4. Antes de trocar, o banco atual é guardado em
-   `backups/antes-da-restauracao-AAAA-MM-DD-HHMMSS.db`: se a restauração foi um
-   engano, restaure este arquivo.
-5. Suba o sistema de novo e confira `GET /api/saude`.
-
-Num computador novo, aponte `DATABASE_URL` para o caminho desejado e rode o mesmo
-comando: sem banco anterior, não há cópia a preservar.
+**Backup.** O sistema não grava arquivo de backup: no Neon, o histórico e a restauração
+a um ponto no tempo são do próprio serviço (e `pg_dump` pela conexão direta serve para
+uma cópia à mão). O banco leva os hashes de senha e todo o dinheiro da casa, então trate
+qualquer cópia com o mesmo cuidado.
 
 ### Saúde
 
@@ -180,7 +153,7 @@ dado pessoal, versão, caminho nem pilha:
 
 Uma linha JSON por evento, com `nivel`, `instante`, `evento` e `contexto`, na
 saída padrão e no arquivo `logs/app-AAAA-MM-DD.log` (dia UTC; pasta em
-`LOG_DIR`, vazio desliga o arquivo). Nunca vão para o log senha, hash, token,
+`LOG_DIR`, vazio desliga o arquivo; na Vercel o arquivo é desligado sozinho). Nunca vão para o log senha, hash, token,
 e-mail nem valor em dinheiro: o que parece isso vira `[removido]`.
 
 **Os arquivos de log com mais de 90 dias são descartados** quando o servidor sobe
@@ -200,10 +173,9 @@ valor, e **encerra com código 1**.
 
 ### O que ficou de fora, de propósito
 
-Agendamento automático do backup (use o `cron` do sistema com `npm run backup`),
-rotação dos arquivos de backup antigos, backup remoto ou em nuvem, criptografia
-do backup e restauração pela interface. Cada um depende de decisão ou de recurso
-que o sistema não tem; estão em `docs/backup-e-saude/00-BLOQUEIOS.md`.
+Backup agendado por conta própria, criptografia de backup e restauração pela interface:
+no Neon, o histórico do banco cobre o essencial; o resto depende de decisão ou de recurso
+que o sistema não tem (`docs/backup-e-saude/00-BLOQUEIOS.md`).
 
 ## O que esta fundação não traz, de propósito
 

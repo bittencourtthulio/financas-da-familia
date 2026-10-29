@@ -37,11 +37,11 @@ describe('tabela de atividades', () => {
 
   it('não tem chave estrangeira para usuários: o registro sobrevive à conta', async () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ table: string }>>(
-      `SELECT "table" FROM pragma_foreign_key_list('atividades')`,
+      `SELECT ccu.table_name AS "table" FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name AND ccu.constraint_schema = tc.table_schema WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public' AND tc.table_name = 'atividades'`,
     )
     expect(colunas).toEqual([])
     const tabelas = await prisma.$queryRawUnsafe<Array<{ name: string }>>(
-      `SELECT name FROM sqlite_master WHERE type='table' AND name='atividades'`,
+      `SELECT tablename AS name FROM pg_tables WHERE schemaname = 'public' AND tablename = 'atividades'`,
     )
     expect(tabelas).toHaveLength(1)
   })

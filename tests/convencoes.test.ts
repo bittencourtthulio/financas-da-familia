@@ -128,7 +128,7 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
       ['prisma/schema.prisma', 74, /valorCentavos\s+Int/],
       ['prisma/schema.prisma', 56, /model Categoria/],
       ['prisma/schema.prisma', 71, /model Lancamento/],
-      ['prisma/migrations/20261028150000_lancamentos/migration.sql', 13, /"valorCentavos" INTEGER/],
+      ['prisma/migrations/20261029200000_postgres/migration.sql', 48, /"valorCentavos" INTEGER/],
       ['src/lib/dinheiro.ts', 7, /VALOR_MAXIMO_EM_CENTAVOS/],
       ['src/lib/dinheiro.ts', 19, /lerValorEmReais/],
       ['src/lib/dinheiro.ts', 39, /centavosParaCampo/],
@@ -148,7 +148,7 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
       ['tests/rotas.test.ts', 108, /spawn/],
       ['tests/rotas.test.ts', 207, /cadastro de usuários é negado/],
       ['tests/lancamentos-papeis.test.ts', 70, /todas as funções do serviço negam/],
-      ['tests/lancamentos-dados.test.ts', 115, /nenhum modelo usa Float/],
+      ['tests/lancamentos-dados.test.ts', 116, /nenhum modelo usa Float/],
       ['tests/dinheiro.test.ts', 123, /PR-02 no código do leitor/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {
@@ -247,12 +247,12 @@ describe('o papel filho e os filhos no CONVENCOES.md (FT-05)', () => {
       ['src/servicos/usuarios.ts', 117, /alvo\.papel === 'filho'/],
       ['src/app/acoes.ts', 283, /registrarFilho/],
       ['prisma/schema.prisma', 108, /model Filho/],
-      ['prisma/migrations/20261028170000_filhos/migration.sql', 2, /CREATE TABLE "filhos"/],
+      ['prisma/migrations/20261029200000_postgres/migration.sql', 62, /CREATE TABLE "filhos"/],
       ['src/lib/atividade.ts', 19, /filho\.cadastrado/],
       ['tests/papel-filho.test.ts', 57, /a tabela cobre/],
       ['tests/filhos-papeis.test.ts', 33, /todas as funções do serviço de filhos negam/],
       ['tests/filhos-login.test.ts', 220, /IDOR/],
-      ['tests/filhos-mesada.test.ts', 204, /nada vaza a existência/],
+      ['tests/filhos-mesada.test.ts', 205, /nada vaza a existência/],
       ['tests/filhos-acoes.test.ts', 122, /não grava nada por nenhuma ação sensível/],
       ['tests/filhos.test.ts', 259, /PR-02 no serviço de filhos/],
     ]
@@ -306,8 +306,8 @@ describe('a mesada dos filhos no CONVENCOES.md (FT-06)', () => {
       ['prisma/schema.prisma', 132, /model MovimentoDeMesada/],
       ['prisma/schema.prisma', 136, /valorCentavos\s+Int/],
       ['prisma/schema.prisma', 142, /onDelete: Cascade/],
-      ['prisma/migrations/20261028190000_mesada/migration.sql', 2, /CREATE TABLE "movimentos_de_mesada"/],
-      ['prisma/migrations/20261028190000_mesada/migration.sql', 6, /"valorCentavos" INTEGER/],
+      ['prisma/migrations/20261029200000_postgres/migration.sql', 77, /CREATE TABLE "movimentos_de_mesada"/],
+      ['prisma/migrations/20261029200000_postgres/migration.sql', 81, /"valorCentavos" INTEGER/],
       ['src/servicos/mesada.ts', 94, /totaisDoFilho/],
       ['src/servicos/mesada.ts', 95, /groupBy/],
       ['src/servicos/mesada.ts', 116, /registrarMovimento/],
@@ -317,13 +317,13 @@ describe('a mesada dos filhos no CONVENCOES.md (FT-06)', () => {
       ['src/servicos/mesada.ts', 323, /exigirFilho/],
       ['src/lib/atividade.ts', 23, /mesada\.registrada/],
       ['src/app/acoes.ts', 352, /registrarMovimentoDeMesada/],
-      ['tests/mesada-dados.test.ts', 87, /Cascade/],
+      ['tests/mesada-dados.test.ts', 88, /Cascade/],
       ['tests/mesada-saldo.test.ts', 25, /0,10 \+ 0,20/],
       ['tests/mesada.test.ts', 353, /PR-02 no serviço de mesada/],
       ['tests/mesada-papeis.test.ts', 33, /todas as funções do serviço de mesada negam/],
       ['tests/mesada-isolamento.test.ts', 86, /IDOR/],
       ['tests/mesada-acoes.test.ts', 170, /não grava nada em nenhuma ação da mesada/],
-      ['tests/mesada-rotas.test.ts', 161, /não vê nem alcança o irmão/],
+      ['tests/mesada-rotas.test.ts', 162, /não vê nem alcança o irmão/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {
       expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
@@ -450,43 +450,38 @@ describe('privacidade dos dados no CONVENCOES.md (FT-07)', () => {
   })
 })
 
-describe('backup, restauração, saúde e log no CONVENCOES.md (FT-08)', () => {
+describe('saúde, backup e log no CONVENCOES.md (FT-08)', () => {
   it('cada citação nova da operação aponta para a linha que contém o nome citado', () => {
     const esperado: Array<[string, number, RegExp]> = [
-      ['package.json', 19, /"backup"/],
-      ['package.json', 20, /"restaurar"/],
-      ['package.json', 21, /"log:limpar"/],
-      ['package.json', 30, /better-sqlite3/],
+      ['package.json', 18, /"log:limpar"/],
+      ['package.json', 28, /@prisma\/adapter-pg/],
+      ['package.json', 20, /"responsavel:criar"/],
+      ['prisma.config.ts', 23, /DATABASE_URL_UNPOOLED/],
+      ['src/lib/log-arquivo.ts', 23, /pastaDeLog/],
+      ['tests/global-setup.ts', 1, /Roda uma vez antes/],
       ['package.json', 33, /"next"/],
-      ['package.json', 47, /"typescript"/],
-      ['package.json', 48, /"vitest"/],
-      ['scripts/backup.ts', 1, /npm run backup/],
+      ['package.json', 48, /"typescript"/],
+      ['package.json', 49, /"vitest"/],
       ['src/lib/chaves-proibidas.ts', 8, /CHAVE_PROIBIDA/],
       ['src/lib/log.ts', 51, /montarLinha/],
       ['src/lib/log.ts', 88, /registrar/],
       ['src/lib/log-arquivo.ts', 8, /RETENCAO_DIAS/],
-      ['src/lib/log-arquivo.ts', 49, /descartarLogsAntigos/],
+      ['src/lib/log-arquivo.ts', 50, /descartarLogsAntigos/],
       ['src/lib/erros.ts', 45, /mensagemSegura/],
       ['src/lib/erros.ts', 51, /registrarErroInesperado/],
       ['src/lib/ambiente.ts', 33, /problemasDeAmbiente/],
       ['src/lib/ambiente.ts', 52, /validarAmbiente/],
       ['src/lib/ambiente.ts', 62, /jwtSecret/],
       ['src/instrumentation.ts', 9, /register/],
-      ['src/lib/backup.ts', 85, /gerarBackup/],
-      ['src/lib/restauracao.ts', 21, /TABELAS_ESPERADAS/],
-      ['src/lib/restauracao.ts', 96, /restaurarBackup/],
       ['src/servicos/saude.ts', 34, /verificarSaude/],
       ['src/app/api/saude/route.ts', 10, /GET/],
-      ['tests/banco-temporario.ts', 1, /Banco SQLite temporário/],
       ['tests/log.test.ts', 54, /chave proibida/],
-      ['tests/log-retencao.test.ts', 55, /descarte de logs/],
+      ['tests/log-retencao.test.ts', 57, /descarte de logs/],
       ['tests/erro-sem-pilha.test.ts', 59, /mensagemSegura/],
       ['tests/erro-rotas.test.ts', 43, /erro inesperado/],
       ['tests/ambiente-start.test.ts', 98, /servidor real/],
-      ['tests/backup-ponta-a-ponta.test.ts', 37, /cria, faz backup/],
-      ['tests/restauracao.test.ts', 128, /restaurarBackup/],
       ['tests/saude-rotas.test.ts', 34, /banco inacessível/],
-      ['tests/rotas.test.ts', 558, /rota pública de saúde/],
+      ['tests/rotas.test.ts', 568, /rota pública de saúde/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {
       expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
@@ -505,17 +500,17 @@ describe('backup, restauração, saúde e log no CONVENCOES.md (FT-08)', () => {
     }
   })
 
-  it('a configuração diz que o gancho encerra o processo e a operação cita backup, restauração e saúde', () => {
+  it('a configuração diz que o gancho encerra o processo e a operação cita saúde e backup', () => {
     expect(convencoes).toMatch(/encerra o processo com código 1/)
     const secao7 = convencoes.slice(convencoes.indexOf('## 7.'), convencoes.indexOf('## Conflitos'))
-    expect(secao7).toContain('### Operação: backup, restauração e saúde')
-    for (const termo of ['VACUUM INTO', 'restaurarBackup', 'TABELAS_ESPERADAS', '/api/saude', 'hashes de senha', 'parado']) {
+    expect(secao7).toContain('### Operação: saúde e backup')
+    for (const termo of ['Neon', 'pg_dump', '/api/saude', 'hashes de senha', 'Postgres só deles']) {
       expect(secao7, termo).toContain(termo)
     }
   })
 
   it('os comandos novos estão na tabela de comandos e o histórico registra a FT-08', () => {
-    for (const comando of ['npm run backup', 'npm run restaurar -- <arquivo>', 'npm run log:limpar']) {
+    for (const comando of ['npm run responsavel:criar', 'npm run log:limpar']) {
       expect(convencoes, comando).toContain(comando)
     }
     expect(convencoes).toMatch(/\| FT-08 \|/)

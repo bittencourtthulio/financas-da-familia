@@ -21,7 +21,7 @@ beforeEach(async () => {
 /** Todas as tabelas do banco, linha a linha, em texto. */
 async function bancoInteiro(): Promise<Record<string, string>> {
   const tabelas = await prisma.$queryRawUnsafe<Array<{ name: string }>>(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+    "SELECT tablename AS name FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations' ORDER BY tablename",
   )
   const dump: Record<string, string> = {}
   for (const { name } of tabelas) {

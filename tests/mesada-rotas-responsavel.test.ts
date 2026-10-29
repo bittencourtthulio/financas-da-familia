@@ -174,8 +174,8 @@ describe('o responsável vê o extrato e o saldo de cada filho', () => {
     }
   })
 
-  it('a lista de filhos mostra o saldo de cada um e a página do filho leva à mesada', async () => {
-    const lista = await abrir('/filhos', ADMIN)
+  it('a Família mostra o saldo de cada filho e a página do filho leva à mesada', async () => {
+    const lista = await abrir('/familia', ADMIN)
     expect(lista.html).toContain('R$ 88,35')
     expect(lista.html).toContain('-R$ 15,50')
     expect(lista.html).toContain('Saldo negativo')
@@ -225,7 +225,7 @@ describe('quem não é o responsável não vê a mesada de ninguém', () => {
     }
   })
 
-  it('o adulto não vê saldo na lista porque não abre a lista de filhos', async () => {
+  it('o adulto não vê saldo na lista porque não abre a Família nem a lista antiga de filhos', async () => {
     const r = await abrir('/filhos', ADULTO)
     expect(foiBarrado(r)).toBe(true)
     expect(r.html).not.toContain('Saldo')

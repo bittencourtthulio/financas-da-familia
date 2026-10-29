@@ -13,31 +13,32 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:migrate": "prisma migrate deploy",
-    "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "setup": "prisma generate && prisma db push && npm run db:seed",
-    "backup": "tsx scripts/backup.ts",
-    "restaurar": "tsx scripts/restaurar.ts",
-    "log:limpar": "tsx scripts/limpar-logs.ts"
+    "setup": "prisma generate && prisma migrate deploy && npm run db:seed",
+    "log:limpar": "tsx scripts/limpar-logs.ts",
+    "postinstall": "prisma generate",
+    "responsavel:criar": "tsx scripts/criar-responsavel.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "7.10.0",
+    "@neon/config": "1.9.5",
+    "@neon/env": "1.6.6",
+    "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
     "bcryptjs": "3.0.3",
-    "better-sqlite3": "12.11.1",
     "dotenv": "17.4.2",
     "jose": "6.2.10",
     "next": "16.4.3",
+    "pg": "8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "9.6.0",
     "@types/node": "26.4.0",
+    "@types/pg": "8.23.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "eslint": "9.39.1",

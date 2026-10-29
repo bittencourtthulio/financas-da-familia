@@ -47,12 +47,13 @@ describe('tabelas de categorias e lançamentos', () => {
 
   it('no banco a coluna do valor é INTEGER, não ponto flutuante', async () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ name: string; type: string }>>(
-      `SELECT name, type FROM pragma_table_info('lancamentos')`,
+      `SELECT column_name AS name, data_type AS type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lancamentos'`,
     )
     const valor = colunas.find((c) => c.name === 'valorCentavos')
-    expect(valor?.type).toBe('INTEGER')
-    expect(colunas.map((c) => c.type)).not.toContain('REAL')
-    expect(colunas.map((c) => c.type)).not.toContain('DECIMAL')
+    expect(valor?.type).toBe('integer')
+    expect(colunas.map((c) => c.type)).not.toContain('double precision')
+    expect(colunas.map((c) => c.type)).not.toContain('real')
+    expect(colunas.map((c) => c.type)).not.toContain('numeric')
   })
 
   it('a descrição tem padrão vazio', async () => {
@@ -91,7 +92,7 @@ describe('tabelas de categorias e lançamentos', () => {
 
   it('o lançamento não guarda quem o criou: isso é da trilha, sem chave para usuários', async () => {
     const chaves = await prisma.$queryRawUnsafe<Array<{ table: string }>>(
-      `SELECT "table" FROM pragma_foreign_key_list('lancamentos')`,
+      `SELECT ccu.table_name AS "table" FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name AND ccu.constraint_schema = tc.table_schema WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public' AND tc.table_name = 'lancamentos'`,
     )
     // Categoria e recorrência (o mês de uma recorrência); nenhuma para usuários.
     expect(chaves.map((c) => c.table).sort()).toEqual(['categorias', 'recorrencias'])
@@ -122,11 +123,11 @@ describe('PR-02 no esquema', () => {
   })
 
   it('a migration declara o valor como INTEGER e nada de REAL ou DECIMAL', () => {
-    const pasta = readdirSync(path.join(RAIZ, 'prisma/migrations')).find((d) => d.endsWith('_lancamentos'))
-    expect(pasta, 'migration *_lancamentos').toBeDefined()
+    const pasta = readdirSync(path.join(RAIZ, 'prisma/migrations')).find((d) => d.endsWith('_postgres'))
+    expect(pasta, 'migration *_postgres').toBeDefined()
     const sql = readFileSync(path.join(RAIZ, 'prisma/migrations', pasta as string, 'migration.sql'), 'utf8')
     expect(sql).toMatch(/"valorCentavos" INTEGER NOT NULL/)
-    expect(sql).not.toMatch(/\bREAL\b|\bDECIMAL\b|\bFLOAT\b|\bDOUBLE\b/i)
+    expect(sql).not.toMatch(/\bREAL\b|\bDECIMAL\b|\bNUMERIC\b|\bFLOAT\b|\bDOUBLE\b/i)
   })
 })
 

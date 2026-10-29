@@ -210,7 +210,7 @@ describe('com sessão de usuário comum', () => {
     // (meta refresh) em vez de virar 307. O que importa continua valendo: a
     // checagem é do servidor e nenhum dado de administração é entregue.
     const r = await pedir(
-      '/configuracoes/usuarios',
+      '/familia/nova?tipo=adulto',
       await cookieDe('comum.rota@teste.local'),
     )
     const html = await r.text()
@@ -219,38 +219,45 @@ describe('com sessão de usuário comum', () => {
       /<meta[^>]*http-equiv="refresh"[^>]*content="[^"]*url=\/"/.test(html)
     expect(redirecionou).toBe(true)
     expect(html).not.toContain('admin.rota@teste.local')
-    expect(html).not.toContain('Novo usuário')
+    expect(html).not.toContain('Senha provisória')
     expect(html).not.toContain('tabela-rolavel')
   })
 
-  it('o item Usuários não aparece na navegação', async () => {
+  it('o item Família não aparece na navegação', async () => {
     const r = await pedir('/', await cookieDe('comum.rota@teste.local'))
-    expect(await r.text()).not.toContain('/configuracoes/usuarios')
+    const html = await r.text()
+    expect(html).not.toContain('/configuracoes/usuarios')
+    expect(html).not.toContain('href="/familia"')
   })
 })
 
 describe('com sessão de admin', () => {
-  it('o cadastro de usuários abre e lista quem existe', async () => {
-    const r = await pedir(
-      '/configuracoes/usuarios',
-      await cookieDe('admin.rota@teste.local'),
-    )
+  it('a Família abre e lista quem existe, em cartões', async () => {
+    const r = await pedir('/familia', await cookieDe('admin.rota@teste.local'))
     const html = await r.text()
     expect(r.status).toBe(200)
-    expect(html).toContain('Usuários')
-    expect(html).toContain('admin.rota@teste.local')
-    expect(html).toContain('comum.rota@teste.local')
-  })
-
-  it('a tela de usuários mostra Responsável e Adulto, nunca Administrador', async () => {
-    const html = await (
-      await pedir('/configuracoes/usuarios', await cookieDe('admin.rota@teste.local'))
-    ).text()
+    expect(html).toContain('Nossa família')
+    expect(html).toContain('Adicionar pessoa')
+    expect(html).toContain('Admin de Rota')
     expect(html).toContain('Responsável')
     expect(html).toContain('Adulto')
+  })
+
+  it('cadastrar um adulto mostra Responsável e Adulto, nunca Administrador', async () => {
+    const html = await (
+      await pedir('/familia/nova?tipo=adulto', await cookieDe('admin.rota@teste.local'))
+    ).text()
+    expect(html).toContain('Senha provisória')
     expect(html).toMatch(/<option value="admin">Responsável<\/option>/)
     expect(html).toMatch(/<option value="usuario"[^>]*>Adulto<\/option>/)
     expect(html).not.toContain('Administrador')
+  })
+
+  it('o endereço antigo dos usuários só leva para a Família', async () => {
+    const r = await pedir('/configuracoes/usuarios', await cookieDe('admin.rota@teste.local'))
+    const html = await r.text()
+    expect(r.status === 307 || html.includes('/familia/nova')).toBe(true)
+    expect(html).not.toContain('tabela-rolavel')
   })
 
   it('a barra de status mostra o papel pelo rótulo do domínio', async () => {
@@ -260,16 +267,12 @@ describe('com sessão de admin', () => {
     expect(comum).toMatch(/<span>Adulto<\/span>/)
   })
 
-  it('a tabela de usuários fica num envoltório rolável para o celular', async () => {
-    const html = await (
-      await pedir('/configuracoes/usuarios', await cookieDe('admin.rota@teste.local'))
-    ).text()
-    expect(html).toMatch(/<div class="tabela-rolavel"><table>/)
-  })
-
-  it('o item Usuários aparece na navegação', async () => {
+  it('a navegação traz a Família e não traz Filhos nem Usuários à parte', async () => {
     const r = await pedir('/', await cookieDe('admin.rota@teste.local'))
-    expect(await r.text()).toContain('/configuracoes/usuarios')
+    const html = await r.text()
+    expect(html).toContain('href="/familia"')
+    expect(html).not.toContain('href="/configuracoes/usuarios"')
+    expect(html).not.toContain('href="/filhos"')
   })
 })
 
@@ -334,11 +337,11 @@ describe('as telas de Lançamentos (FT-03)', () => {
     expect(html).toContain('Mês anterior')
   })
 
-  it('o responsável também abre; o menu traz Lançamentos e Categorias', async () => {
+  it('o responsável também abre; o menu traz Lançamentos e Nossas Finanças, sem Categorias', async () => {
     const html = await (await abrir('/', 'admin.rota@teste.local')).text()
     expect(html).toMatch(/<a[^>]*href="\/lancamentos"[^>]*>Lançamentos<\/a>/)
-    expect(html).toMatch(/<a[^>]*href="\/lancamentos\/categorias"[^>]*>Categorias<\/a>/)
-    expect(html).not.toContain('configuracoes/categorias')
+    expect(html).toMatch(/<a[^>]*href="\/financas"[^>]*>Nossas Finanças<\/a>/)
+    expect(html).not.toMatch(/<a[^>]*href="\/lancamentos\/categorias"/)
   })
 
   it('o filtro de tipo e o de mês valem no servidor', async () => {
@@ -356,13 +359,13 @@ describe('as telas de Lançamentos (FT-03)', () => {
 
   it('o formulário de novo lançamento abre com os campos e a data de hoje', async () => {
     const html = await (await abrir('/lancamentos/novo', 'comum.rota@teste.local')).text()
-    for (const nome of ['tipo', 'valor', 'data', 'categoriaId', 'descricao']) {
+    for (const nome of ['tipo', 'valor', 'data', 'categoriaId', 'categoriaNome', 'pessoaId', 'pago', 'descricao']) {
       expect(html).toContain(`name="${nome}"`)
     }
     expect(html).toContain(`value="${hojeEmSaoPaulo()}"`)
-    expect(html).toMatch(/<option[^>]*>Mercado de Rota<\/option>/)
-    // Receita é outro tipo: a categoria dela não é oferecida como opção.
-    expect(html).not.toMatch(/<option[^>]*>Salário de Rota<\/option>/)
+    // A categoria é um campo com busca (a lista abre no navegador), não um select.
+    expect(html).toContain('role="combobox"')
+    expect(html).toContain('Repete todo mês')
   })
 
   it('a edição abre preenchida com o valor no formato do campo; id inexistente é 404', async () => {
@@ -381,18 +384,25 @@ describe('as telas de Lançamentos (FT-03)', () => {
     expect(inexistente).not.toContain('name="valor"')
   })
 
-  it('a tela de categorias lista por tipo e traz o formulário', async () => {
-    const html = await (await abrir('/lancamentos/categorias', 'comum.rota@teste.local')).text()
-    expect(html).toContain('Mercado de Rota')
-    expect(html).toContain('Salário de Rota')
-    expect(html).toContain('Nova categoria')
-    expect(html).toContain('name="nome"')
+  it('não há tela de categorias: o endereço antigo leva ao novo lançamento', async () => {
+    const r = await abrir('/lancamentos/categorias', 'comum.rota@teste.local')
+    const html = await r.text()
+    expect(r.status === 307 || html.includes('/lancamentos/novo')).toBe(true)
+    expect(html).not.toContain('Nova categoria')
+  })
+
+  it('Nossas Finanças abre para quem lança', async () => {
+    const r = await abrir('/financas', 'comum.rota@teste.local')
+    const html = await r.text()
+    expect(r.status).toBe(200)
+    expect(html).toContain('Nossas Finanças')
+    expect(html).toContain('Despesas por pessoa')
   })
 
   it.each([
     '/lancamentos',
     '/lancamentos/novo',
-    '/lancamentos/categorias',
+    '/financas',
     '/lancamentos/qualquer-id',
   ])('quem não é responsável nem adulto (o filho de amanhã) é negado em %s, sem dado no corpo', async (caminho) => {
     const r = await abrir(caminho, 'filho.rota@teste.local')

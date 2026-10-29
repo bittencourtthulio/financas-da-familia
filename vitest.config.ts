@@ -8,6 +8,7 @@ export default defineConfig({
     // O teste de rotas sobe o servidor de produção e espera por ele.
     testTimeout: 30_000,
     hookTimeout: 180_000,
+    globalSetup: ['tests/global-setup.ts'],
     setupFiles: ['tests/setup.ts'],
     // O banco de teste é um arquivo só, e cada teste limpa o que criou.
     // Rodar em paralelo sobre o mesmo arquivo produz falha intermitente.

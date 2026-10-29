@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 import { problemasDeAmbiente, validarAmbiente } from '@/lib/ambiente'
 
 const OK = {
-  DATABASE_URL: 'file:./dev.db',
+  DATABASE_URL: 'postgresql://localhost:5432/financas_dev',
   JWT_SECRET: 'um-segredo-qualquer-de-teste',
   JWT_TTL_SEGUNDOS: '900',
 }
@@ -30,8 +30,8 @@ describe('problemasDeAmbiente', () => {
     expect(problemasDeAmbiente({ ...OK, JWT_SECRET: '   ' }).join('\n')).toContain('JWT_SECRET')
   })
 
-  it('DATABASE_URL que não é de arquivo SQLite é recusada', () => {
-    expect(problemasDeAmbiente({ ...OK, DATABASE_URL: 'postgres://host/banco' }).join('\n')).toContain(
+  it('DATABASE_URL que não é de PostgreSQL é recusada', () => {
+    expect(problemasDeAmbiente({ ...OK, DATABASE_URL: 'file:./dev.db' }).join('\n')).toContain(
       'DATABASE_URL',
     )
   })

@@ -47,14 +47,15 @@ describe('tabela de movimentos de mesada', () => {
 
   it('no banco a coluna do valor é INTEGER, sem ponto flutuante, e o esquema não tem Float nem Decimal', async () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ name: string; type: string }>>(
-      `SELECT name, type FROM pragma_table_info('movimentos_de_mesada')`,
+      `SELECT column_name AS name, data_type AS type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'movimentos_de_mesada'`,
     )
-    expect(colunas.find((c) => c.name === 'valorCentavos')?.type).toBe('INTEGER')
-    expect(colunas.map((c) => c.type)).not.toContain('REAL')
-    expect(colunas.map((c) => c.type)).not.toContain('DECIMAL')
+    expect(colunas.find((c) => c.name === 'valorCentavos')?.type).toBe('integer')
+    expect(colunas.map((c) => c.type)).not.toContain('double precision')
+    expect(colunas.map((c) => c.type)).not.toContain('real')
+    expect(colunas.map((c) => c.type)).not.toContain('numeric')
     expect(esquema).not.toMatch(/\b(Float|Decimal)\b/)
     const migration = readFileSync(
-      path.join(process.cwd(), 'prisma/migrations/20261028190000_mesada/migration.sql'),
+      path.join(process.cwd(), 'prisma/migrations/20261029200000_postgres/migration.sql'),
       'utf8',
     )
     expect(migration).toMatch(/"valorCentavos" INTEGER NOT NULL/)
@@ -62,7 +63,7 @@ describe('tabela de movimentos de mesada', () => {
 
   it('a tabela não guarda saldo: o saldo é sempre calculado do extrato', async () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ name: string }>>(
-      `SELECT name FROM pragma_table_info('movimentos_de_mesada')`,
+      `SELECT column_name AS name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'movimentos_de_mesada'`,
     )
     expect(colunas.map((c) => c.name).sort()).toEqual(
       ['atualizadoEm', 'criadoEm', 'data', 'descricao', 'filhoId', 'id', 'tipo', 'valorCentavos'].sort(),
@@ -71,7 +72,7 @@ describe('tabela de movimentos de mesada', () => {
 
   it('tem índice por filho e data, para o extrato e a exportação por filho', async () => {
     const indices = await prisma.$queryRawUnsafe<Array<{ name: string }>>(
-      `SELECT name FROM pragma_index_list('movimentos_de_mesada')`,
+      `SELECT indexname AS name FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'movimentos_de_mesada'`,
     )
     expect(indices.map((i) => i.name)).toContain('movimentos_de_mesada_filhoId_data_idx')
   })

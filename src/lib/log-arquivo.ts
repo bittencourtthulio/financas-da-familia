@@ -16,12 +16,13 @@ export function nomeDoArquivoDeLog(instante: Date): string {
 }
 
 /**
- * Onde gravar. `LOG_DIR` manda (vazio desliga); sem ele, nos testes não se
- * grava e fora deles a pasta é `logs/` na raiz do projeto.
+ * Onde gravar. `LOG_DIR` manda (vazio desliga); sem ele, nos testes e na
+ * Vercel (disco só de leitura; o log vai para a saída padrão) não se grava, e
+ * fora deles a pasta é `logs/` na raiz do projeto.
  */
 export function pastaDeLog(env: Record<string, string | undefined> = process.env): string | null {
   if (env.LOG_DIR !== undefined) return env.LOG_DIR === '' ? null : env.LOG_DIR
-  if (env.NODE_ENV === 'test') return null
+  if (env.NODE_ENV === 'test' || env.VERCEL) return null
   return path.resolve(process.cwd(), 'logs')
 }
 

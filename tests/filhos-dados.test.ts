@@ -32,17 +32,18 @@ describe('tabela de filhos', () => {
 
   it('no banco a coluna da mesada é INTEGER e não há coluna de ponto flutuante', async () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ name: string; type: string }>>(
-      `SELECT name, type FROM pragma_table_info('filhos')`,
+      `SELECT column_name AS name, data_type AS type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'filhos'`,
     )
-    expect(colunas.find((c) => c.name === 'mesadaCentavos')?.type).toBe('INTEGER')
-    expect(colunas.map((c) => c.type)).not.toContain('REAL')
-    expect(colunas.map((c) => c.type)).not.toContain('DECIMAL')
+    expect(colunas.find((c) => c.name === 'mesadaCentavos')?.type).toBe('integer')
+    expect(colunas.map((c) => c.type)).not.toContain('double precision')
+    expect(colunas.map((c) => c.type)).not.toContain('real')
+    expect(colunas.map((c) => c.type)).not.toContain('numeric')
     expect(esquema).not.toMatch(/\b(Float|Decimal)\b/)
   })
 
   it('PR-09: a tabela não tem CPF, RG, telefone, endereço nem foto (o avatar é um desenho escolhido, não uma foto)', async () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ name: string }>>(
-      `SELECT name FROM pragma_table_info('filhos')`,
+      `SELECT column_name AS name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'filhos'`,
     )
     expect(colunas.map((c) => c.name).sort()).toEqual(
       ['atualizadoEm', 'avatar', 'criadoEm', 'id', 'mesadaCentavos', 'nascimento', 'nome', 'periodicidade', 'usuarioId'].sort(),

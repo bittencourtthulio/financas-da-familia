@@ -49,7 +49,8 @@ const BIA = 'bia.mesadaf@teste.local'
 const CAIO = 'caio.mesadaf@teste.local'
 
 const linhasDoExtrato = (html: string) => (html.match(/<td class="sem-quebra">/g) ?? []).length
-const principal = (html: string) => /<main class="conteudo">[\s\S]*?<\/main>/.exec(html)?.[0] ?? ''
+// O conteúdo pode chegar depois do estado de carregando (streaming): vale do <main> ao fim, sem scripts.
+const principal = (html: string) => html.slice(Math.max(0, html.indexOf('<main class="conteudo">'))).replace(/<script[\s\S]*?<\/script>/g, '')
 
 beforeAll(async () => {
   await limparBanco()

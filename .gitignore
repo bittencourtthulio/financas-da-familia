@@ -34,3 +34,8 @@ backups/
 
 # cópias antigas do banco local (levam dados e hash de senha)
 *.db.*
+.neon
+
+# projeto vinculado da Vercel (local da máquina)
+.vercel
+.env*

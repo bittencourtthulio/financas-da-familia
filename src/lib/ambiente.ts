@@ -35,9 +35,9 @@ export function problemasDeAmbiente(variaveis: Variaveis = process.env): string[
   const banco = variaveis.DATABASE_URL
   const ttl = variaveis.JWT_TTL_SEGUNDOS
   if (vazio(banco)) {
-    problemas.push('DATABASE_URL ausente: informe o caminho do arquivo SQLite, por exemplo file:./dev.db.')
-  } else if (!(banco as string).startsWith('file:')) {
-    problemas.push('DATABASE_URL inválida: o banco é um arquivo SQLite e a URL precisa começar com file:.')
+    problemas.push('DATABASE_URL ausente: informe a URL do PostgreSQL, por exemplo postgresql://localhost:5432/financas_dev.')
+  } else if (!/^postgres(ql)?:\/\//.test(banco as string)) {
+    problemas.push('DATABASE_URL inválida: o banco é PostgreSQL e a URL precisa começar com postgresql://.')
   }
   if (vazio(variaveis.JWT_SECRET)) {
     problemas.push('JWT_SECRET ausente: informe o segredo de assinatura da sessão.')

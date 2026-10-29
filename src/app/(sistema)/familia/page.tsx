@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { exigirUsuarioAdmin } from '@/app/sessao-servidor'
 import { familiaDe } from '@/servicos/avatares'
+import { listarFilhos } from '@/servicos/filhos'
+import { saldosDosFilhos } from '@/servicos/mesada'
 import { CartoesDaFamilia } from '@/componentes/CartoesDaFamilia'
 import { FamiliaDesenhada } from '@/componentes/ilustracoes/Familia'
 
@@ -12,6 +14,8 @@ import { FamiliaDesenhada } from '@/componentes/ilustracoes/Familia'
 export default async function Familia() {
   const admin = await exigirUsuarioAdmin()
   const membros = await familiaDe(admin)
+  const filhos = await listarFilhos(admin)
+  const saldos = await saldosDosFilhos(admin)
   const adultos = membros.filter((m) => m.tipo === 'adulto')
   const criancas = membros.filter((m) => m.tipo === 'crianca')
 
@@ -47,7 +51,7 @@ export default async function Familia() {
         <h2 id="titulo-das-criancas" className="titulo-da-secao">
           Crianças
         </h2>
-        <CartoesDaFamilia membros={criancas} />
+        <CartoesDaFamilia membros={criancas} filhos={filhos} saldos={saldos} />
       </section>
     </>
   )

@@ -118,7 +118,8 @@ describe('o filho abre o que é dele', () => {
   it('a página tem o saldo (FT-06), mas nenhum formulário nem botão de ação, e o combinado é dito como combinado', async () => {
     const { html } = await abrir('/mesada', 'ana.mesada@teste.local')
     expect(html).toContain('Saldo zerado')
-    const principal = /<main class="conteudo">[\s\S]*?<\/main>/.exec(html)?.[0] ?? ''
+    // O conteúdo pode chegar depois do estado de carregando (streaming): vale do <main> ao fim, sem scripts.
+    const principal = html.slice(Math.max(0, html.indexOf('<main class="conteudo">'))).replace(/<script[\s\S]*?<\/script>/g, '')
     expect(principal).toContain('Minha mesada')
     expect(principal).not.toMatch(/<form|<button/)
     expect(html).toMatch(/combinad/i)
@@ -212,20 +213,20 @@ describe('o filho é barrado em todo o resto, sem dado no corpo', () => {
 })
 
 describe('quem não é filho', () => {
-  it('o responsável vê os dois filhos, a situação do login e o item Filhos no menu', async () => {
-    const r = await abrir('/filhos', 'admin.mesada@teste.local')
+  it('o responsável vê os dois filhos na Família, a situação do login e o item Família no menu', async () => {
+    const r = await abrir('/familia', 'admin.mesada@teste.local')
     expect(r.status).toBe(200)
     expect(r.html).toContain('Ana de Rota')
     expect(r.html).toContain('Bia de Rota')
     expect(r.html).toContain('R$ 50,00 por semana')
     expect(r.html).toContain('R$ 120,00 por mês')
     expect(r.html).toContain('Login ativo')
-    expect(r.html).toMatch(/<a[^>]*href="\/filhos"[^>]*>Filhos<\/a>/)
-    expect(r.html).toMatch(/Cadastrar filho/)
+    expect(r.html).toMatch(/<a[^>]*href="\/familia"[^>]*>Família<\/a>/)
+    expect(r.html).toMatch(/Adicionar pessoa/)
   })
 
   it('o responsável abre o cadastro e a página do filho; id inexistente cai em não encontrado', async () => {
-    const novo = await abrir('/filhos/novo', 'admin.mesada@teste.local')
+    const novo = await abrir('/familia/nova?tipo=filho', 'admin.mesada@teste.local')
     expect(novo.status).toBe(200)
     for (const nome of ['nome', 'valor', 'periodicidade', 'nascimento']) expect(novo.html).toContain(`name="${nome}"`)
     const ana = await abrir(`/filhos/${idDaAna}`, 'admin.mesada@teste.local')

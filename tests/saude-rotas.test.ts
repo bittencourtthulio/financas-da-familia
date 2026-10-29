@@ -13,7 +13,7 @@ let servidor: ChildProcess
 beforeAll(async () => {
   servidor = spawn('npx', ['next', 'start', '-p', String(PORTA)], {
     // Diretório que não existe: abrir o banco falha.
-    env: { ...process.env, NODE_ENV: 'production', DATABASE_URL: `file:${path.join('/nao-existe-ft08', 'x', 'familia.db')}` },
+    env: { ...process.env, NODE_ENV: 'production', DATABASE_URL: 'postgresql://nao-existe-ft08.invalid:5432/familia' },
     stdio: 'ignore',
   })
   for (let i = 0; i < 60; i += 1) {

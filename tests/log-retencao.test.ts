@@ -48,6 +48,8 @@ describe('nome do arquivo e pasta', () => {
     expect(pastaDeLog({ LOG_DIR: '/tmp/x' })).toBe('/tmp/x')
     expect(pastaDeLog({ LOG_DIR: '' })).toBeNull()
     expect(pastaDeLog({ NODE_ENV: 'test' })).toBeNull()
+    expect(pastaDeLog({ NODE_ENV: 'production', VERCEL: '1' })).toBeNull()
+    expect(pastaDeLog({ VERCEL: '1', LOG_DIR: '/tmp/x' })).toBe('/tmp/x')
     expect(pastaDeLog({ NODE_ENV: 'production' })).toBe(path.resolve(process.cwd(), 'logs'))
   })
 })
