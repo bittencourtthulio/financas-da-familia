@@ -600,11 +600,8 @@ tbody tr:last-child td { border-bottom: none; }
 .campo-de-opcao label:has(input:checked) { background: var(--accent); color: var(--accent-fg); box-shadow: var(--sombra-suave); }
 .campo-de-opcao label:has(input:focus-visible) { outline: 3px solid var(--border-focus); outline-offset: 2px; }
 
-input[type='date'] { color-scheme: dark; }
-:root[data-theme='light'] input[type='date'] { color-scheme: light; }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) input[type='date'] { color-scheme: light; }
-}
+input[type='date'] { color-scheme: light; }
+:root[data-theme='dark'] input[type='date'] { color-scheme: dark; }
 
 .zona-de-perigo { margin-top: 32px; padding-top: 20px; border-top: 2px dashed var(--border); max-width: 520px; }
 

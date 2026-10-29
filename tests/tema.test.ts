@@ -19,9 +19,8 @@ const global = readFileSync(path.join(SRC, 'estilos/global.css'), 'utf8')
 
 const escuro = declaracoesDe(corpoDe(tokens, ':root {'))
 const claro = declaracoesDe(corpoDe(tokens, ":root[data-theme='light']"))
-const sistema = declaracoesDe(
-  corpoDe(corpoDe(tokens, '@media (prefers-color-scheme: light)'), ":root:not([data-theme='dark'])"),
-)
+// Sem escolha pelo escuro, vale o claro (o claro é o padrão; o sistema não decide).
+const padraoClaro = declaracoesDe(corpoDe(tokens, ":root:not([data-theme='dark'])"))
 
 const ehCor = (valor: string) => /^(#|rgb|hsl)/.test(valor)
 const tokensDeCor = Object.keys(escuro).filter((nome) => ehCor(escuro[nome] as string))
@@ -36,9 +35,9 @@ describe('os dois temas (PR-07)', () => {
     expect(faltando).toEqual([])
   })
 
-  it('o modo sistema redefine todo token que o claro muda em relação ao escuro', () => {
+  it('o padrão (sem escolha pelo escuro) redefine todo token que o claro muda em relação ao escuro', () => {
     const faltando = tokensDeCor.filter(
-      (nome) => claro[nome] !== undefined && claro[nome] !== escuro[nome] && sistema[nome] !== claro[nome],
+      (nome) => claro[nome] !== undefined && claro[nome] !== escuro[nome] && padraoClaro[nome] !== claro[nome],
     )
     expect(faltando).toEqual([])
   })
@@ -82,5 +81,20 @@ describe('celular (PR-16)', () => {
 
   it('o alvo de toque tem ao menos 44px no celular', () => {
     expect(corpoDe(global, '@media (max-width: 768px)')).toMatch(/min-height:\s*44px/)
+  })
+})
+
+describe('o tema claro é o padrão', () => {
+  it('o CSS não depende da preferência de cor do sistema', () => {
+    expect(tokens).not.toContain('prefers-color-scheme')
+    expect(global).not.toContain('prefers-color-scheme')
+  })
+
+  it('o script do <html> e o alternador começam no claro e só vão ao escuro por escolha', () => {
+    const layout = readFileSync(path.join(SRC, 'app/layout.tsx'), 'utf8')
+    expect(layout).toContain("t==='dark'?'dark':'light'")
+    const alternador = readFileSync(path.join(SRC, 'componentes/AlternadorDeTema.tsx'), 'utf8')
+    expect(alternador).not.toContain('matchMedia')
+    expect(alternador).toContain("temaNoServidor = (): Tema => 'light'")
   })
 })

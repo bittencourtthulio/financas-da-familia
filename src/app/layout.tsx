@@ -11,10 +11,10 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        {/* Aplica o tema salvo antes da primeira pintura, para não piscar. */}
+        {/* Aplica o tema antes da primeira pintura, para não piscar: claro, a menos que a pessoa tenha escolhido o escuro. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('tema');if(t)document.documentElement.dataset.theme=t}catch(e){}`,
+            __html: `try{var t=localStorage.getItem('tema');document.documentElement.dataset.theme=t==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}`,
           }}
         />
       </head>

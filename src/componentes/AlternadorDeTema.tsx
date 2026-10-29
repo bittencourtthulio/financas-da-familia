@@ -15,15 +15,12 @@ function inscrever(ouvinte: () => void) {
 }
 
 function temaAtual(): Tema {
-  const marcado = document.documentElement.dataset.theme
-  if (marcado === 'dark' || marcado === 'light') return marcado
-  return window.matchMedia('(prefers-color-scheme: light)').matches
-    ? 'light'
-    : 'dark'
+  // O claro é o padrão: só vale o escuro para quem o escolheu.
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
 }
 
-// No servidor não há preferência a consultar; o dark é o tema base.
-const temaNoServidor = (): Tema => 'dark'
+// No servidor não há escolha a consultar; o padrão é o tema claro.
+const temaNoServidor = (): Tema => 'light'
 
 export function AlternadorDeTema() {
   const tema = useSyncExternalStore(inscrever, temaAtual, temaNoServidor)

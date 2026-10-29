@@ -2,8 +2,9 @@
  * Design system "Família" — tema dia (claro) e tema noite (escuro).
  * Regra: nenhum componente usa valor de cor literal. Toda cor vem daqui.
  *
- * O bloco :root é o tema base (noite); [data-theme='light'] e a preferência
- * do sistema redefinem todo token de cor para o tema dia. Os três blocos
+ * O bloco :root declara o tema noite; o tema claro e o bloco final (que vale
+ * quando a pessoa não escolheu o escuro) redefinem todo token de cor para o tema
+ * dia, que é o padrão; a preferência do sistema não decide. Os três blocos
  * declaram os mesmos nomes, sempre.
  */
 
@@ -192,82 +193,80 @@
   --sombra-forte: 0 16px 44px rgb(120 72 20 / 0.18);
 }
 
-/* Sem escolha explícita, segue a preferência do sistema. */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme='dark']) {
-    --bg-app: #fff7ee;
-    --bg-sidebar: #ffffff;
-    --bg-activitybar: #2c2c2c;
-    --bg-input: #ffffff;
-    --bg-hover: #fff1e0;
-    --bg-active: #ffe4c7;
-    --bg-badge: #ffe9d2;
-    --bg-elevado: #ffffff;
+/* Sem escolha explícita, vale o tema claro: ele é o padrão, também na apresentação. */
+:root:not([data-theme='dark']) {
+  --bg-app: #fff7ee;
+  --bg-sidebar: #ffffff;
+  --bg-activitybar: #2c2c2c;
+  --bg-input: #ffffff;
+  --bg-hover: #fff1e0;
+  --bg-active: #ffe4c7;
+  --bg-badge: #ffe9d2;
+  --bg-elevado: #ffffff;
 
-    --fg-default: #2f3350;
-    --fg-muted: #6f7390;
-    --fg-disabled: #a9acc0;
-    --fg-link: #0f7f82;
-    --fg-on-accent: #ffffff;
+  --fg-default: #2f3350;
+  --fg-muted: #6f7390;
+  --fg-disabled: #a9acc0;
+  --fg-link: #0f7f82;
+  --fg-on-accent: #ffffff;
 
-    --border: #f1dcc6;
-    --border-input: #e6cfb5;
-    --border-focus: #ff8c42;
+  --border: #f1dcc6;
+  --border-input: #e6cfb5;
+  --border-focus: #ff8c42;
 
-    --accent: #cf4a1f;
-    --accent-hover: #b93f17;
-    --accent-fg: #ffffff;
+  --accent: #cf4a1f;
+  --accent-hover: #b93f17;
+  --accent-fg: #ffffff;
 
-    --secondary: #ffe9d6;
-    --secondary-hover: #ffdcbd;
-    --secondary-fg: #7a2e0e;
+  --secondary: #ffe9d6;
+  --secondary-hover: #ffdcbd;
+  --secondary-fg: #7a2e0e;
 
-    --danger: #c8323e;
-    --warning: #8a5a00;
-    --success: #1f7a4d;
-    --info: #1c6fd1;
-    --danger-bg: #ffe3e6;
-    --warning-bg: #fff3c4;
-    --success-bg: #dff5e7;
-    --info-bg: #e3efff;
+  --danger: #c8323e;
+  --warning: #8a5a00;
+  --success: #1f7a4d;
+  --info: #1c6fd1;
+  --danger-bg: #ffe3e6;
+  --warning-bg: #fff3c4;
+  --success-bg: #dff5e7;
+  --info-bg: #e3efff;
 
-    --statusbar-bg: #ffffff;
-    --statusbar-fg: #2f3350;
-    --statusbar-hover: rgb(207 74 31 / 0.10);
+  --statusbar-bg: #ffffff;
+  --statusbar-fg: #2f3350;
+  --statusbar-hover: rgb(207 74 31 / 0.10);
 
-    --cor-sol: #ffcf5c;
-    --cor-ceu: #7fd1e8;
-    --cor-grama: #8fd694;
-    --cor-rosa: #ff9ec6;
-    --cor-lilas: #c3a6ff;
-    --cor-laranja: #ff9f68;
-    --cor-menta: #9fe3d2;
+  --cor-sol: #ffcf5c;
+  --cor-ceu: #7fd1e8;
+  --cor-grama: #8fd694;
+  --cor-rosa: #ff9ec6;
+  --cor-lilas: #c3a6ff;
+  --cor-laranja: #ff9f68;
+  --cor-menta: #9fe3d2;
 
-    --ilu-pele-1: #f6c9a4;
-    --ilu-pele-2: #d9a06b;
-    --ilu-pele-3: #8d5a3b;
-    --ilu-pele-4: #5c3a26;
-    --ilu-cabelo-1: #4a2f22;
-    --ilu-cabelo-2: #e8a33d;
-    --ilu-cabelo-3: #2b2b36;
-    --ilu-cabelo-4: #b5522a;
-    --ilu-cabelo-5: #b8bac8;
-    --ilu-roupa-pai: #3f7fd6;
-    --ilu-roupa-mae: #e85c8a;
-    --ilu-roupa-menino: #4ac08a;
-    --ilu-roupa-menina: #ffb347;
-    --ilu-calca: #35466b;
-    --ilu-sapato: #2b2b36;
-    --ilu-cachorro: #c98a4b;
-    --ilu-cachorro-mancha: #f3e3c9;
-    --ilu-coleira: #e03e52;
-    --ilu-traco: #2f3350;
-    --ilu-bochecha: #ff9b9b;
-    --ilu-branco: #ffffff;
-    --ilu-lingua: #ff7a8a;
-    --ilu-sombra: rgb(120 72 20 / 0.14);
+  --ilu-pele-1: #f6c9a4;
+  --ilu-pele-2: #d9a06b;
+  --ilu-pele-3: #8d5a3b;
+  --ilu-pele-4: #5c3a26;
+  --ilu-cabelo-1: #4a2f22;
+  --ilu-cabelo-2: #e8a33d;
+  --ilu-cabelo-3: #2b2b36;
+  --ilu-cabelo-4: #b5522a;
+  --ilu-cabelo-5: #b8bac8;
+  --ilu-roupa-pai: #3f7fd6;
+  --ilu-roupa-mae: #e85c8a;
+  --ilu-roupa-menino: #4ac08a;
+  --ilu-roupa-menina: #ffb347;
+  --ilu-calca: #35466b;
+  --ilu-sapato: #2b2b36;
+  --ilu-cachorro: #c98a4b;
+  --ilu-cachorro-mancha: #f3e3c9;
+  --ilu-coleira: #e03e52;
+  --ilu-traco: #2f3350;
+  --ilu-bochecha: #ff9b9b;
+  --ilu-branco: #ffffff;
+  --ilu-lingua: #ff7a8a;
+  --ilu-sombra: rgb(120 72 20 / 0.14);
 
-    --sombra-suave: 0 6px 20px rgb(120 72 20 / 0.10);
-    --sombra-forte: 0 16px 44px rgb(120 72 20 / 0.18);
-  }
+  --sombra-suave: 0 6px 20px rgb(120 72 20 / 0.10);
+  --sombra-forte: 0 16px 44px rgb(120 72 20 / 0.18);
 }
