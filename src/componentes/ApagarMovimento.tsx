@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { excluirMovimentoDeMesada } from '@/app/acoes'
+import { CaixaDeConfirmacao } from '@/componentes/CaixaDeConfirmacao'
 
 /**
  * Apagar em dois passos (PR-33): o primeiro clique só mostra o aviso; a
@@ -29,21 +30,23 @@ export function ApagarMovimento({
           Apagar movimento
         </button>
       ) : (
-        <form action={executar}>
-          <p>
-            Esta exclusão não pode ser desfeita. O movimento some do extrato e o saldo é recalculado;
-            fica só o registro de quem apagou.
-          </p>
-          <input type="hidden" name="id" value={id} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="submit" className="perigo">
-              Confirmar exclusão
-            </button>
-            <button type="button" className="secundario" onClick={() => setConfirmando(false)}>
-              Cancelar
-            </button>
-          </div>
-        </form>
+        <CaixaDeConfirmacao>
+          <form action={executar}>
+            <p>
+              Esta exclusão não pode ser desfeita. O movimento some do extrato e o saldo é recalculado;
+              fica só o registro de quem apagou.
+            </p>
+            <input type="hidden" name="id" value={id} />
+            <div className="acoes">
+              <button type="submit" className="perigo">
+                Confirmar exclusão
+              </button>
+              <button type="button" className="secundario" onClick={() => setConfirmando(false)}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </CaixaDeConfirmacao>
       )}
     </section>
   )

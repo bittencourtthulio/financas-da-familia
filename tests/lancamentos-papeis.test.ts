@@ -18,6 +18,8 @@ type Chamada = (autor: UsuarioAutenticado) => Promise<unknown>
 const chamadas: Array<[string, Chamada]> = [
   ['listarCategorias', (a) => servico.listarCategorias(a)],
   ['criarCategoria', (a) => servico.criarCategoria(a, { nome: 'Qualquer', tipo: 'despesa' })],
+  ['obterOuCriarCategoria', (a) => servico.obterOuCriarCategoria(a, { nome: 'Qualquer', tipo: 'despesa' })],
+  ['apagarCategoria', (a) => servico.apagarCategoria(a, 'qualquer')],
   [
     'criarLancamento',
     (a) =>

@@ -22,14 +22,14 @@ export function LinhaDeUsuario({ usuario }: Props) {
     <tr>
       <td>
         {usuario.nome}
-        {usuario.ehVoce && <span style={{ opacity: 0.6 }}> (você)</span>}
+        {usuario.ehVoce && <span className="discreto"> (você)</span>}
       </td>
       <td>{usuario.email}</td>
       <td>{rotuloDoPapel(usuario.papel)}</td>
       <td>{usuario.ativo ? 'Ativo' : 'Desativado'}</td>
-      <td style={{ textAlign: 'right' }}>
+      <td className="celula-acoes">
         {usuario.ativo && (
-          <form action={executar} style={{ display: 'inline' }}>
+          <form action={executar}>
             <input type="hidden" name="id" value={usuario.id} />
             <button type="submit" className="secundario">
               Desativar
@@ -37,7 +37,7 @@ export function LinhaDeUsuario({ usuario }: Props) {
           </form>
         )}
         {estado.erro && (
-          <span className="aviso erro" role="alert" style={{ marginLeft: 8 }}>
+          <span className="aviso erro" role="alert">
             {estado.erro}
           </span>
         )}

@@ -33,7 +33,7 @@ export default async function EditarMovimento({
   if (movimento.filhoId !== id) notFound()
 
   return (
-    <>
+    <div className="tela-de-formulario">
       <h1 className="titulo-da-tela">Movimento de {movimento.filhoNome}</h1>
       <p className="subtitulo-da-tela">
         Corrija os dados e salve. <Link href={enderecoDoExtratoDoFilho(id)}>Voltar para o extrato</Link>
@@ -53,6 +53,6 @@ export default async function EditarMovimento({
       </Formulario>
 
       <ApagarMovimento id={movimento.id} />
-    </>
+    </div>
   )
 }

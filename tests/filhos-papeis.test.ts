@@ -25,6 +25,7 @@ const chamadas: Array<[string, Chamada]> = [
   ['editarFilho', (a, id) => servico.editarFilho(a, id, DADOS)],
   ['criarLoginDoFilho', (a, id) => servico.criarLoginDoFilho(a, id, { email: 'novo@exemplo.local', senha: 'senha-12345' })],
   ['desativarLoginDoFilho', (a, id) => servico.desativarLoginDoFilho(a, id)],
+  ['redefinirSenhaDoFilho', (a, id) => servico.redefinirSenhaDoFilho(a, id, { senha: 'senha-nova-123' })],
 ]
 
 const PAPEIS_NEGADOS = ['usuario', 'filho', 'visitante', '', 'ADMIN', 'Admin', 'administrador']

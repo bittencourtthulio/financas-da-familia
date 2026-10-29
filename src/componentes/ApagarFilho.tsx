@@ -2,11 +2,11 @@
 
 import { useActionState, useState } from 'react'
 import { excluirContaDoFilho } from '@/app/acoes'
+import { CaixaDeConfirmacao } from '@/componentes/CaixaDeConfirmacao'
 
 /**
- * Apagar a conta de um filho em dois passos (FT-07, PR-35). O primeiro clique
- * só abre a confirmação; o segundo exige digitar o nome do filho. O servidor
- * confere o nome de novo: esta tela não é a única barreira.
+ * Apagar a conta de um filho em dois passos (FT-07, PR-35): o primeiro clique só
+ * abre a confirmação; o segundo exige digitar o nome. O servidor confere de novo.
  */
 export function ApagarFilho({
   filhoId,
@@ -32,27 +32,29 @@ export function ApagarFilho({
           Apagar a conta de {nome}
         </button>
       ) : (
-        <form action={executar}>
-          <p>
-            Isto apaga o cadastro, o login e todos os movimentos de mesada de {nome}. A exclusão não
-            pode ser desfeita.
-          </p>
-          <input type="hidden" name="id" value={filhoId} />
-          <label className="campo">
-            <span>
-              Digite <strong>{nome}</strong> para confirmar
-            </span>
-            <input type="text" name="confirmacao" autoComplete="off" required />
-          </label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="submit" className="perigo">
-              Apagar para sempre
-            </button>
-            <button type="button" className="secundario" onClick={() => setConfirmando(false)}>
-              Cancelar
-            </button>
-          </div>
-        </form>
+        <CaixaDeConfirmacao>
+          <form action={executar}>
+            <p>
+              Isto apaga o cadastro, o login e todos os movimentos de mesada de {nome}. A exclusão não
+              pode ser desfeita.
+            </p>
+            <input type="hidden" name="id" value={filhoId} />
+            <label className="campo">
+              <span>
+                Digite <strong>{nome}</strong> para confirmar
+              </span>
+              <input type="text" name="confirmacao" autoComplete="off" required />
+            </label>
+            <div className="acoes">
+              <button type="submit" className="perigo">
+                Apagar para sempre
+              </button>
+              <button type="button" className="secundario" onClick={() => setConfirmando(false)}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </CaixaDeConfirmacao>
       )}
     </section>
   )

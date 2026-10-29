@@ -15,12 +15,12 @@ import {
   VERSAO_DO_FORMATO,
 } from '@/lib/privacidade'
 import type { PrismaClient } from '@/gerado/prisma/client'
+import { avatarDoJson } from '@/lib/avatar'
 
 /**
  * Privacidade dos dados da família (FT-07, PR-09). Só o responsável (`admin`)
  * exporta os dados e apaga a conta de um filho; a verificação é a primeira
  * linha de cada função, no servidor (PR-06).
- *
  * A exportação (PR-34) é um documento JSON versionado, com todo valor em
  * centavos inteiros (PR-02) e toda data em ISO. Os campos de cada tabela são
  * listados um a um: o hash de senha, o corte de sessão e qualquer dado interno
@@ -56,13 +56,14 @@ export async function exportarDadosDaFamilia(
   exigirAdmin(autor)
 
   // Uma leitura só, para o arquivo mostrar um instante coerente do banco.
-  const [usuarios, categorias, lancamentos, filhos, movimentos, atividades] = await prisma.$transaction([
+  const [usuarios, categorias, lancamentos, recorrencias, filhos, movimentos, atividades] = await prisma.$transaction([
     prisma.usuario.findMany({
-      select: { id: true, nome: true, email: true, papel: true, ativo: true, criadoEm: true },
+      select: { id: true, nome: true, email: true, papel: true, ativo: true, criadoEm: true, avatar: true },
       orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }],
     }),
     prisma.categoria.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
     prisma.lancamento.findMany({ orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }, { id: 'asc' }] }),
+    prisma.recorrencia.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
     prisma.filho.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
     prisma.movimentoDeMesada.findMany({ orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }, { id: 'asc' }] }),
     prisma.atividade.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
@@ -79,7 +80,7 @@ export async function exportarDadosDaFamilia(
       nome: u.nome,
       email: u.email,
       papel: u.papel,
-      ativo: u.ativo,
+      ativo: u.ativo, avatar: avatarDoJson(u.avatar),
       criado_em: iso(u.criadoEm),
     })),
     categorias: categorias.map((c) => ({
@@ -95,15 +96,31 @@ export async function exportarDadosDaFamilia(
       data: l.data,
       descricao: l.descricao,
       categoria_id: l.categoriaId,
+      pessoa_id: l.pessoaId,
+      pago: l.pago,
+      recorrencia_id: l.recorrenciaId,
       criado_em: iso(l.criadoEm),
       atualizado_em: iso(l.atualizadoEm),
+    })),
+    recorrencias: recorrencias.map((r) => ({
+      id: r.id,
+      tipo: r.tipo,
+      valor_centavos: r.valorCentavos,
+      dia_do_mes: r.diaDoMes,
+      descricao: r.descricao,
+      categoria_id: r.categoriaId,
+      pessoa_id: r.pessoaId,
+      inicio: r.inicio,
+      fim: r.fim,
+      gerado_ate: r.geradoAte,
+      criado_em: iso(r.criadoEm),
     })),
     filhos: filhos.map((f) => ({
       id: f.id,
       nome: f.nome,
       nascimento: f.nascimento,
       mesada_combinada_centavos: f.mesadaCentavos,
-      periodicidade: f.periodicidade,
+      periodicidade: f.periodicidade, avatar: avatarDoJson(f.avatar),
       usuario_id: f.usuarioId,
       saldo_centavos: saldos[f.id] ?? 0,
       criado_em: iso(f.criadoEm),

@@ -93,7 +93,8 @@ describe('tabelas de categorias e lançamentos', () => {
     const chaves = await prisma.$queryRawUnsafe<Array<{ table: string }>>(
       `SELECT "table" FROM pragma_foreign_key_list('lancamentos')`,
     )
-    expect(chaves.map((c) => c.table)).toEqual(['categorias'])
+    // Categoria e recorrência (o mês de uma recorrência); nenhuma para usuários.
+    expect(chaves.map((c) => c.table).sort()).toEqual(['categorias', 'recorrencias'])
   })
 
   it('limparBanco esvazia lançamentos e categorias', async () => {

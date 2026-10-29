@@ -2,20 +2,26 @@ import Link from 'next/link'
 import { descricaoDaMesada, situacaoDoLogin } from '@/lib/filhos'
 import { formatarMoeda } from '@/lib/formato'
 import { situacaoDoSaldo } from '@/lib/mesada'
+import type { Avatar } from '@/lib/avatar'
+import { Rostinho } from '@/componentes/ilustracoes/Familia'
 import type { FilhoListado } from '@/servicos/filhos'
 
 /**
- * Os filhos da família, um cartão por filho: nome, a mesada combinada e a
+ * Os filhos da família, um cartão por filho: o rostinho do avatar (ou uma
+ * criança neutra, enquanto não há avatar), o nome, a mesada combinada e a
  * situação do login em texto. Sem filho cadastrado, o estado vazio convida a
  * cadastrar o primeiro.
  */
 export function ListaDeFilhos({
   filhos,
   saldos,
+  avatares,
 }: {
   filhos: FilhoListado[]
   /** O saldo de cada filho, por id (FT-06); sem ele a lista é a da FT-05. */
   saldos?: Record<string, number>
+  /** O avatar de cada filho, por id (FT-10); sem ele, todos são neutros. */
+  avatares?: Record<string, Avatar | null>
 }) {
   if (filhos.length === 0) {
     return (
@@ -28,8 +34,9 @@ export function ListaDeFilhos({
 
   return (
     <ul className="lista-de-filhos" aria-label="Filhos da família">
-      {filhos.map((f) => (
+      {filhos.map((f, i) => (
         <li key={f.id} className="cartao-de-filho" data-login={f.login ? (f.login.ativo ? 'ativo' : 'desativado') : 'sem'}>
+          <Rostinho avatar={avatares?.[f.id] ?? null} tipo="crianca" indice={i} className="avatar" />
           <h2 className="nome-do-filho">
             <Link href={`/filhos/${f.id}`}>{f.nome}</Link>
           </h2>

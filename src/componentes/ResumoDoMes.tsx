@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { formatarMoeda } from '@/lib/formato'
 import { rotuloDoMes } from '@/lib/datas'
-import { parteEmPercentual } from '@/lib/resumo-links'
+import { enderecoDasFinancas } from '@/lib/resumo-links'
+import { ListaDeCategorias, ListaDePessoas } from '@/componentes/ListasDeDespesa'
 import { enderecoDaLista } from '@/lib/lancamentos-links'
 import type { ResumoDoMes as Resumo } from '@/servicos/resumo'
 
@@ -27,8 +28,6 @@ function estadoDoSaldo(saldoCentavos: number) {
   }
 }
 
-const quantidadeEmTexto = (n: number) => (n === 1 ? '1 lançamento' : `${n} lançamentos`)
-
 /**
  * O resumo do mês no painel (FT-04): receitas, despesas, saldo e as despesas
  * por categoria. Os valores chegam prontos, em centavos inteiros, do servidor
@@ -53,14 +52,14 @@ export function ResumoDoMes({ resumo }: { resumo: Resumo }) {
   return (
     <div className="resumo-do-mes">
       <section className="cartoes-do-resumo" aria-label={`Totais de ${mesPorExtenso}`}>
-        <div className="cartao-do-resumo" role="group" aria-labelledby="rotulo-receitas">
+        <div className="cartao-do-resumo" data-cartao="receitas" role="group" aria-labelledby="rotulo-receitas">
           <h2 id="rotulo-receitas" className="rotulo-do-cartao">
             Receitas
           </h2>
           <p className="valor-do-cartao valor-receita">{formatarMoeda(resumo.receitasCentavos)}</p>
         </div>
 
-        <div className="cartao-do-resumo" role="group" aria-labelledby="rotulo-despesas">
+        <div className="cartao-do-resumo" data-cartao="despesas" role="group" aria-labelledby="rotulo-despesas">
           <h2 id="rotulo-despesas" className="rotulo-do-cartao">
             Despesas
           </h2>
@@ -83,29 +82,32 @@ export function ResumoDoMes({ resumo }: { resumo: Resumo }) {
         </div>
       </section>
 
-      <section className="categorias-do-resumo" aria-labelledby="titulo-categorias">
-        <h2 id="titulo-categorias" className="titulo-da-secao">
-          Despesas por categoria
-        </h2>
-        {resumo.despesasPorCategoria.length === 0 ? (
-          <p className="vazio">Nenhuma despesa em {mesPorExtenso}.</p>
-        ) : (
-          <ul className="lista-de-categorias">
-            {resumo.despesasPorCategoria.map((c) => (
-              <li key={c.categoriaId} className="linha-de-categoria">
-                <span className="nome-da-categoria">{c.nome}</span>
-                <span className="quantidade-da-categoria">{quantidadeEmTexto(c.quantidade)}</span>
-                <span className="valor valor-da-categoria">{formatarMoeda(c.totalCentavos)}</span>
-                <span className="barra-de-categoria" aria-hidden="true">
-                  <span
-                    style={{ width: `${parteEmPercentual(c.totalCentavos, resumo.despesasCentavos)}%` }}
-                  />
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <div className="listas-do-resumo">
+        <section className="categorias-do-resumo" aria-labelledby="titulo-categorias">
+          <h2 id="titulo-categorias" className="titulo-da-secao">
+            Despesas por categoria
+          </h2>
+          {resumo.despesasPorCategoria.length === 0 ? (
+            <p className="vazio">Nenhuma despesa em {mesPorExtenso}.</p>
+          ) : (
+            <ListaDeCategorias itens={resumo.despesasPorCategoria} total={resumo.despesasCentavos} />
+          )}
+        </section>
+
+        <section className="pessoas-do-resumo" aria-labelledby="titulo-pessoas">
+          <h2 id="titulo-pessoas" className="titulo-da-secao">
+            Quem mais gasta
+          </h2>
+          {resumo.despesasPorPessoa.length === 0 ? (
+            <p className="vazio">Nenhuma despesa em {mesPorExtenso}.</p>
+          ) : (
+            <ListaDePessoas itens={resumo.despesasPorPessoa} total={resumo.despesasCentavos} />
+          )}
+          <p className="nota-do-campo">
+            <Link href={enderecoDasFinancas({ mes: resumo.mes })}>Ver Nossas Finanças</Link>
+          </p>
+        </section>
+      </div>
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { criarLoginDeFilho, desativarLoginDeFilho } from '@/app/acoes'
 import { Formulario, Campo } from '@/componentes/Formulario'
+import { CaixaDeConfirmacao } from '@/componentes/CaixaDeConfirmacao'
 import { situacaoDoLogin } from '@/lib/filhos'
 
 /**
@@ -63,18 +64,20 @@ export function LoginDoFilho({
             Desativar login
           </button>
         ) : (
-          <form action={executar}>
-            <p>O filho deixa de entrar no sistema. Não há como reativar o login por aqui.</p>
-            <input type="hidden" name="id" value={filhoId} />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button type="submit" className="perigo">
-                Confirmar desativação
-              </button>
-              <button type="button" className="secundario" onClick={() => setConfirmando(false)}>
-                Cancelar
-              </button>
-            </div>
-          </form>
+          <CaixaDeConfirmacao tom="atencao">
+            <form action={executar}>
+              <p>O filho deixa de entrar no sistema. Não há como reativar o login por aqui.</p>
+              <input type="hidden" name="id" value={filhoId} />
+              <div className="acoes">
+                <button type="submit" className="perigo">
+                  Confirmar desativação
+                </button>
+                <button type="button" className="secundario" onClick={() => setConfirmando(false)}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </CaixaDeConfirmacao>
         ))}
     </section>
   )

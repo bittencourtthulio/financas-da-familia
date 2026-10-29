@@ -28,6 +28,7 @@ const outubro: Resumo = {
     { categoriaId: 'b', nome: 'Mercado', totalCentavos: 64235, quantidade: 2 },
     { categoriaId: 'c', nome: 'Lazer', totalCentavos: 20990, quantidade: 3 },
   ],
+  despesasPorPessoa: [],
 }
 
 const vazio: Resumo = {
@@ -37,6 +38,7 @@ const vazio: Resumo = {
   saldoCentavos: 0,
   quantidadeDeLancamentos: 0,
   despesasPorCategoria: [],
+  despesasPorPessoa: [],
 }
 
 describe('enderecoDoPainel e mesesVizinhos', () => {

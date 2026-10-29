@@ -51,14 +51,14 @@ export function ExtratoDeMesada({
         <tbody>
           {itens.map((item) => (
             <tr key={item.id}>
-              <td style={{ whiteSpace: 'nowrap' }}>{formatarDataCivil(item.data)}</td>
+              <td className="sem-quebra">{formatarDataCivil(item.data)}</td>
               <td>{rotuloDoTipo(item.tipo)}</td>
               <td>{item.descricao || '—'}</td>
               <td className={item.tipo === 'gasto' ? 'valor valor-despesa' : 'valor valor-receita'}>
                 {valorDoMovimento(item.tipo, item.valorCentavos)}
               </td>
               {editarDoFilho && (
-                <td style={{ textAlign: 'right' }}>
+                <td className="celula-acoes">
                   <Link href={`/filhos/${editarDoFilho}/mesada/${item.id}`}>Editar</Link>
                 </td>
               )}

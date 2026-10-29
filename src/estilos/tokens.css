@@ -1,140 +1,273 @@
 /*
- * Design system do VS Code — Dark+ e Light+.
+ * Design system "Família" — tema dia (claro) e tema noite (escuro).
  * Regra: nenhum componente usa valor de cor literal. Toda cor vem daqui.
+ *
+ * O bloco :root é o tema base (noite); [data-theme='light'] e a preferência
+ * do sistema redefinem todo token de cor para o tema dia. Os três blocos
+ * declaram os mesmos nomes, sempre.
  */
 
 :root {
   /* superfícies — do fundo mais profundo à mais elevada */
-  --bg-app: #1e1e1e;
-  --bg-sidebar: #252526;
+  --bg-app: #1d2140;
+  --bg-sidebar: #262b4f;
   --bg-activitybar: #333333;
-  --bg-input: #3c3c3c;
-  --bg-hover: #2a2d2e;
-  --bg-active: #04395e;
-  --bg-badge: #4d4d4d;
+  --bg-input: #2e3459;
+  --bg-hover: #30366a;
+  --bg-active: #3b3f7a;
+  --bg-badge: #3b4170;
+  --bg-elevado: #262b4f;
 
   /* texto */
-  --fg-default: #cccccc;
-  --fg-muted: #9d9d9d;
-  --fg-disabled: #6b6b6b;
-  --fg-link: #3794ff;
-  --fg-on-accent: #ffffff;
+  --fg-default: #e9e8f5;
+  --fg-muted: #aeb1cf;
+  --fg-disabled: #6f74a0;
+  --fg-link: #7fd1e8;
+  --fg-on-accent: #1d2140;
 
   /* bordas e separadores */
-  --border: #3c3c3c;
-  --border-input: #3c3c3c;
-  --border-focus: #007fd4;
+  --border: #353b6b;
+  --border-input: #434a80;
+  --border-focus: #ffb27a;
 
   /* ação primária */
-  --accent: #0e639c;
-  --accent-hover: #1177bb;
-  --accent-fg: #ffffff;
+  --accent: #ff7a45;
+  --accent-hover: #ff8f63;
+  --accent-fg: #1d2140;
 
   /* ação secundária */
-  --secondary: #3a3d41;
-  --secondary-hover: #45494e;
-  --secondary-fg: #cccccc;
+  --secondary: #343a6a;
+  --secondary-hover: #3f4680;
+  --secondary-fg: #e9e8f5;
 
   /* estado */
-  --danger: #f14c4c;
-  --warning: #cca700;
-  --success: #89d185;
-  --info: #3794ff;
-  --danger-bg: #5a1d1d;
-  --warning-bg: #5a4a00;
-  --success-bg: #144212;
+  --danger: #ff7b86;
+  --warning: #ffd166;
+  --success: #7ee0a8;
+  --info: #8ab8ff;
+  --danger-bg: #4a2232;
+  --warning-bg: #4a3d14;
+  --success-bg: #1d4a33;
+  --info-bg: #223a66;
 
-  /* barra de status — a cor de identidade do VS Code */
-  --statusbar-bg: #007acc;
-  --statusbar-fg: #ffffff;
+  /* barra de status (rodapé da casca) */
+  --statusbar-bg: #262b4f;
+  --statusbar-fg: #e9e8f5;
   --statusbar-hover: rgb(255 255 255 / 0.12);
 
+  /* a paleta alegre da família — detalhes, bolhas e fundos decorativos */
+  --cor-sol: #ffcf5c;
+  --cor-ceu: #7fd1e8;
+  --cor-grama: #8fd694;
+  --cor-rosa: #ff9ec6;
+  --cor-lilas: #c3a6ff;
+  --cor-laranja: #ff9f68;
+  --cor-menta: #9fe3d2;
+
+  /* ilustrações: pai, mãe, menino, menina e cachorro */
+  --ilu-pele-1: #f6c9a4;
+  --ilu-pele-2: #d9a06b;
+  --ilu-pele-3: #8d5a3b;
+  --ilu-pele-4: #5c3a26;
+  --ilu-cabelo-1: #4a2f22;
+  --ilu-cabelo-2: #e8a33d;
+  --ilu-cabelo-3: #2b2b36;
+  --ilu-cabelo-4: #b5522a;
+  --ilu-cabelo-5: #b8bac8;
+  --ilu-roupa-pai: #3f7fd6;
+  --ilu-roupa-mae: #e85c8a;
+  --ilu-roupa-menino: #4ac08a;
+  --ilu-roupa-menina: #ffb347;
+  --ilu-calca: #35466b;
+  --ilu-sapato: #2b2b36;
+  --ilu-cachorro: #c98a4b;
+  --ilu-cachorro-mancha: #f3e3c9;
+  --ilu-coleira: #e03e52;
+  --ilu-traco: #2f3350;
+  --ilu-bochecha: #ff9b9b;
+  --ilu-branco: #ffffff;
+  --ilu-lingua: #ff7a8a;
+  --ilu-sombra: rgb(0 0 0 / 0.30);
+
+  /* sombras */
+  --sombra-suave: 0 6px 20px rgb(0 0 0 / 0.30);
+  --sombra-forte: 0 16px 44px rgb(0 0 0 / 0.40);
+
   /* tipografia */
-  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-ui: ui-rounded, 'SF Pro Rounded', 'Nunito', 'Quicksand', 'Varela Round', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
-  --texto-base: 13px;
-  --texto-pequeno: 11px;
+  --texto-base: 15px;
+  --texto-pequeno: 12.5px;
 
   /* geometria */
-  --raio: 2px;
-  --altura-controle: 26px;
-  --altura-linha: 22px;
-  --largura-sidebar: 300px;
-  --largura-activitybar: 48px;
-  --altura-statusbar: 22px;
+  --raio: 14px;
+  --raio-grande: 24px;
+  --raio-pilula: 999px;
+  --altura-controle: 42px;
+  --altura-linha: 44px;
+  --largura-sidebar: 260px;
+  --largura-activitybar: 0px;
+  --altura-statusbar: 52px;
+  --altura-topo: 64px;
+
+  /* movimento */
+  --mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --suave: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root[data-theme='light'] {
-  --bg-app: #ffffff;
-  --bg-sidebar: #f3f3f3;
+  --bg-app: #fff7ee;
+  --bg-sidebar: #ffffff;
   --bg-activitybar: #2c2c2c; /* permanece escura no tema claro */
   --bg-input: #ffffff;
-  --bg-hover: #e8e8e8;
-  --bg-active: #e4e6f1;
-  --bg-badge: #c4c4c4;
+  --bg-hover: #fff1e0;
+  --bg-active: #ffe4c7;
+  --bg-badge: #ffe9d2;
+  --bg-elevado: #ffffff;
 
-  --fg-default: #3b3b3b;
-  --fg-muted: #616161;
-  --fg-disabled: #a0a0a0;
-  --fg-link: #005fb8;
+  --fg-default: #2f3350;
+  --fg-muted: #6f7390;
+  --fg-disabled: #a9acc0;
+  --fg-link: #0f7f82;
   --fg-on-accent: #ffffff;
 
-  --border: #e5e5e5;
-  --border-input: #cecece;
-  --border-focus: #005fb8;
+  --border: #f1dcc6;
+  --border-input: #e6cfb5;
+  --border-focus: #ff8c42;
 
-  --accent: #005fb8;
-  --accent-hover: #0258a8;
+  --accent: #cf4a1f;
+  --accent-hover: #b93f17;
   --accent-fg: #ffffff;
 
-  --secondary: #e4e6f1;
-  --secondary-hover: #cccedb;
-  --secondary-fg: #3b3b3b;
+  --secondary: #ffe9d6;
+  --secondary-hover: #ffdcbd;
+  --secondary-fg: #7a2e0e;
 
-  --danger: #cd3131;
-  /* Escurecido de propósito: o #bf8803 do VS Code dá 3.12:1 sobre branco,
-     abaixo do 4.5:1 que a acessibilidade exige. Este dá 5.06:1. */
-  --warning: #8f6800;
-  --success: #14712a;
-  --info: #005fb8;
-  --danger-bg: #f2dede;
-  --warning-bg: #fdf6d3;
-  --success-bg: #dff0d8;
+  --danger: #c8323e;
+  --warning: #8a5a00;
+  --success: #1f7a4d;
+  --info: #1c6fd1;
+  --danger-bg: #ffe3e6;
+  --warning-bg: #fff3c4;
+  --success-bg: #dff5e7;
+  --info-bg: #e3efff;
 
-  --statusbar-bg: #005fb8;
-  --statusbar-fg: #ffffff;
-  --statusbar-hover: rgb(255 255 255 / 0.12);
+  --statusbar-bg: #ffffff;
+  --statusbar-fg: #2f3350;
+  --statusbar-hover: rgb(207 74 31 / 0.10);
+
+  --cor-sol: #ffcf5c;
+  --cor-ceu: #7fd1e8;
+  --cor-grama: #8fd694;
+  --cor-rosa: #ff9ec6;
+  --cor-lilas: #c3a6ff;
+  --cor-laranja: #ff9f68;
+  --cor-menta: #9fe3d2;
+
+  --ilu-pele-1: #f6c9a4;
+  --ilu-pele-2: #d9a06b;
+  --ilu-pele-3: #8d5a3b;
+  --ilu-pele-4: #5c3a26;
+  --ilu-cabelo-1: #4a2f22;
+  --ilu-cabelo-2: #e8a33d;
+  --ilu-cabelo-3: #2b2b36;
+  --ilu-cabelo-4: #b5522a;
+  --ilu-cabelo-5: #b8bac8;
+  --ilu-roupa-pai: #3f7fd6;
+  --ilu-roupa-mae: #e85c8a;
+  --ilu-roupa-menino: #4ac08a;
+  --ilu-roupa-menina: #ffb347;
+  --ilu-calca: #35466b;
+  --ilu-sapato: #2b2b36;
+  --ilu-cachorro: #c98a4b;
+  --ilu-cachorro-mancha: #f3e3c9;
+  --ilu-coleira: #e03e52;
+  --ilu-traco: #2f3350;
+  --ilu-bochecha: #ff9b9b;
+  --ilu-branco: #ffffff;
+  --ilu-lingua: #ff7a8a;
+  --ilu-sombra: rgb(120 72 20 / 0.14);
+
+  --sombra-suave: 0 6px 20px rgb(120 72 20 / 0.10);
+  --sombra-forte: 0 16px 44px rgb(120 72 20 / 0.18);
 }
 
 /* Sem escolha explícita, segue a preferência do sistema. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
-    --bg-app: #ffffff;
-    --bg-sidebar: #f3f3f3;
+    --bg-app: #fff7ee;
+    --bg-sidebar: #ffffff;
     --bg-activitybar: #2c2c2c;
     --bg-input: #ffffff;
-    --bg-hover: #e8e8e8;
-    --bg-active: #e4e6f1;
-    --bg-badge: #c4c4c4;
-    --fg-default: #3b3b3b;
-    --fg-muted: #616161;
-    --fg-disabled: #a0a0a0;
-    --fg-link: #005fb8;
-    --border: #e5e5e5;
-    --border-input: #cecece;
-    --border-focus: #005fb8;
-    --accent: #005fb8;
-    --accent-hover: #0258a8;
-    --secondary: #e4e6f1;
-    --secondary-hover: #cccedb;
-    --secondary-fg: #3b3b3b;
-    --danger: #cd3131;
-    --warning: #8f6800;
-    --success: #14712a;
-    --info: #005fb8;
-    --danger-bg: #f2dede;
-    --warning-bg: #fdf6d3;
-    --success-bg: #dff0d8;
-    --statusbar-bg: #005fb8;
+    --bg-hover: #fff1e0;
+    --bg-active: #ffe4c7;
+    --bg-badge: #ffe9d2;
+    --bg-elevado: #ffffff;
+
+    --fg-default: #2f3350;
+    --fg-muted: #6f7390;
+    --fg-disabled: #a9acc0;
+    --fg-link: #0f7f82;
+    --fg-on-accent: #ffffff;
+
+    --border: #f1dcc6;
+    --border-input: #e6cfb5;
+    --border-focus: #ff8c42;
+
+    --accent: #cf4a1f;
+    --accent-hover: #b93f17;
+    --accent-fg: #ffffff;
+
+    --secondary: #ffe9d6;
+    --secondary-hover: #ffdcbd;
+    --secondary-fg: #7a2e0e;
+
+    --danger: #c8323e;
+    --warning: #8a5a00;
+    --success: #1f7a4d;
+    --info: #1c6fd1;
+    --danger-bg: #ffe3e6;
+    --warning-bg: #fff3c4;
+    --success-bg: #dff5e7;
+    --info-bg: #e3efff;
+
+    --statusbar-bg: #ffffff;
+    --statusbar-fg: #2f3350;
+    --statusbar-hover: rgb(207 74 31 / 0.10);
+
+    --cor-sol: #ffcf5c;
+    --cor-ceu: #7fd1e8;
+    --cor-grama: #8fd694;
+    --cor-rosa: #ff9ec6;
+    --cor-lilas: #c3a6ff;
+    --cor-laranja: #ff9f68;
+    --cor-menta: #9fe3d2;
+
+    --ilu-pele-1: #f6c9a4;
+    --ilu-pele-2: #d9a06b;
+    --ilu-pele-3: #8d5a3b;
+    --ilu-pele-4: #5c3a26;
+    --ilu-cabelo-1: #4a2f22;
+    --ilu-cabelo-2: #e8a33d;
+    --ilu-cabelo-3: #2b2b36;
+    --ilu-cabelo-4: #b5522a;
+    --ilu-cabelo-5: #b8bac8;
+    --ilu-roupa-pai: #3f7fd6;
+    --ilu-roupa-mae: #e85c8a;
+    --ilu-roupa-menino: #4ac08a;
+    --ilu-roupa-menina: #ffb347;
+    --ilu-calca: #35466b;
+    --ilu-sapato: #2b2b36;
+    --ilu-cachorro: #c98a4b;
+    --ilu-cachorro-mancha: #f3e3c9;
+    --ilu-coleira: #e03e52;
+    --ilu-traco: #2f3350;
+    --ilu-bochecha: #ff9b9b;
+    --ilu-branco: #ffffff;
+    --ilu-lingua: #ff7a8a;
+    --ilu-sombra: rgb(120 72 20 / 0.14);
+
+    --sombra-suave: 0 6px 20px rgb(120 72 20 / 0.10);
+    --sombra-forte: 0 16px 44px rgb(120 72 20 / 0.18);
   }
 }

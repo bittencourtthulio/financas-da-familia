@@ -8,14 +8,26 @@ function BotaoDeEnvio({ rotulo }: { rotulo: string }) {
   const { pending } = useFormStatus()
   return (
     <button type="submit" className="primario" disabled={pending}>
-      {pending ? 'Salvando…' : rotulo}
+      {pending ? (
+        <>
+          Salvando…
+          <span className="pontinhos" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+        </>
+      ) : (
+        rotulo
+      )}
     </button>
   )
 }
 
 /**
  * Formulário com estado de envio, erro e sucesso — os três estados que
- * toda tela que grava precisa tratar (L30).
+ * toda tela que grava precisa tratar (L30). O aviso de sucesso surge com uma
+ * mola e o de erro treme (global.css); o texto é sempre o sinal principal.
  */
 export function Formulario({
   acao,

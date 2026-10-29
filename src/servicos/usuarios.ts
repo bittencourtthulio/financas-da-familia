@@ -196,3 +196,48 @@ export async function desativar(
 ): Promise<UsuarioListado> {
   return editar(autor, id, { ativo: false })
 }
+
+export const entradaDeRedefinicao = z.object({ senha: senhaValida })
+
+/**
+ * O responsável define uma senha nova para outro membro da família (adulto ou
+ * filho com login). Move `sessoesValidasDesde` para o próximo segundo, o que
+ * derruba as sessões abertas do membro (L4). Para a própria senha existe
+ * "Trocar minha senha", que pede a senha atual: aqui seria derrubar a si
+ * mesmo. O rastro leva o nome do alvo, nunca a senha.
+ */
+export async function redefinirSenha(
+  autor: UsuarioAutenticado,
+  id: string,
+  entrada: unknown,
+): Promise<void> {
+  exigirAdmin(autor)
+
+  const dados = entradaDeRedefinicao.safeParse(entrada)
+  if (!dados.success) {
+    throw entradaInvalida(dados.error.issues[0]?.message ?? 'Entrada inválida.')
+  }
+
+  if (id === autor.id) {
+    throw conflito('Para trocar a sua própria senha, use Meu perfil.')
+  }
+  const alvo = await prisma.usuario.findUnique({ where: { id } })
+  if (!alvo) throw naoEncontrado('Usuário não encontrado.')
+
+  const senhaHash = await hashDeSenha(dados.data.senha)
+  const corte = new Date((Math.floor(Date.now() / 1000) + 1) * 1000)
+
+  await prisma.$transaction(async (tx) => {
+    await tx.usuario.update({ where: { id }, data: { senhaHash, sessoesValidasDesde: corte } })
+    await registrarAtividade(
+      {
+        ator: autor,
+        acao: 'usuario.senha_redefinida',
+        entidade: 'usuario',
+        entidadeId: id,
+        detalhe: { alvoNome: alvo.nome },
+      },
+      tx,
+    )
+  })
+}

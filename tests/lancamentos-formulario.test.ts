@@ -47,22 +47,35 @@ describe('CamposDeLancamento — novo', () => {
     expect(html).toMatch(/type="date"[^>]*value="2026-10-28"|value="2026-10-28"[^>]*type="date"/)
   })
 
-  it('começa em despesa e oferece só as categorias de despesa', () => {
+  it('começa em despesa, com a categoria num campo de busca (combobox) e o id escondido', () => {
     expect(html).toMatch(/<input[^>]*value="despesa"[^>]*checked|<input[^>]*checked[^>]*value="despesa"/)
-    expect(html).toContain('>Mercado<')
-    expect(html).toContain('>Lazer<')
+    expect(html).toContain('role="combobox"')
+    expect(html).toContain('name="categoriaNome"')
+    expect(html).toMatch(/<input[^>]*type="hidden"[^>]*name="categoriaId"|<input[^>]*name="categoriaId"[^>]*type="hidden"/)
     expect(html).not.toContain('>Salário<')
+  })
+
+  it('oferece quem gastou, com a família e a opção de ninguém em especial', () => {
+    const comPessoas = renderizar(CamposDeLancamento, {
+      categorias,
+      pessoas: [{ id: 'p1', nome: 'Ana' }],
+      pessoaPadrao: 'p1',
+      hoje: '2026-10-28',
+    })
+    expect(comPessoas).toContain('Quem gastou')
+    expect(comPessoas).toContain('name="pessoaId"')
+    expect(comPessoas).toContain('Ninguém em especial')
+    expect(comPessoas).toMatch(/<option[^>]*value="p1"[^>]*selected|<option[^>]*selected[^>]*value="p1"/)
   })
 
   it('o valor não é um campo numérico do navegador (aceita a vírgula do formato brasileiro)', () => {
     expect(html).not.toContain('type="number"')
   })
 
-  it('sem categoria do tipo, explica e leva a Categorias em vez de um select vazio', () => {
+  it('sem nenhuma categoria, o campo continua: escrever um nome cadastra, sem tela de categorias', () => {
     const vazio = renderizar(CamposDeLancamento, { categorias: [], hoje: '2026-10-28' })
-    expect(vazio).toContain('Ainda não há categoria de despesa')
-    expect(vazio).toContain('href="/lancamentos/categorias"')
-    expect(vazio).not.toContain('<select')
+    expect(vazio).toContain('Escolha ou escreva uma nova')
+    expect(vazio).not.toContain('href="/lancamentos/categorias"')
   })
 })
 
@@ -82,7 +95,8 @@ describe('CamposDeLancamento — edição', () => {
     expect(html).toContain('value="2026-10-05"')
     expect(html).toContain('value="Salário de outubro"')
     expect(html).toMatch(/<input[^>]*value="receita"[^>]*checked|<input[^>]*checked[^>]*value="receita"/)
-    expect(html).toMatch(/<option[^>]*value="r1"[^>]*selected|<option[^>]*selected[^>]*value="r1"/)
+    expect(html).toMatch(/<input[^>]*name="categoriaId"[^>]*value="r1"|<input[^>]*value="r1"[^>]*name="categoriaId"/)
+    expect(html).toMatch(/name="categoriaNome"[^>]*value="Salário"|value="Salário"[^>]*name="categoriaNome"/)
     expect(html).not.toContain('>Mercado<')
   })
 
@@ -134,19 +148,27 @@ describe('leitura do formulário', () => {
     form.set('valor', '1.234,56')
     form.set('data', '2026-10-27')
     form.set('categoriaId', 'd1')
+    form.set('pessoaId', 'p1')
+    form.set('pago', 'nao')
+    form.set('repete', 'on')
+    form.set('escopo', 'proximos')
     form.set('descricao', 'Feira')
     expect(lerFormularioDeLancamento(form)).toEqual({
       tipo: 'despesa',
       valor: '1.234,56',
       data: '2026-10-27',
       categoriaId: 'd1',
+      pessoaId: 'p1',
+      pago: 'nao',
+      repete: 'on',
+      escopo: 'proximos',
       descricao: 'Feira',
     })
   })
 
   it('campo ausente vira null e o serviço decide (nenhum valor é inventado aqui)', () => {
     const entrada = lerFormularioDeLancamento(new FormData())
-    expect(entrada).toEqual({ tipo: null, valor: null, data: null, categoriaId: null, descricao: null })
+    expect(entrada).toEqual({ tipo: null, valor: null, data: null, categoriaId: null, pessoaId: null, pago: null, repete: null, escopo: null, descricao: null })
   })
 
   it('o valor continua texto: nada de Number() antes do serviço', () => {
@@ -173,7 +195,7 @@ describe('ações de formulário', () => {
     return acoes.slice(i, j === -1 ? undefined : j)
   }
 
-  it.each(['registrarLancamento', 'salvarLancamento', 'excluirLancamento', 'registrarCategoria'])(
+  it.each(['registrarLancamento', 'salvarLancamento', 'excluirLancamento', 'criarCategoriaDoCampo', 'apagarCategoriaDoCampo'])(
     '%s exige quem lança antes de tocar o serviço, e fora do try (o redirecionamento não vira mensagem)',
     (nome) => {
       const c = corpo(nome)
@@ -202,7 +224,6 @@ describe('páginas', () => {
   const paginas = [
     'app/(sistema)/lancamentos/novo/page.tsx',
     'app/(sistema)/lancamentos/[id]/page.tsx',
-    'app/(sistema)/lancamentos/categorias/page.tsx',
   ]
 
   it('existem, herdam carregando e erro do grupo e exigem quem lança antes de ler', () => {
@@ -224,12 +245,11 @@ describe('páginas', () => {
     expect(f).toContain('status === 404')
   })
 
-  it('a tela de categorias lista por tipo, tem estado vazio e o formulário de nova categoria', () => {
-    const f = fonte('app/(sistema)/lancamentos/categorias/page.tsx')
-    expect(f).toContain('registrarCategoria')
-    expect(f).toContain('className="vazio"')
-    expect(f).toMatch(/Despesas/)
-    expect(f).toMatch(/Receitas/)
+  it('não há tela de categorias: o endereço antigo só redireciona e o campo cria e apaga', () => {
+    expect(fonte('app/(sistema)/lancamentos/categorias/page.tsx')).toContain("redirect('/lancamentos/novo')")
+    const campo = fonte('componentes/CampoDeCategoria.tsx')
+    expect(campo).toContain('criarCategoriaDoCampo')
+    expect(campo).toContain('apagarCategoriaDoCampo')
   })
 
   it('nenhum arquivo novo escreve cor por extenso', () => {

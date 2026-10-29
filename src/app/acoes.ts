@@ -4,11 +4,14 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { entrar } from '@/servicos/autenticacao'
 import { excluirFilho } from '@/servicos/privacidade'
-import { criar, editar, desativar } from '@/servicos/usuarios'
+import { criar, editar, desativar, redefinirSenha } from '@/servicos/usuarios'
 import { atualizarPerfil, trocarSenha } from '@/servicos/perfil'
 import {
   apagarLancamento,
+  alternarPago,
+  apagarCategoria,
   criarCategoria,
+  obterOuCriarCategoria,
   criarLancamento,
   editarLancamento,
 } from '@/servicos/lancamentos'
@@ -16,6 +19,7 @@ import {
   cadastrarFilho,
   criarLoginDoFilho,
   desativarLoginDoFilho,
+  redefinirSenhaDoFilho,
   editarFilho,
 } from '@/servicos/filhos'
 import {
@@ -98,8 +102,8 @@ export async function criarUsuario(
   } catch (erro) {
     return { erro: mensagemDe(erro) }
   }
-  revalidatePath('/configuracoes/usuarios')
-  return { sucesso: 'Usuário criado.' }
+  revalidatePath('/familia')
+  redirect('/familia')
 }
 
 export async function editarUsuario(
@@ -117,7 +121,7 @@ export async function editarUsuario(
   } catch (erro) {
     return { erro: mensagemDe(erro) }
   }
-  revalidatePath('/configuracoes/usuarios')
+  revalidatePath('/familia')
   return { sucesso: 'Usuário atualizado.' }
 }
 
@@ -131,7 +135,7 @@ export async function desativarUsuario(
   } catch (erro) {
     return { erro: mensagemDe(erro) }
   }
-  revalidatePath('/configuracoes/usuarios')
+  revalidatePath('/familia')
   return { sucesso: 'Usuário desativado.' }
 }
 
@@ -177,6 +181,20 @@ function listaDoMesDe(data: FormDataEntryValue | null): string {
   return enderecoDaLista({ mes: typeof data === 'string' ? mesDaData(data) : null })
 }
 
+/**
+ * Lê o lançamento do formulário. Se a categoria foi digitada e ainda não
+ * existe (sem `categoriaId`, com `categoriaNome`), ela é cadastrada aqui.
+ */
+async function comCategoriaDigitada(autor: Parameters<typeof criarLancamento>[0], form: FormData) {
+  const dados = lerFormularioDeLancamento(form)
+  const nome = form.get('categoriaNome')
+  if (!dados.categoriaId && typeof nome === 'string' && nome.trim() && typeof dados.tipo === 'string') {
+    const categoria = await obterOuCriarCategoria(autor, { nome, tipo: dados.tipo })
+    return { ...dados, categoriaId: categoria.id }
+  }
+  return dados
+}
+
 // As ações de lançamento exigem quem lança FORA do try: o redirecionamento da
 // guarda é uma exceção do Next e não pode virar mensagem de erro. O serviço
 // verifica o papel de novo.
@@ -187,7 +205,7 @@ export async function registrarLancamento(
 ): Promise<EstadoDoFormulario> {
   const autor = await exigirUsuarioDeLancamentos()
   try {
-    await criarLancamento(autor, lerFormularioDeLancamento(form))
+    await criarLancamento(autor, await comCategoriaDigitada(autor, form))
   } catch (erro) {
     return { erro: mensagemDe(erro) }
   }
@@ -201,12 +219,20 @@ export async function salvarLancamento(
 ): Promise<EstadoDoFormulario> {
   const autor = await exigirUsuarioDeLancamentos()
   try {
-    await editarLancamento(autor, String(form.get('id')), lerFormularioDeLancamento(form))
+    await editarLancamento(autor, String(form.get('id')), await comCategoriaDigitada(autor, form))
   } catch (erro) {
     return { erro: mensagemDe(erro) }
   }
   revalidatePath('/lancamentos')
   redirect(listaDoMesDe(form.get('data')))
+}
+
+/** Marca o lançamento como pago (ou volta para em aberto). Vem de um botão na lista, sem estado. */
+export async function alternarPagoDoLancamento(form: FormData): Promise<void> {
+  const autor = await exigirUsuarioDeLancamentos()
+  await alternarPago(autor, String(form.get('id')))
+  revalidatePath('/lancamentos')
+  revalidatePath('/')
 }
 
 export async function excluirLancamento(
@@ -215,7 +241,7 @@ export async function excluirLancamento(
 ): Promise<EstadoDoFormulario> {
   const autor = await exigirUsuarioDeLancamentos()
   try {
-    await apagarLancamento(autor, String(form.get('id')))
+    await apagarLancamento(autor, String(form.get('id')), form.get('escopo') === 'proximos' ? 'proximos' : 'este')
   } catch (erro) {
     return { erro: mensagemDe(erro) }
   }
@@ -223,18 +249,32 @@ export async function excluirLancamento(
   redirect('/lancamentos')
 }
 
-export async function registrarCategoria(
-  _estado: EstadoDoFormulario,
-  form: FormData,
-): Promise<EstadoDoFormulario> {
+/** Resposta das ações do campo de categoria, que não são formulário. */
+export interface RespostaDeCategoria {
+  erro?: string
+  categoria?: { id: string; nome: string; tipo: string }
+}
+
+/** Cadastra (ou acha) a categoria escrita no campo do lançamento. */
+export async function criarCategoriaDoCampo(nome: string, tipo: string): Promise<RespostaDeCategoria> {
   const autor = await exigirUsuarioDeLancamentos()
   try {
-    await criarCategoria(autor, lerFormularioDeCategoria(form))
+    const c = await obterOuCriarCategoria(autor, { nome, tipo })
+    return { categoria: { id: c.id, nome: c.nome, tipo: c.tipo } }
   } catch (erro) {
     return { erro: mensagemDe(erro) }
   }
-  revalidatePath('/lancamentos/categorias')
-  return { sucesso: 'Categoria criada.' }
+}
+
+/** Apaga uma categoria sem lançamentos, pelo campo do lançamento. */
+export async function apagarCategoriaDoCampo(id: string): Promise<RespostaDeCategoria> {
+  const autor = await exigirUsuarioDeLancamentos()
+  try {
+    await apagarCategoria(autor, id)
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  return {}
 }
 
 // As ações de filho exigem o responsável FORA do try, como as de lançamento: o
@@ -374,4 +414,42 @@ export async function excluirContaDoFilho(
   revalidatePath('/atividade')
   revalidatePath('/')
   redirect('/privacidade?excluido=1')
+}
+
+// O responsável define a senha de quem é da família. O formulário pede a
+// senha duas vezes; o serviço só vê a que vale.
+
+function senhaConfirmada(form: FormData): { senha: FormDataEntryValue | null } | string {
+  if (form.get('senha') !== form.get('confirmacao')) return 'A confirmação não é igual à senha nova.'
+  return { senha: form.get('senha') }
+}
+
+export async function redefinirSenhaDeUsuario(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  const entrada = senhaConfirmada(form)
+  if (typeof entrada === 'string') return { erro: entrada }
+  try {
+    await redefinirSenha(autor, String(form.get('id')), entrada)
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  return { sucesso: 'Senha redefinida. Quem estava logado precisa entrar de novo.' }
+}
+
+export async function redefinirSenhaDeFilho(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  const autor = await exigirUsuarioAdmin()
+  const entrada = senhaConfirmada(form)
+  if (typeof entrada === 'string') return { erro: entrada }
+  try {
+    await redefinirSenhaDoFilho(autor, String(form.get('id')), entrada)
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  return { sucesso: 'Senha redefinida. Se o filho estava logado, precisa entrar de novo.' }
 }

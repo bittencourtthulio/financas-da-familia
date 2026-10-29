@@ -1,4 +1,12 @@
-# Finanças da Família
+# Bufi (antes "Finanças da Família")
+
+Bufi vem de bufunfa: a grana da casa, em família. O visual é leve e colorido,
+com a família desenhada (pai, mãe, menino, menina e o cachorro); dentro do
+sistema os bonequinhos são as pessoas cadastradas, cada uma com o avatar que
+escolheu em **Meu perfil** ou que o responsável definiu na área **Família**
+(`/familia`). A apresentação pública abre na raiz do site para quem ainda não
+entrou; quem tem sessão vê o painel. Guia do visual em
+`docs/design/IDENTIDADE-VISUAL.md`.
 
 Sistema de controle financeiro da casa de uma família e da mesada dos filhos.
 Esta é a fundação (FT-01): o responsável entra com e-mail e senha, chega ao

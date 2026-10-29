@@ -17,6 +17,7 @@ type Chamada = (autor: UsuarioAutenticado) => Promise<unknown>
 
 const chamadas: Array<[string, Chamada]> = [
   ['resumoDoMes', (a) => servico.resumoDoMes(a, { mes: '2026-10' })],
+  ['financasDoMes', (a) => servico.financasDoMes(a, { mes: '2026-10' })],
 ]
 
 const PAPEIS_NEGADOS = ['filho', 'visitante', '', 'ADMIN', 'Admin', 'administrador', 'superusuario']

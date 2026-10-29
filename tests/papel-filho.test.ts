@@ -36,8 +36,12 @@ const chamadas: Array<[string, Chamada]> = [
   ['lancamentos.obterLancamento', (a) => lancamentos.obterLancamento(a, 'qualquer')],
   ['lancamentos.editarLancamento', (a) => lancamentos.editarLancamento(a, 'qualquer', LANCAMENTO)],
   ['lancamentos.apagarLancamento', (a) => lancamentos.apagarLancamento(a, 'qualquer')],
+  ['lancamentos.alternarPago', (a) => lancamentos.alternarPago(a, 'qualquer')],
   ['lancamentos.listarLancamentos', (a) => lancamentos.listarLancamentos(a, { mes: '2026-10' })],
+  ['lancamentos.obterOuCriarCategoria', (a) => lancamentos.obterOuCriarCategoria(a, { nome: 'Qualquer', tipo: 'despesa' })],
+  ['lancamentos.apagarCategoria', (a) => lancamentos.apagarCategoria(a, 'qualquer')],
   ['resumo.resumoDoMes', (a) => resumo.resumoDoMes(a, { mes: '2026-10' })],
+  ['resumo.financasDoMes', (a) => resumo.financasDoMes(a, { mes: '2026-10' })],
   ['atividade.listarAtividade', (a) => atividade.listarAtividade(a)],
   ['usuarios.listar', (a) => usuarios.listar(a)],
   [
@@ -46,6 +50,7 @@ const chamadas: Array<[string, Chamada]> = [
   ],
   ['usuarios.editar', (a) => usuarios.editar(a, a.id, { papel: 'admin' })],
   ['usuarios.desativar', (a) => usuarios.desativar(a, a.id)],
+  ['usuarios.redefinirSenha', (a) => usuarios.redefinirSenha(a, a.id, { senha: 'senha-nova-123' })],
 ]
 
 describe('um filho real é negado em todo serviço que já existia', () => {

@@ -18,8 +18,8 @@ model Usuario {
   papel     String   @default("usuario") // "admin" | "usuario"
   ativo     Boolean  @default(true)
 
-  // Toda sessão emitida depois deste instante é válida; as anteriores não.
-  // É assim que a troca de senha derruba as outras sessões (L4).
+  avatar    String? // JSON do avatar desenhado (src/lib/avatar.ts); nulo até a pessoa escolher
+  // Toda sessão emitida depois deste instante é válida; é assim que a troca de senha derruba as outras (L4).
   sessoesValidasDesde DateTime @default(now())
 
   criadoEm     DateTime @default(now())
@@ -59,7 +59,8 @@ model Categoria {
   tipo     String // "receita" | "despesa"
   criadoEm DateTime @default(now())
 
-  lancamentos Lancamento[]
+  lancamentos  Lancamento[]
+  recorrencias Recorrencia[]
 
   // Nome único dentro do tipo; a comparação sem diferenciar maiúscula é do
   // serviço (PR-27).
@@ -74,12 +75,26 @@ model Lancamento {
   data          String // AAAA-MM-DD no fuso America/Sao_Paulo
   descricao     String   @default("")
   categoriaId   String
+  // Quem da família fez o gasto (ou recebeu): o id do `Usuario` adulto ou do
+  // `Filho`. Opcional, sem chave estrangeira: o lançamento sobrevive à pessoa.
+  pessoaId      String?
+  // Pago (despesa) ou recebido (receita). O que já existia nasce pago.
+  pago          Boolean  @default(true)
+  // Se este lançamento é um mês de uma recorrência, qual. Apagar a recorrência
+  // solta os lançamentos em vez de apagá-los.
+  recorrenciaId String?
   criadoEm      DateTime @default(now())
   atualizadoEm  DateTime @updatedAt
 
-  categoria Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  categoria   Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  recorrencia Recorrencia? @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
 
+  // Um mês de uma recorrência só existe uma vez, mesmo com duas telas
+  // gerando ao mesmo tempo. Nulo não conta: lançamento avulso repete à vontade.
+  @@unique([recorrenciaId, data])
   @@index([data])
+  @@index([pessoaId])
+  @@index([recorrenciaId])
   @@map("lancamentos")
 }
 
@@ -99,7 +114,7 @@ model Filho {
   usuarioId      String?  @unique
   criadoEm       DateTime @default(now())
   atualizadoEm   DateTime @updatedAt
-
+  avatar         String? // JSON do avatar desenhado (src/lib/avatar.ts); nulo até o responsável escolher
   usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
 
   movimentos MovimentoDeMesada[]
@@ -128,4 +143,27 @@ model MovimentoDeMesada {
 
   @@index([filhoId, data])
   @@map("movimentos_de_mesada")
+}
+
+// Lançamento que se repete todo mês (por exemplo, a conta de luz no dia 5). É o
+// modelo dos meses seguintes: cada mês vira um `Lancamento` ligado a ele, em
+// aberto. `geradoAte` é o último mês já criado, e é o que impede de recriar um
+// mês que a pessoa apagou. `fim`, se houver, é o último mês que ainda vale.
+model Recorrencia {
+  id            String   @id @default(cuid())
+  tipo          String // "receita" | "despesa"
+  valorCentavos Int
+  diaDoMes      Int // 1 a 31; em mês mais curto vale o último dia
+  descricao     String   @default("")
+  categoriaId   String
+  pessoaId      String?
+  inicio        String // AAAA-MM
+  fim           String? // AAAA-MM
+  geradoAte     String // AAAA-MM
+  criadoEm      DateTime @default(now())
+
+  categoria   Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  lancamentos Lancamento[]
+
+  @@map("recorrencias")
 }

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function LayoutRaiz({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         {/* Aplica o tema salvo antes da primeira pintura, para não piscar. */}
         <script

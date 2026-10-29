@@ -116,7 +116,7 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
   it('a regra de dinheiro deixou de ser prescrita: tem evidência no esquema, no leitor e no teste', () => {
     const dinheiro = trecho('Dinheiro')
     expect(dinheiro).not.toContain('decidido_pelo_buildx')
-    for (const citacao of ['prisma/schema.prisma:73', 'src/lib/dinheiro.ts:19', 'src/lib/formato.ts:14', 'src/lib/datas.ts:35']) {
+    for (const citacao of ['prisma/schema.prisma:74', 'src/lib/dinheiro.ts:19', 'src/lib/formato.ts:14', 'src/lib/datas.ts:35']) {
       expect(dinheiro, citacao).toContain(`\`${citacao}\``)
     }
     expect(dinheiro).toMatch(/PR-02/)
@@ -125,9 +125,9 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
 
   it('cada citação da seção 7 nova aponta para a linha que contém o nome citado', () => {
     const esperado: Array<[string, number, RegExp]> = [
-      ['prisma/schema.prisma', 73, /valorCentavos\s+Int/],
+      ['prisma/schema.prisma', 74, /valorCentavos\s+Int/],
       ['prisma/schema.prisma', 56, /model Categoria/],
-      ['prisma/schema.prisma', 70, /model Lancamento/],
+      ['prisma/schema.prisma', 71, /model Lancamento/],
       ['prisma/migrations/20261028150000_lancamentos/migration.sql', 13, /"valorCentavos" INTEGER/],
       ['src/lib/dinheiro.ts', 7, /VALOR_MAXIMO_EM_CENTAVOS/],
       ['src/lib/dinheiro.ts', 19, /lerValorEmReais/],
@@ -135,20 +135,20 @@ describe('dinheiro, autorização e dados no CONVENCOES.md (FT-03)', () => {
       ['src/lib/formato.ts', 14, /formatarMoeda/],
       ['src/lib/datas.ts', 35, /dataCivilValida/],
       ['src/lib/datas.ts', 60, /hojeEmSaoPaulo/],
-      ['src/servicos/lancamentos.ts', 178, /criarLancamento/],
-      ['src/servicos/lancamentos.ts', 88, /registrarAtividade/],
-      ['src/servicos/lancamentos.ts', 264, /registrarAtividade/],
+      ['src/servicos/lancamentos.ts', 305, /criarLancamento/],
+      ['src/servicos/lancamentos.ts', 98, /registrarAtividade/],
+      ['src/servicos/lancamentos.ts', 330, /registrarAtividade/],
       ['src/servicos/autenticacao.ts', 140, /exigirAdultoOuResponsavel/],
       ['src/app/sessao-servidor.ts', 32, /exigirUsuarioAdmin/],
       ['src/app/sessao-servidor.ts', 43, /exigirUsuarioDeLancamentos/],
-      ['src/lib/atividade.ts', 13, /lancamento\.criado/],
-      ['src/app/acoes.ts', 55, /mensagemDe/],
-      ['src/app/acoes.ts', 57, /mensagemSegura|Erro de aplicação/],
+      ['src/lib/atividade.ts', 14, /lancamento\.criado/],
+      ['src/app/acoes.ts', 59, /mensagemDe/],
+      ['src/app/acoes.ts', 55, /mensagemSegura|Erro de aplicação/],
       ['tests/ajuda.ts', 39, /limparBanco/],
       ['tests/rotas.test.ts', 108, /spawn/],
       ['tests/rotas.test.ts', 207, /cadastro de usuários é negado/],
-      ['tests/lancamentos-papeis.test.ts', 68, /todas as funções do serviço negam/],
-      ['tests/lancamentos-dados.test.ts', 114, /nenhum modelo usa Float/],
+      ['tests/lancamentos-papeis.test.ts', 70, /todas as funções do serviço negam/],
+      ['tests/lancamentos-dados.test.ts', 115, /nenhum modelo usa Float/],
       ['tests/dinheiro.test.ts', 123, /PR-02 no código do leitor/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {
@@ -187,17 +187,17 @@ describe('saldo e resumo do mês no CONVENCOES.md (FT-04)', () => {
 
   it('cada citação nova do resumo aponta para a linha que contém o nome citado', () => {
     const esperado: Array<[string, number, RegExp]> = [
-      ['src/servicos/resumo.ts', 37, /mesDaConsulta/],
-      ['src/servicos/resumo.ts', 56, /resumoDoMes/],
-      ['src/servicos/resumo.ts', 61, /exigirAdultoOuResponsavel/],
-      ['src/servicos/resumo.ts', 66, /groupBy/],
-      ['src/servicos/resumo.ts', 113, /saldoCentavos/],
+      ['src/servicos/resumo.ts', 53, /mesDaConsulta/],
+      ['src/servicos/resumo.ts', 72, /resumoDoMes/],
+      ['src/servicos/resumo.ts', 77, /exigirAdultoOuResponsavel/],
+      ['src/servicos/resumo.ts', 83, /groupBy/],
+      ['src/servicos/resumo.ts', 130, /saldoCentavos/],
       ['src/app/(sistema)/page.tsx', 34, /papelPodeLancar/],
-      ['src/componentes/ResumoDoMes.tsx', 74, /data-saldo/],
+      ['src/componentes/ResumoDoMes.tsx', 73, /data-saldo/],
       ['tests/resumo.test.ts', 45, /0,10 \+ 0,20/],
-      ['tests/resumo.test.ts', 381, /não usa ponto flutuante/],
-      ['tests/resumo-papeis.test.ts', 24, /todas as funções do serviço de resumo negam/],
-      ['tests/resumo-tela.test.ts', 131, /saldo negativo sai com sinal/],
+      ['tests/resumo.test.ts', 382, /não usa ponto flutuante/],
+      ['tests/resumo-papeis.test.ts', 25, /todas as funções do serviço de resumo negam/],
+      ['tests/resumo-tela.test.ts', 133, /saldo negativo sai com sinal/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {
       expect(convencoes, `${arquivo}:${linha}`).toContain(`\`${arquivo}:${linha}\``)
@@ -237,20 +237,20 @@ describe('o papel filho e os filhos no CONVENCOES.md (FT-05)', () => {
     const esperado: Array<[string, number, RegExp]> = [
       ['src/servicos/autenticacao.ts', 153, /exigirFilho/],
       ['src/app/sessao-servidor.ts', 54, /exigirUsuarioFilho/],
-      ['src/servicos/filhos.ts', 47, /esquemaDoFilho/],
-      ['src/servicos/filhos.ts', 120, /cadastrarFilho/],
-      ['src/servicos/filhos.ts', 140, /registrarAtividade/],
-      ['src/servicos/filhos.ts', 198, /registrarAtividade/],
-      ['src/servicos/filhos.ts', 264, /registrarAtividade/],
-      ['src/servicos/filhos.ts', 297, /registrarAtividade/],
-      ['src/servicos/filhos.ts', 325, /minhaMesada/],
+      ['src/servicos/filhos.ts', 48, /esquemaDoFilho/],
+      ['src/servicos/filhos.ts', 121, /cadastrarFilho/],
+      ['src/servicos/filhos.ts', 141, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 199, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 265, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 298, /registrarAtividade/],
+      ['src/servicos/filhos.ts', 326, /minhaMesada/],
       ['src/servicos/usuarios.ts', 117, /alvo\.papel === 'filho'/],
-      ['src/app/acoes.ts', 243, /registrarFilho/],
-      ['prisma/schema.prisma', 93, /model Filho/],
+      ['src/app/acoes.ts', 283, /registrarFilho/],
+      ['prisma/schema.prisma', 108, /model Filho/],
       ['prisma/migrations/20261028170000_filhos/migration.sql', 2, /CREATE TABLE "filhos"/],
-      ['src/lib/atividade.ts', 17, /filho\.cadastrado/],
-      ['tests/papel-filho.test.ts', 52, /a tabela cobre/],
-      ['tests/filhos-papeis.test.ts', 32, /todas as funções do serviço de filhos negam/],
+      ['src/lib/atividade.ts', 19, /filho\.cadastrado/],
+      ['tests/papel-filho.test.ts', 57, /a tabela cobre/],
+      ['tests/filhos-papeis.test.ts', 33, /todas as funções do serviço de filhos negam/],
       ['tests/filhos-login.test.ts', 220, /IDOR/],
       ['tests/filhos-mesada.test.ts', 204, /nada vaza a existência/],
       ['tests/filhos-acoes.test.ts', 122, /não grava nada por nenhuma ação sensível/],
@@ -303,9 +303,9 @@ describe('a mesada dos filhos no CONVENCOES.md (FT-06)', () => {
 
   it('cada citação nova da mesada aponta para a linha que contém o nome citado', () => {
     const esperado: Array<[string, number, RegExp]> = [
-      ['prisma/schema.prisma', 117, /model MovimentoDeMesada/],
-      ['prisma/schema.prisma', 121, /valorCentavos\s+Int/],
-      ['prisma/schema.prisma', 127, /onDelete: Cascade/],
+      ['prisma/schema.prisma', 132, /model MovimentoDeMesada/],
+      ['prisma/schema.prisma', 136, /valorCentavos\s+Int/],
+      ['prisma/schema.prisma', 142, /onDelete: Cascade/],
       ['prisma/migrations/20261028190000_mesada/migration.sql', 2, /CREATE TABLE "movimentos_de_mesada"/],
       ['prisma/migrations/20261028190000_mesada/migration.sql', 6, /"valorCentavos" INTEGER/],
       ['src/servicos/mesada.ts', 94, /totaisDoFilho/],
@@ -315,8 +315,8 @@ describe('a mesada dos filhos no CONVENCOES.md (FT-06)', () => {
       ['src/servicos/mesada.ts', 139, /registrarAtividade/],
       ['src/servicos/mesada.ts', 319, /meuExtrato/],
       ['src/servicos/mesada.ts', 323, /exigirFilho/],
-      ['src/lib/atividade.ts', 21, /mesada\.registrada/],
-      ['src/app/acoes.ts', 312, /registrarMovimentoDeMesada/],
+      ['src/lib/atividade.ts', 23, /mesada\.registrada/],
+      ['src/app/acoes.ts', 352, /registrarMovimentoDeMesada/],
       ['tests/mesada-dados.test.ts', 87, /Cascade/],
       ['tests/mesada-saldo.test.ts', 25, /0,10 \+ 0,20/],
       ['tests/mesada.test.ts', 353, /PR-02 no serviço de mesada/],
@@ -397,15 +397,15 @@ describe('privacidade dos dados no CONVENCOES.md (FT-07)', () => {
     const esperado: Array<[string, number, RegExp]> = [
       ['src/servicos/privacidade.ts', 52, /exportarDadosDaFamilia/],
       ['src/servicos/privacidade.ts', 60, /usuario\.findMany/],
-      ['src/servicos/privacidade.ts', 175, /anonimizarTrilha/],
-      ['src/servicos/privacidade.ts', 228, /excluirFilho/],
+      ['src/servicos/privacidade.ts', 192, /anonimizarTrilha/],
+      ['src/servicos/privacidade.ts', 245, /excluirFilho/],
       ['src/lib/privacidade.ts', 8, /VERSAO_DO_FORMATO/],
       ['src/lib/privacidade.ts', 26, /camposProibidosEm/],
       ['src/app/api/privacidade/exportar/route.ts', 11, /POST/],
-      ['src/app/acoes.ts', 362, /excluirContaDoFilho/],
+      ['src/app/acoes.ts', 402, /excluirContaDoFilho/],
       ['src/servicos/autenticacao.ts', 161, /esquecerTentativasDeLogin/],
-      ['src/lib/atividade.ts', 24, /familia\.exportada/],
-      ['src/lib/atividade.ts', 25, /filho\.excluido/],
+      ['src/lib/atividade.ts', 26, /familia\.exportada/],
+      ['src/lib/atividade.ts', 27, /filho\.excluido/],
       ['src/componentes/ApagarFilho.tsx', 11, /ApagarFilho/],
       ['src/componentes/PainelDePrivacidade.tsx', 10, /PainelDePrivacidade/],
       ['tests/privacidade-exportacao.test.ts', 150, /campos proibidos/],
@@ -474,7 +474,7 @@ describe('backup, restauração, saúde e log no CONVENCOES.md (FT-08)', () => {
       ['src/instrumentation.ts', 9, /register/],
       ['src/lib/backup.ts', 85, /gerarBackup/],
       ['src/lib/restauracao.ts', 21, /TABELAS_ESPERADAS/],
-      ['src/lib/restauracao.ts', 95, /restaurarBackup/],
+      ['src/lib/restauracao.ts', 96, /restaurarBackup/],
       ['src/servicos/saude.ts', 34, /verificarSaude/],
       ['src/app/api/saude/route.ts', 10, /GET/],
       ['tests/banco-temporario.ts', 1, /Banco SQLite temporário/],
@@ -532,9 +532,9 @@ describe('o login do filho acompanha o cadastro no CONVENCOES.md (FT-09)', () =>
 
   it('cada citação nova aponta para a linha que contém o nome citado', () => {
     const esperado: Array<[string, number, RegExp]> = [
-      ['src/servicos/filhos.ts', 185, /renomeiaLogin/],
-      ['src/servicos/filhos.ts', 190, /tx\.usuario\.update/],
-      ['src/lib/atividade.ts', 69, /nome do login/],
+      ['src/servicos/filhos.ts', 186, /renomeiaLogin/],
+      ['src/servicos/filhos.ts', 191, /tx\.usuario\.update/],
+      ['src/lib/atividade.ts', 71, /nome do login/],
       ['tests/filhos-sincronia.test.ts', 33, /editarFilho renomeia o login vinculado/],
     ]
     for (const [arquivo, linha, padrao] of esperado) {

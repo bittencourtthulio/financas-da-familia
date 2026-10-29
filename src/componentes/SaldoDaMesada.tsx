@@ -1,11 +1,12 @@
 import { formatarMoeda } from '@/lib/formato'
 import { situacaoDoSaldo } from '@/lib/mesada'
+import { Cofrinho } from '@/componentes/ilustracoes/Familia'
 
 /**
- * O saldo da mesada em destaque (PR-32). O número vem com sinal de menos
- * quando é negativo e sempre acompanhado do rótulo e da frase: a cor da borda
- * só reforça o que o texto já diz (PR-16). Os totais são dois inteiros somados
- * pelo servidor; a tela só formata.
+ * O saldo da mesada em destaque (PR-32), com o cofrinho ao lado. O número vem
+ * com sinal de menos quando é negativo e sempre acompanhado do rótulo e da
+ * frase: a cor da borda só reforça o que o texto já diz (PR-16). Os totais
+ * são dois inteiros somados pelo servidor; a tela só formata.
  */
 export function SaldoDaMesada({
   saldoCentavos,
@@ -25,6 +26,7 @@ export function SaldoDaMesada({
       </h2>
       <p className="valor-do-saldo">{formatarMoeda(saldoCentavos)}</p>
       <p className="frase-do-saldo">{saldo.frase}</p>
+      <Cofrinho />
       <dl className="totais-da-mesada">
         <div>
           <dt>Recebido</dt>

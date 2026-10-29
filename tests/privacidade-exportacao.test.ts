@@ -79,15 +79,15 @@ describe('o documento exportado', () => {
     const chaves = (o: object) => Object.keys(o).sort()
 
     expect(chaves(doc)).toEqual(
-      ['atividade', 'categorias', 'filhos', 'gerado_em', 'lancamentos', 'moeda', 'movimentos_de_mesada', 'sistema', 'usuarios', 'versao_do_formato'].sort(),
+      ['atividade', 'categorias', 'filhos', 'gerado_em', 'lancamentos', 'moeda', 'movimentos_de_mesada', 'recorrencias', 'sistema', 'usuarios', 'versao_do_formato'].sort(),
     )
-    expect(chaves(doc.usuarios[0])).toEqual(['ativo', 'criado_em', 'email', 'id', 'nome', 'papel'])
+    expect(chaves(doc.usuarios[0])).toEqual(['ativo', 'avatar', 'criado_em', 'email', 'id', 'nome', 'papel'])
     expect(chaves(doc.categorias[0])).toEqual(['criado_em', 'id', 'nome', 'tipo'])
     expect(chaves(doc.lancamentos[0])).toEqual(
-      ['atualizado_em', 'categoria_id', 'criado_em', 'data', 'descricao', 'id', 'tipo', 'valor_centavos'],
+      ['atualizado_em', 'categoria_id', 'criado_em', 'data', 'descricao', 'id', 'pago', 'pessoa_id', 'recorrencia_id', 'tipo', 'valor_centavos'],
     )
     expect(chaves(doc.filhos[0])).toEqual(
-      ['atualizado_em', 'criado_em', 'id', 'mesada_combinada_centavos', 'nascimento', 'nome', 'periodicidade', 'saldo_centavos', 'usuario_id'],
+      ['atualizado_em', 'avatar', 'criado_em', 'id', 'mesada_combinada_centavos', 'nascimento', 'nome', 'periodicidade', 'saldo_centavos', 'usuario_id'],
     )
     expect(chaves(doc.movimentos_de_mesada[0])).toEqual(
       ['atualizado_em', 'criado_em', 'data', 'descricao', 'filho_id', 'id', 'tipo', 'valor_centavos'],
@@ -163,7 +163,7 @@ describe('nunca exporta segredo nem dado de sessão', () => {
       expect(conteudo, campo).not.toContain(campo)
     }
     for (const usuario of doc.usuarios) {
-      expect(Object.keys(usuario).sort()).toEqual(['ativo', 'criado_em', 'email', 'id', 'nome', 'papel'])
+      expect(Object.keys(usuario).sort()).toEqual(['ativo', 'avatar', 'criado_em', 'email', 'id', 'nome', 'papel'])
     }
   })
 

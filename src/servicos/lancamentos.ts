@@ -2,12 +2,22 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { conflito, entradaInvalida, naoEncontrado } from '@/lib/erros'
 import { lerValorEmReais } from '@/lib/dinheiro'
-import { dataCivilValida, intervaloDoMes, mesAtualEmSaoPaulo, mesValido } from '@/lib/datas'
+import {
+  dataCivilValida,
+  dataDaRecorrencia,
+  intervaloDoMes,
+  mesAnterior,
+  mesAtualEmSaoPaulo,
+  mesDaData,
+  mesValido,
+} from '@/lib/datas'
 import {
   exigirAdultoOuResponsavel,
   type UsuarioAutenticado,
 } from '@/servicos/autenticacao'
 import { registrarAtividade } from '@/servicos/atividade'
+import { familiaDe } from '@/servicos/avatares'
+import { garantirRecorrencias } from '@/servicos/recorrencias'
 
 /**
  * Lançamentos da casa (FT-03): receitas e despesas com valor em centavos
@@ -99,6 +109,58 @@ export async function criarCategoria(
   })
 }
 
+/**
+ * A categoria com este nome e tipo, criada na hora se ainda não existir. É o
+ * que o campo de categoria do lançamento usa: escrever um nome novo cadastra.
+ * A comparação ignora maiúscula, como em `criarCategoria` (PR-27).
+ */
+export async function obterOuCriarCategoria(
+  autor: UsuarioAutenticado,
+  entrada: unknown,
+): Promise<CategoriaListada> {
+  exigirAdultoOuResponsavel(autor)
+  const dados = entradaDeCategoria.safeParse(entrada)
+  if (!dados.success) {
+    throw entradaInvalida(dados.error.issues[0]?.message ?? 'Categoria inválida.')
+  }
+  const { nome, tipo } = dados.data
+  const doTipo = await prisma.categoria.findMany({ where: { tipo } })
+  const existente = doTipo.find((c) => semCaixa(c.nome) === semCaixa(nome))
+  return existente ?? criarCategoria(autor, { nome, tipo })
+}
+
+/**
+ * Apaga uma categoria que nenhum lançamento usa. Com lançamentos, recusa e
+ * diz quantos: apagar levaria os lançamentos junto (o banco também restringe).
+ */
+export async function apagarCategoria(autor: UsuarioAutenticado, id: string): Promise<void> {
+  exigirAdultoOuResponsavel(autor)
+
+  await prisma.$transaction(async (tx) => {
+    const categoria = await tx.categoria.findUnique({ where: { id } })
+    if (!categoria) throw naoEncontrado('Categoria não encontrada.')
+    const emUso =
+      (await tx.lancamento.count({ where: { categoriaId: id } })) +
+      (await tx.recorrencia.count({ where: { categoriaId: id } }))
+    if (emUso > 0) {
+      throw conflito(
+        `A categoria "${categoria.nome}" tem ${emUso} ${emUso === 1 ? 'lançamento' : 'lançamentos'}. Mude a categoria deles antes de apagar.`,
+      )
+    }
+    await tx.categoria.delete({ where: { id } })
+    await registrarAtividade(
+      {
+        ator: autor,
+        acao: 'categoria.apagada',
+        entidade: 'categoria',
+        entidadeId: id,
+        detalhe: { alvoNome: categoria.nome, tipo: categoria.tipo },
+      },
+      tx,
+    )
+  })
+}
+
 const DESCRICAO_MAXIMA = 200
 
 // O valor chega como o usuário digitou, em reais, e sai em centavos inteiros
@@ -125,6 +187,27 @@ const entradaDeLancamento = z.object(
       .string({ message: 'Informe a data.' })
       .refine(dataCivilValida, 'Data inválida. Use um dia existente entre 2000 e 2100.'),
     categoriaId: z.string({ message: 'Escolha a categoria.' }).min(1, 'Escolha a categoria.'),
+    // Quem da família fez o gasto; vazio é "ninguém em especial".
+    pessoaId: z
+      .string()
+      .trim()
+      .nullish()
+      .transform((p) => (p ? p : null)),
+    // Pago ou recebido: "sim" ou "nao". Sem a informação, vale pago (como o que já existia).
+    pago: z
+      .string()
+      .nullish()
+      .transform((p) => p !== 'nao'),
+    // Marcado, o lançamento se repete todo mês no mesmo dia.
+    repete: z
+      .union([z.string(), z.boolean()])
+      .nullish()
+      .transform((r) => r === true || r === 'on' || r === 'sim'),
+    // Ao editar um lançamento recorrente: só este mês ou este e os próximos.
+    escopo: z
+      .string()
+      .nullish()
+      .transform((e) => (e === 'proximos' ? ('proximos' as const) : ('este' as const))),
     descricao: z
       .string()
       .trim()
@@ -144,6 +227,11 @@ export interface LancamentoListado {
   data: string
   descricao: string
   categoriaId: string
+  pessoaId: string | null
+  /** Pago (despesa) ou recebido (receita). */
+  pago: boolean
+  /** A recorrência a que este mês pertence, se houver. */
+  recorrenciaId: string | null
   categoria: { id: string; nome: string; tipo: string }
   criadoEm: Date
   atualizadoEm: Date
@@ -175,6 +263,45 @@ async function exigirCategoriaDoTipo(
   }
 }
 
+/** A pessoa, se houver, é alguém da família (adulto ou filho). */
+async function exigirPessoaDaFamilia(autor: UsuarioAutenticado, pessoaId: string | null): Promise<void> {
+  if (!pessoaId) return
+  const familia = await familiaDe(autor)
+  if (!familia.some((m) => m.id === pessoaId)) {
+    throw entradaInvalida('A pessoa escolhida não é da família.')
+  }
+}
+
+type Transacao = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
+/** O dia do mês de uma data civil "AAAA-MM-DD". */
+const diaDaData = (data: string) => Number(data.slice(8, 10))
+
+/**
+ * Cria a recorrência que tem este lançamento como primeiro mês e liga os dois.
+ * Os meses seguintes nascem depois, sob demanda (`garantirRecorrencias`).
+ */
+async function iniciarRecorrencia(
+  tx: Transacao,
+  lancamento: { id: string; tipo: string; valorCentavos: number; data: string; descricao: string; categoriaId: string; pessoaId: string | null },
+): Promise<string> {
+  const mes = mesDaData(lancamento.data)
+  const recorrencia = await tx.recorrencia.create({
+    data: {
+      tipo: lancamento.tipo,
+      valorCentavos: lancamento.valorCentavos,
+      diaDoMes: diaDaData(lancamento.data),
+      descricao: lancamento.descricao,
+      categoriaId: lancamento.categoriaId,
+      pessoaId: lancamento.pessoaId,
+      inicio: mes,
+      geradoAte: mes,
+    },
+  })
+  await tx.lancamento.update({ where: { id: lancamento.id }, data: { recorrenciaId: recorrencia.id } })
+  return recorrencia.id
+}
+
 export async function criarLancamento(
   autor: UsuarioAutenticado,
   entrada: unknown,
@@ -183,32 +310,39 @@ export async function criarLancamento(
 
   const dados = validarLancamento(entrada)
   await exigirCategoriaDoTipo(dados.categoriaId, dados.tipo)
+  await exigirPessoaDaFamilia(autor, dados.pessoaId)
 
   // O lançamento e o rastro nascem juntos (PR-10). O detalhe leva o tipo e a
   // categoria; o valor nunca vai para a trilha (PR-25).
-  return prisma.$transaction(async (tx) => {
-    const criado = await tx.lancamento.create({
+  const criado = await prisma.$transaction(async (tx) => {
+    const novo = await tx.lancamento.create({
       data: {
         tipo: dados.tipo,
         valorCentavos: dados.valor,
         data: dados.data,
         descricao: dados.descricao,
         categoriaId: dados.categoriaId,
+        pessoaId: dados.pessoaId,
+        pago: dados.pago,
       },
-      include: incluirCategoria,
     })
+    if (dados.repete) await iniciarRecorrencia(tx, novo)
     await registrarAtividade(
       {
         ator: autor,
         acao: 'lancamento.criado',
         entidade: 'lancamento',
-        entidadeId: criado.id,
-        detalhe: { tipo: criado.tipo, categoriaId: criado.categoriaId },
+        entidadeId: novo.id,
+        detalhe: { tipo: novo.tipo, categoriaId: novo.categoriaId, ...(dados.repete && { recorrente: true }) },
       },
       tx,
     )
-    return criado
+    return tx.lancamento.findUniqueOrThrow({ where: { id: novo.id }, include: incluirCategoria })
   })
+
+  // Uma recorrência que começa no passado já tem os meses até hoje.
+  if (dados.repete) await garantirRecorrencias(mesAtualEmSaoPaulo())
+  return criado
 }
 
 export async function obterLancamento(
@@ -235,13 +369,31 @@ export async function editarLancamento(
   const atual = await prisma.lancamento.findUnique({ where: { id } })
   if (!atual) throw naoEncontrado('Lançamento não encontrado.')
   await exigirCategoriaDoTipo(dados.categoriaId, dados.tipo)
+  await exigirPessoaDaFamilia(autor, dados.pessoaId)
+
+  // Cada mês de uma recorrência existe uma vez: não dá para empurrar este
+  // para um mês em que a recorrência já tem o seu.
+  if (atual.recorrenciaId && mesDaData(dados.data) !== mesDaData(atual.data)) {
+    const { de, ate } = intervaloDoMes(mesDaData(dados.data))
+    const jaTem = await prisma.lancamento.count({
+      where: { recorrenciaId: atual.recorrenciaId, id: { not: id }, data: { gte: de, lt: ate } },
+    })
+    if (jaTem > 0) throw conflito('Esse mês já tem este lançamento recorrente. Escolha outra data.')
+  }
+
+  // "Este e os próximos" só faz sentido num mês de recorrência.
+  const nosProximos = dados.escopo === 'proximos' && atual.recorrenciaId !== null
+  const viraRecorrente = dados.repete && atual.recorrenciaId === null
 
   const mudou =
     atual.tipo !== dados.tipo ||
     atual.valorCentavos !== dados.valor ||
     atual.data !== dados.data ||
     atual.descricao !== dados.descricao ||
-    atual.categoriaId !== dados.categoriaId
+    atual.categoriaId !== dados.categoriaId ||
+    atual.pessoaId !== dados.pessoaId ||
+    atual.pago !== dados.pago ||
+    viraRecorrente
 
   // Reenviar o que já está gravado não é mudança: não grava nada nem deixa
   // rastro (o formulário sempre reenvia todos os campos).
@@ -249,8 +401,10 @@ export async function editarLancamento(
     return prisma.lancamento.findUniqueOrThrow({ where: { id }, include: incluirCategoria })
   }
 
-  return prisma.$transaction(async (tx) => {
-    const atualizado = await tx.lancamento.update({
+  let atualizado
+  try {
+    atualizado = await prisma.$transaction(async (tx) => {
+    const depois = await tx.lancamento.update({
       where: { id },
       data: {
         tipo: dados.tipo,
@@ -258,7 +412,86 @@ export async function editarLancamento(
         data: dados.data,
         descricao: dados.descricao,
         categoriaId: dados.categoriaId,
+        pessoaId: dados.pessoaId,
+        pago: dados.pago,
       },
+    })
+    if (viraRecorrente) await iniciarRecorrencia(tx, depois)
+
+    // Os próximos meses recebem o que mudou, menos a situação (pago ou não é
+    // de cada mês) e a data exata: o dia novo vale, o mês de cada um fica.
+    if (nosProximos && atual.recorrenciaId) {
+      const dia = diaDaData(dados.data)
+      const seguintes = await tx.lancamento.findMany({
+        where: { recorrenciaId: atual.recorrenciaId, data: { gt: atual.data } },
+      })
+      for (const seguinte of seguintes) {
+        await tx.lancamento.update({
+          where: { id: seguinte.id },
+          data: {
+            tipo: dados.tipo,
+            valorCentavos: dados.valor,
+            descricao: dados.descricao,
+            categoriaId: dados.categoriaId,
+            pessoaId: dados.pessoaId,
+            data: dataDaRecorrencia(mesDaData(seguinte.data), dia),
+          },
+        })
+      }
+      await tx.recorrencia.update({
+        where: { id: atual.recorrenciaId },
+        data: {
+          tipo: dados.tipo,
+          valorCentavos: dados.valor,
+          descricao: dados.descricao,
+          categoriaId: dados.categoriaId,
+          pessoaId: dados.pessoaId,
+          diaDoMes: dia,
+        },
+      })
+    }
+
+    await registrarAtividade(
+      {
+        ator: autor,
+        acao: 'lancamento.alterado',
+        entidade: 'lancamento',
+        entidadeId: id,
+        detalhe: {
+          tipo: depois.tipo,
+          categoriaId: depois.categoriaId,
+          ...(nosProximos && { escopo: 'proximos' }),
+        },
+      },
+      tx,
+    )
+    return tx.lancamento.findUniqueOrThrow({ where: { id }, include: incluirCategoria })
+  })
+  } catch (erro) {
+    // Mover um mês da recorrência para um mês que já tem o seu.
+    if (typeof erro === 'object' && erro !== null && (erro as { code?: unknown }).code === 'P2002') {
+      throw conflito('Esse mês já tem este lançamento recorrente. Escolha outra data.')
+    }
+    throw erro
+  }
+
+  if (viraRecorrente) await garantirRecorrencias(mesAtualEmSaoPaulo())
+  return atualizado
+}
+
+/**
+ * Marca o lançamento como pago (ou recebido), ou volta para em aberto. Mexe só
+ * neste mês, mesmo que ele seja de uma recorrência.
+ */
+export async function alternarPago(autor: UsuarioAutenticado, id: string): Promise<LancamentoListado> {
+  exigirAdultoOuResponsavel(autor)
+
+  return prisma.$transaction(async (tx) => {
+    const atual = await tx.lancamento.findUnique({ where: { id } })
+    if (!atual) throw naoEncontrado('Lançamento não encontrado.')
+    const atualizado = await tx.lancamento.update({
+      where: { id },
+      data: { pago: !atual.pago },
       include: incluirCategoria,
     })
     await registrarAtividade(
@@ -267,7 +500,7 @@ export async function editarLancamento(
         acao: 'lancamento.alterado',
         entidade: 'lancamento',
         entidadeId: id,
-        detalhe: { tipo: atualizado.tipo, categoriaId: atualizado.categoriaId },
+        detalhe: { tipo: atual.tipo, categoriaId: atual.categoriaId, pago: atualizado.pago },
       },
       tx,
     )
@@ -277,11 +510,15 @@ export async function editarLancamento(
 
 /**
  * Apaga de verdade (PR-28): a linha some do banco. O rastro guarda quem
- * apagou, o id, o tipo e a categoria, nunca o valor (PR-25).
+ * apagou, o id, o tipo e a categoria, nunca o valor (PR-25). Num mês de
+ * recorrência, `proximos` apaga este e todos os seguintes e encerra a
+ * recorrência no mês anterior (sem meses antes, ela some); o padrão apaga só
+ * este mês, e o mês apagado não volta.
  */
 export async function apagarLancamento(
   autor: UsuarioAutenticado,
   id: string,
+  escopo: 'este' | 'proximos' = 'este',
 ): Promise<void> {
   exigirAdultoOuResponsavel(autor)
 
@@ -289,14 +526,36 @@ export async function apagarLancamento(
     const existente = await tx.lancamento.findUnique({ where: { id } })
     if (!existente) throw naoEncontrado('Lançamento não encontrado.')
 
-    await tx.lancamento.delete({ where: { id } })
+    const recorrenciaId = existente.recorrenciaId
+    let apagados = 1
+    if (escopo === 'proximos' && recorrenciaId) {
+      apagados = (
+        await tx.lancamento.deleteMany({ where: { recorrenciaId, data: { gte: existente.data } } })
+      ).count
+      const restantes = await tx.lancamento.count({ where: { recorrenciaId } })
+      if (restantes === 0) {
+        await tx.recorrencia.delete({ where: { id: recorrenciaId } })
+      } else {
+        await tx.recorrencia.update({
+          where: { id: recorrenciaId },
+          data: { fim: mesAnterior(mesDaData(existente.data)) },
+        })
+      }
+    } else {
+      await tx.lancamento.delete({ where: { id } })
+    }
+
     await registrarAtividade(
       {
         ator: autor,
         acao: 'lancamento.apagado',
         entidade: 'lancamento',
         entidadeId: id,
-        detalhe: { tipo: existente.tipo, categoriaId: existente.categoriaId },
+        detalhe: {
+          tipo: existente.tipo,
+          categoriaId: existente.categoriaId,
+          ...(apagados > 1 && { escopo: 'proximos', quantidade: apagados }),
+        },
       },
       tx,
     )
@@ -334,6 +593,7 @@ export async function listarLancamentos(
   const mes = mesValido(opcoes.mes) ? opcoes.mes : mesAtualEmSaoPaulo(agora)
   const tipo = ehTipo(opcoes.tipo) ? opcoes.tipo : null
   const { de, ate } = intervaloDoMes(mes)
+  await garantirRecorrencias(mes, agora)
   const where = { data: { gte: de, lt: ate }, ...(tipo && { tipo }) }
 
   const total = await prisma.lancamento.count({ where })

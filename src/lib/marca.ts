@@ -1,8 +1,8 @@
 // A marca do sistema: o nome e a descrição moram aqui e em nenhum outro
-// lugar, para que o título da aba, a descrição da página, a barra lateral e
-// o login nunca divirjam.
+// lugar, para que o título da aba, a descrição da página, o cabeçalho e o
+// login nunca divirjam. "Bufi" vem de bufunfa: a grana da casa, em família.
 
-export const NOME_DO_SISTEMA = 'Finanças da Família'
+export const NOME_DO_SISTEMA = 'Bufi'
 
 export const DESCRICAO_DO_SISTEMA =
-  'Controle financeiro pessoal da casa e da mesada dos filhos, para a família.'
+  'Bufi: a grana da casa e a mesada dos filhos, num lugar só, para a família inteira.'

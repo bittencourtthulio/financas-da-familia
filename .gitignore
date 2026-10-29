@@ -31,3 +31,6 @@ docs/eventos/
 logs/
 # backups do banco (PR-13, FT-08): levam hash de senha e todo o dinheiro da casa
 backups/
+
+# cópias antigas do banco local (levam dados e hash de senha)
+*.db.*

@@ -11,6 +11,10 @@ export function lerFormularioDeLancamento(form: FormData) {
     valor: campo(form, 'valor'),
     data: campo(form, 'data'),
     categoriaId: campo(form, 'categoriaId'),
+    pessoaId: campo(form, 'pessoaId'),
+    pago: campo(form, 'pago'),
+    repete: campo(form, 'repete'),
+    escopo: campo(form, 'escopo'),
     descricao: campo(form, 'descricao'),
   }
 }

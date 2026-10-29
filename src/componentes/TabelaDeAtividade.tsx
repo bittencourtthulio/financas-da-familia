@@ -31,7 +31,7 @@ export function TabelaDeAtividade({ itens }: { itens: RegistroParaExibir[] }) {
             const d = descreverAtividade(item)
             return (
               <tr key={i}>
-                <td style={{ whiteSpace: 'nowrap' }}>{d.quando}</td>
+                <td className="sem-quebra">{d.quando}</td>
                 <td>{d.quem}</td>
                 <td>{d.acao}</td>
                 <td>{d.detalhe}</td>

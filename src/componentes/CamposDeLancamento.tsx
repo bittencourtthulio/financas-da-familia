@@ -1,14 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { CampoDeTipo } from '@/componentes/CampoDeTipo'
+import { CampoDeCategoria, type CategoriaDoCampo } from '@/componentes/CampoDeCategoria'
 
-export interface CategoriaDoCampo {
-  id: string
-  nome: string
-  tipo: string
-}
+export type { CategoriaDoCampo }
 
 export interface LancamentoInicial {
   id: string
@@ -17,7 +13,17 @@ export interface LancamentoInicial {
   valor: string
   data: string
   categoriaId: string
+  pessoaId?: string | null
+  /** Pago ou recebido. */
+  pago?: boolean
+  /** Se é um mês de lançamento recorrente. */
+  recorrente?: boolean
   descricao: string
+}
+
+export interface PessoaDoCampo {
+  id: string
+  nome: string
 }
 
 /** Só as categorias do tipo: a categoria pertence a um tipo (PR-27). */
@@ -27,21 +33,25 @@ export function categoriasDoTipo(categorias: CategoriaDoCampo[], tipo: string) {
 
 /**
  * Os campos do lançamento, para o formulário de novo e o de edição. O tipo
- * escolhido filtra as categorias oferecidas. O valor é um campo de texto, não
+ * escolhido filtra as categorias oferecidas; a categoria é um campo com busca
+ * que também cadastra e apaga (CampoDeCategoria). O valor é um campo de texto, não
  * numérico: o formato brasileiro usa vírgula e o servidor é quem lê (PR-02).
  */
 export function CamposDeLancamento({
   categorias,
+  pessoas = [],
+  pessoaPadrao,
   hoje,
   inicial,
 }: {
   categorias: CategoriaDoCampo[]
+  pessoas?: PessoaDoCampo[]
+  /** Quem vem marcado num lançamento novo (quem está lançando). */
+  pessoaPadrao?: string
   hoje: string
   inicial?: LancamentoInicial
 }) {
   const [tipo, setTipo] = useState(inicial?.tipo ?? 'despesa')
-  const doTipo = categoriasDoTipo(categorias, tipo)
-  const rotuloDoTipo = tipo === 'receita' ? 'receita' : 'despesa'
 
   return (
     <>
@@ -67,26 +77,53 @@ export function CamposDeLancamento({
         <input type="date" name="data" defaultValue={inicial?.data ?? hoje} required />
       </label>
 
-      {doTipo.length === 0 ? (
-        <p className="aviso" role="status">
-          Ainda não há categoria de {rotuloDoTipo}. <Link href="/lancamentos/categorias">Crie uma em Categorias</Link>{' '}
-          e volte para lançar.
-        </p>
+      <CampoDeCategoria categorias={categorias} tipo={tipo} inicialId={inicial?.tipo === tipo ? inicial.categoriaId : undefined} />
+
+      <label className="campo">
+        <span>{tipo === 'receita' ? 'Quem recebeu' : 'Quem gastou'} (opcional)</span>
+        <select name="pessoaId" defaultValue={inicial ? (inicial.pessoaId ?? '') : (pessoaPadrao ?? '')}>
+          <option value="">Ninguém em especial</option>
+          {pessoas.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <fieldset className="campo-de-opcao">
+        <legend>Situação</legend>
+        <div className="opcoes">
+          <label>
+            <input type="radio" name="pago" value="sim" defaultChecked={inicial?.pago ?? true} />
+            {tipo === 'receita' ? 'Recebido' : 'Pago'}
+          </label>
+          <label>
+            <input type="radio" name="pago" value="nao" defaultChecked={inicial ? inicial.pago === false : false} />
+            Em aberto
+          </label>
+        </div>
+      </fieldset>
+
+      {inicial?.recorrente ? (
+        <fieldset className="campo-de-opcao">
+          <legend>Este lançamento se repete todo mês. Aplicar a</legend>
+          <div className="opcoes">
+            <label>
+              <input type="radio" name="escopo" value="este" defaultChecked />
+              Só este mês
+            </label>
+            <label>
+              <input type="radio" name="escopo" value="proximos" />
+              Este e os próximos meses
+            </label>
+          </div>
+          <p className="nota-do-campo">Pago ou em aberto vale só para este mês.</p>
+        </fieldset>
       ) : (
-        <label className="campo">
-          <span>Categoria</span>
-          <select
-            key={tipo}
-            name="categoriaId"
-            defaultValue={inicial?.tipo === tipo ? inicial.categoriaId : doTipo[0]?.id}
-            required
-          >
-            {doTipo.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
+        <label className="campo campo-de-marca">
+          <input type="checkbox" name="repete" />
+          <span>Repete todo mês, no mesmo dia</span>
         </label>
       )}
 

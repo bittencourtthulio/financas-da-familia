@@ -9,8 +9,8 @@ import { NOME_DO_SISTEMA, DESCRICAO_DO_SISTEMA } from '@/lib/marca'
 import { listarArquivos } from './ajuda-estatica'
 
 describe('marca do sistema', () => {
-  it('o nome é Finanças da Família', () => {
-    expect(NOME_DO_SISTEMA).toBe('Finanças da Família')
+  it('o nome é Bufi', () => {
+    expect(NOME_DO_SISTEMA).toBe('Bufi')
   })
 
   it('a descrição está em português, fala da família e não cita o gerador', () => {

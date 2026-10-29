@@ -33,3 +33,12 @@ export function parteEmPercentual(parte: number, total: number): number {
   const cem = parte * 100
   return (cem - (cem % total)) / total
 }
+
+/** "/financas" com mês e pessoa na consulta; sem nenhum dos dois, o endereço limpo. */
+export function enderecoDasFinancas({ mes, pessoa }: { mes?: string | null; pessoa?: string | null }): string {
+  const consulta = new URLSearchParams()
+  if (mes) consulta.set('mes', mes)
+  if (pessoa) consulta.set('pessoa', pessoa)
+  const texto = consulta.toString()
+  return texto ? `/financas?${texto}` : '/financas'
+}

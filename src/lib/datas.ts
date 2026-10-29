@@ -111,3 +111,17 @@ export function rotuloDoMes(mes: string): string {
   const { ano, mes: m } = partesDoMes(mes)
   return `${MESES[m - 1]} de ${ano}`
 }
+
+/** O dia da recorrência dentro do mês: em mês mais curto vale o último dia (dia 31 em fevereiro → 28 ou 29). */
+export function dataDaRecorrencia(mes: string, dia: number): string {
+  const { ano, mes: m } = partesDoMes(mes)
+  const ultimo = new Date(Date.UTC(ano, m, 0)).getUTCDate()
+  return `${mes}-${doisDigitos(Math.min(Math.max(1, dia), ultimo))}`
+}
+
+/** Soma `n` meses a um "AAAA-MM". */
+export function somarMeses(mes: string, n: number): string {
+  let resultado = mes
+  for (let i = 0; i < n; i += 1) resultado = mesSeguinte(resultado)
+  return resultado
+}

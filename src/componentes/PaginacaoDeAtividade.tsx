@@ -11,10 +11,7 @@ export function PaginacaoDeAtividade({
   if (paginas <= 1) return null
 
   return (
-    <nav
-      aria-label="Páginas da atividade"
-      style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 16 }}
-    >
+    <nav aria-label="Páginas da atividade" className="paginacao">
       {pagina > 1 && <Link href={`/atividade?pagina=${pagina - 1}`}>Anterior</Link>}
       <span>
         Página {pagina} de {paginas}

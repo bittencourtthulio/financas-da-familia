@@ -23,6 +23,7 @@ export const TABELAS_ESPERADAS = [
   'atividades',
   'categorias',
   'lancamentos',
+  'recorrencias',
   'filhos',
   'movimentos_de_mesada',
 ] as const

@@ -40,6 +40,7 @@ export async function limparBanco(): Promise<void> {
   await prisma.movimentoDeMesada.deleteMany()
   await prisma.filho.deleteMany()
   await prisma.lancamento.deleteMany()
+  await prisma.recorrencia.deleteMany()
   await prisma.categoria.deleteMany()
   await prisma.atividade.deleteMany()
   await prisma.usuario.deleteMany()

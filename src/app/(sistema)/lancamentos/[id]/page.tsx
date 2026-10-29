@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { exigirUsuarioDeLancamentos } from '@/app/sessao-servidor'
 import { listarCategorias, obterLancamento } from '@/servicos/lancamentos'
+import { pessoasDaFamilia } from '@/servicos/avatares'
 import { salvarLancamento } from '@/app/acoes'
 import { Formulario } from '@/componentes/Formulario'
 import { CamposDeLancamento } from '@/componentes/CamposDeLancamento'
@@ -28,9 +29,10 @@ export default async function EditarLancamento({
     throw erro
   }
   const categorias = await listarCategorias(usuario)
+  const pessoas = await pessoasDaFamilia(usuario)
 
   return (
-    <>
+    <div className="tela-de-formulario">
       <h1 className="titulo-da-tela">Editar lançamento</h1>
       <p className="subtitulo-da-tela">
         Corrija os dados e salve.{' '}
@@ -40,6 +42,7 @@ export default async function EditarLancamento({
       <Formulario acao={salvarLancamento} rotulo="Salvar alterações">
         <CamposDeLancamento
           categorias={categorias}
+          pessoas={pessoas}
           hoje={hojeEmSaoPaulo()}
           inicial={{
             id: lancamento.id,
@@ -47,12 +50,15 @@ export default async function EditarLancamento({
             valor: centavosParaCampo(lancamento.valorCentavos),
             data: lancamento.data,
             categoriaId: lancamento.categoriaId,
+            pessoaId: lancamento.pessoaId,
+            pago: lancamento.pago,
+            recorrente: lancamento.recorrenciaId !== null,
             descricao: lancamento.descricao,
           }}
         />
       </Formulario>
 
-      <ApagarLancamento id={lancamento.id} />
-    </>
+      <ApagarLancamento id={lancamento.id} recorrente={lancamento.recorrenciaId !== null} />
+    </div>
   )
 }

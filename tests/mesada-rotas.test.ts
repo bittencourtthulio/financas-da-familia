@@ -48,7 +48,7 @@ const ANA = 'ana.mesadaf@teste.local'
 const BIA = 'bia.mesadaf@teste.local'
 const CAIO = 'caio.mesadaf@teste.local'
 
-const linhasDoExtrato = (html: string) => (html.match(/<td style="white-space:nowrap">/g) ?? []).length
+const linhasDoExtrato = (html: string) => (html.match(/<td class="sem-quebra">/g) ?? []).length
 const principal = (html: string) => /<main class="conteudo">[\s\S]*?<\/main>/.exec(html)?.[0] ?? ''
 
 beforeAll(async () => {

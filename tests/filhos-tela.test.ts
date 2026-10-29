@@ -125,11 +125,11 @@ describe('LoginDoFilho', () => {
 })
 
 describe('navegação do responsável', () => {
-  it('o responsável vê Filhos e o adulto não', () => {
+  it('o responsável vê a Família (onde estão os filhos) e o adulto não', () => {
     const responsavel = renderizar(Navegacao, { ehAdmin: true, podeLancar: true })
     const adulto = renderizar(Navegacao, { ehAdmin: false, podeLancar: true })
-    expect(responsavel).toMatch(/<a[^>]*href="\/filhos"[^>]*>Filhos<\/a>/)
-    expect(adulto).not.toContain('/filhos')
+    expect(responsavel).toMatch(/<a[^>]*href="\/familia"[^>]*>Família<\/a>/)
+    expect(adulto).not.toContain('/familia')
   })
 })
 

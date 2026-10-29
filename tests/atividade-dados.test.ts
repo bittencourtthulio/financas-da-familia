@@ -57,6 +57,7 @@ describe('tabela de atividades', () => {
 describe('catálogo de ações', () => {
   it('traz as ações de usuário e as das features seguintes (FT-03, FT-05, FT-06, FT-07), com rótulo em português', () => {
     expect(Object.keys(ACOES).sort()).toEqual([
+      'categoria.apagada',
       'categoria.criada',
       'familia.exportada',
       'filho.alterado',
@@ -73,6 +74,7 @@ describe('catálogo de ações', () => {
       'usuario.criado',
       'usuario.desativado',
       'usuario.papel_alterado',
+      'usuario.senha_redefinida',
     ])
     for (const rotulo of Object.values(ACOES)) expect(rotulo.length).toBeGreaterThan(3)
     expect(rotuloDaAcao('usuario.criado')).toBe('Criou o usuário')

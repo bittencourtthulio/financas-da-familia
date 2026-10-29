@@ -40,12 +40,12 @@ describe('tabela de filhos', () => {
     expect(esquema).not.toMatch(/\b(Float|Decimal)\b/)
   })
 
-  it('PR-09: a tabela não tem CPF, RG, telefone, endereço nem foto', async () => {
+  it('PR-09: a tabela não tem CPF, RG, telefone, endereço nem foto (o avatar é um desenho escolhido, não uma foto)', async () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ name: string }>>(
       `SELECT name FROM pragma_table_info('filhos')`,
     )
     expect(colunas.map((c) => c.name).sort()).toEqual(
-      ['atualizadoEm', 'criadoEm', 'id', 'mesadaCentavos', 'nascimento', 'nome', 'periodicidade', 'usuarioId'].sort(),
+      ['atualizadoEm', 'avatar', 'criadoEm', 'id', 'mesadaCentavos', 'nascimento', 'nome', 'periodicidade', 'usuarioId'].sort(),
     )
   })
 

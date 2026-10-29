@@ -136,7 +136,11 @@ describe('quem não é o responsável não grava nada por nenhuma ação sensív
     ['registrarLancamento', acoes.registrarLancamento, { tipo: 'despesa', valor: '1,00', data: '2026-10-27', categoriaId: ID }],
     ['salvarLancamento', acoes.salvarLancamento, { id: ID, tipo: 'despesa', valor: '1,00', data: '2026-10-27', categoriaId: ID }],
     ['excluirLancamento', acoes.excluirLancamento, { id: ID }],
-    ['registrarCategoria', acoes.registrarCategoria, { nome: 'Nova', tipo: 'despesa' }],
+    ['alternarPagoDoLancamento', acoes.alternarPagoDoLancamento, { id: ID }],
+    ['criarCategoriaDoCampo', acoes.criarCategoriaDoCampo, {}],
+    ['apagarCategoriaDoCampo', acoes.apagarCategoriaDoCampo, {}],
+    ['redefinirSenhaDeUsuario', acoes.redefinirSenhaDeUsuario, { id: ID, senha: 'senha-nova-123', confirmacao: 'senha-nova-123' }],
+    ['redefinirSenhaDeFilho', acoes.redefinirSenhaDeFilho, { id: ID, senha: 'senha-nova-123', confirmacao: 'senha-nova-123' }],
   ]
   const LIVRES = ['autenticar', 'sair', 'salvarPerfil', 'salvarSenha']
 
@@ -168,7 +172,7 @@ describe('quem não é o responsável não grava nada por nenhuma ação sensív
   ]
 
   describe.each(quem)('%s', (_nome, preparar, destino) => {
-    it.each(sensiveis.filter(([n]) => ['criarUsuario', 'editarUsuario', 'desativarUsuario', 'registrarFilho', 'salvarFilho', 'criarLoginDeFilho', 'desativarLoginDeFilho', 'registrarMovimentoDeMesada', 'salvarMovimentoDeMesada', 'excluirMovimentoDeMesada', 'excluirContaDoFilho'].includes(n)))(
+    it.each(sensiveis.filter(([n]) => ['criarUsuario', 'editarUsuario', 'desativarUsuario', 'registrarFilho', 'salvarFilho', 'criarLoginDeFilho', 'desativarLoginDeFilho', 'registrarMovimentoDeMesada', 'salvarMovimentoDeMesada', 'excluirMovimentoDeMesada', 'excluirContaDoFilho', 'redefinirSenhaDeUsuario', 'redefinirSenhaDeFilho'].includes(n)))(
       '%s é barrada e não grava',
       async (_n, acao, campos) => {
         await preparar()
@@ -194,8 +198,9 @@ describe('quem não é o responsável não grava nada por nenhuma ação sensív
 
     const adulto = await criarUsuario({ papel: 'usuario', senha: SENHA_PADRAO })
     await entrarComo(adulto)
-    const r = await executar(acoes.registrarCategoria, formulario({ nome: 'Nova', tipo: 'despesa' }))
-    expect(r.estado?.sucesso).toBe('Categoria criada.')
+    const criada = await acoes.criarCategoriaDoCampo('Nova', 'despesa')
+    expect(criada.categoria).toMatchObject({ nome: 'Nova', tipo: 'despesa' })
+    expect(await acoes.apagarCategoriaDoCampo(criada.categoria!.id)).toEqual({})
   })
 
   it('o filho ainda troca a própria senha e edita o próprio perfil (P-9, E-3 e E-4)', async () => {

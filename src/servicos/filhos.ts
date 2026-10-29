@@ -6,6 +6,7 @@ import { lerValorEmReais } from '@/lib/dinheiro'
 import { dataCivilValida, hojeEmSaoPaulo } from '@/lib/datas'
 import { exigirAdmin, exigirFilho, type UsuarioAutenticado } from '@/servicos/autenticacao'
 import { registrarAtividade } from '@/servicos/atividade'
+import { redefinirSenha } from '@/servicos/usuarios'
 
 /**
  * Filhos da família (FT-05). O responsável (`admin`) cadastra o filho com nome,
@@ -330,4 +331,17 @@ export async function minhaMesada(autor: UsuarioAutenticado): Promise<MesadaDoFi
   })
   if (!filho) throw naoEncontrado('Mesada não encontrada.')
   return filho
+}
+
+/** O responsável define uma senha nova para o login do filho. */
+export async function redefinirSenhaDoFilho(
+  autor: UsuarioAutenticado,
+  id: string,
+  entrada: unknown,
+): Promise<void> {
+  exigirAdmin(autor)
+  const filho = await prisma.filho.findUnique({ where: { id } })
+  if (!filho) throw naoEncontrado('Filho não encontrado.')
+  if (!filho.usuarioId) throw naoEncontrado('Este filho não tem login.')
+  await redefinirSenha(autor, filho.usuarioId, entrada)
 }

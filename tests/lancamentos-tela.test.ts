@@ -99,7 +99,10 @@ describe('TabelaDeLancamentos', () => {
     const html = renderizar(TabelaDeLancamentos, {
       itens: [{ ...itens[0]!, descricao: '<script>alert(1)</script>' }],
     })
-    expect(html).not.toContain('<script>')
+    // O React acrescenta o próprio <script> de reenvio quando há formulário com ação;
+    // o que importa é que o texto digitado saiu escapado.
+    expect(html).not.toContain('<script>alert(1)')
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;')
   })
 })
 
@@ -153,10 +156,11 @@ describe('PaginacaoDeLancamentos', () => {
 })
 
 describe('menu', () => {
-  it('quem lança vê Lançamentos e Categorias; Atividade segue só do responsável', () => {
+  it('quem lança vê Lançamentos e Nossas Finanças (sem tela de Categorias); Atividade segue só do responsável', () => {
     const adulto = renderizar(Navegacao, { ehAdmin: false, podeLancar: true })
     expect(adulto).toMatch(/<a[^>]*href="\/lancamentos"[^>]*>Lançamentos<\/a>/)
-    expect(adulto).toMatch(/<a[^>]*href="\/lancamentos\/categorias"[^>]*>Categorias<\/a>/)
+    expect(adulto).toMatch(/<a[^>]*href="\/financas"[^>]*>Nossas Finanças<\/a>/)
+    expect(adulto).not.toContain('Categorias')
     expect(adulto).not.toContain('Atividade')
     const responsavel = renderizar(Navegacao, { ehAdmin: true, podeLancar: true })
     expect(responsavel).toContain('>Atividade<')
@@ -168,12 +172,12 @@ describe('menu', () => {
     expect(renderizar(Navegacao, { ehAdmin: false })).not.toContain('/lancamentos')
   })
 
-  it('Lançamentos vem logo abaixo de Painel, antes de Atividade; Categorias fica aninhado, fora de Configurações', () => {
+  it('Lançamentos vem logo abaixo de Painel, depois Nossas Finanças, antes de Atividade e fora de Configurações', () => {
     const html = renderizar(Navegacao, { ehAdmin: true, podeLancar: true })
     const posicao = (t: string) => html.indexOf(t)
     expect(posicao('>Painel<')).toBeLessThan(posicao('>Lançamentos<'))
-    expect(posicao('>Lançamentos<')).toBeLessThan(posicao('>Categorias<'))
-    expect(posicao('>Categorias<')).toBeLessThan(posicao('>Atividade<'))
+    expect(posicao('>Lançamentos<')).toBeLessThan(posicao('>Nossas Finanças<'))
+    expect(posicao('>Nossas Finanças<')).toBeLessThan(posicao('>Atividade<'))
     expect(posicao('>Atividade<')).toBeLessThan(posicao('>Configurações<'))
   })
 

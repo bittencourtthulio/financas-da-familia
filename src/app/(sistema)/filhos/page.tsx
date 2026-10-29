@@ -1,31 +1,6 @@
-import Link from 'next/link'
-import { exigirUsuarioAdmin } from '@/app/sessao-servidor'
-import { listarFilhos } from '@/servicos/filhos'
-import { saldosDosFilhos } from '@/servicos/mesada'
-import { ListaDeFilhos } from '@/componentes/ListaDeFilhos'
+import { redirect } from 'next/navigation'
 
-/**
- * Os filhos da família (FT-05). Só o responsável chega aqui: a guarda de
- * página e o serviço verificam o papel no servidor. Carregando e erro vêm do
- * `loading.tsx` e do `error.tsx` do grupo (sistema).
- */
-export default async function Filhos() {
-  const admin = await exigirUsuarioAdmin()
-  const filhos = await listarFilhos(admin)
-  const saldos = await saldosDosFilhos(admin)
-
-  return (
-    <>
-      <div className="cabecalho-da-tela">
-        <div>
-          <h1 className="titulo-da-tela">Filhos</h1>
-          <p className="subtitulo-da-tela">Quem recebe mesada na família e quem tem login para consultá-la.</p>
-        </div>
-        <Link href="/filhos/novo" className="botao primario">
-          Cadastrar filho
-        </Link>
-      </div>
-      <ListaDeFilhos filhos={filhos} saldos={saldos} />
-    </>
-  )
+/** Os filhos agora vivem na área Família. */
+export default function Filhos() {
+  redirect('/familia')
 }

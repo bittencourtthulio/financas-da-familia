@@ -346,6 +346,7 @@ describe('resumoDoMes: mês sem lançamento', () => {
       saldoCentavos: 0,
       quantidadeDeLancamentos: 0,
       despesasPorCategoria: [],
+      despesasPorPessoa: [],
     })
   })
 

@@ -11,7 +11,7 @@ export default async function TrocarSenha() {
   await exigirUsuario()
 
   return (
-    <>
+    <div className="tela-de-formulario">
       <h1 className="titulo-da-tela">Trocar senha</h1>
       <p className="subtitulo-da-tela">
         Informe a senha atual para confirmar. As outras sessões serão encerradas.
@@ -23,9 +23,9 @@ export default async function TrocarSenha() {
         <Campo nome="confirmacao" rotulo="Confirme a nova senha" tipo="password" />
       </Formulario>
 
-      <p style={{ marginTop: 24 }}>
+      <p className="nota-do-campo">
         <Link href="/perfil">Voltar ao perfil</Link>
       </p>
-    </>
+    </div>
   )
 }

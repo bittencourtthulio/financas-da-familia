@@ -123,7 +123,7 @@ async function cookieDe(email: string): Promise<string> {
 
 describe('sem sessão', () => {
   it.each([
-  '/',
+  // '/' sem sessão mostra a apresentação pública: ver 'a apresentação na raiz', no fim.
   '/perfil',
   '/perfil/senha',
   '/configuracoes/usuarios',
@@ -157,7 +157,7 @@ describe('sem sessão', () => {
 
   it('a tela de login diz o nome do sistema e descreve a página em português', async () => {
     const html = await (await pedir('/entrar')).text()
-    expect(html).toContain('Finanças da Família')
+    expect(html).toContain('Bufi')
     expect(html).toMatch(/<meta name="description" content="[^"]*família[^"]*"/)
     expect(html).not.toMatch(/buildx|Gerado/i)
   })
@@ -189,7 +189,7 @@ describe('com sessão de usuário comum', () => {
 
   it('a barra lateral traz o nome do sistema', async () => {
     const html = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
-    expect(html).toMatch(/class="marca"[^>]*>Finanças da Família</)
+    expect(html).toMatch(/class="marca"[^>]*>Bufi</)
   })
 
   it('o perfil abre', async () => {
@@ -581,5 +581,83 @@ describe('rota pública de saúde (FT-08)', () => {
   it('outro método na rota de saúde não é aceito', async () => {
     const r = await fetch(`${BASE}/api/saude`, { method: 'POST' })
     expect(r.status).toBe(405)
+  })
+})
+
+describe('a apresentação na raiz (visual família)', () => {
+  it('sem sessão, / responde 200 com a apresentação pública, sem redirecionar e sem dado', async () => {
+    const r = await pedir('/')
+    const html = await r.text()
+    expect(r.status).toBe(200)
+    expect(r.headers.get('location')).toBeNull()
+    expect(html).toContain('Bufi')
+    expect(html).toContain('em família')
+    expect(html).toMatch(/<a[^>]*href="\/entrar"/)
+    expect(html).not.toContain('Painel da família')
+    expect(html).not.toContain('Marcador de')
+    expect(html).not.toContain('class="conteudo"')
+  })
+
+  it('/inicio também abre sem sessão e a tela de login aponta para ela', async () => {
+    expect((await pedir('/inicio')).status).toBe(200)
+    const login = await (await pedir('/entrar')).text()
+    expect(login).toMatch(/<a[^>]*href="\/inicio"/)
+  })
+
+  it('com sessão, / continua sendo o painel, não a apresentação', async () => {
+    const html = await (await pedir('/', await cookieDe('comum.rota@teste.local'))).text()
+    expect(html).toContain('Painel da família')
+    expect(html).not.toContain('Entrar no sistema')
+  })
+
+  it('com sessão, /inicio manda para o painel', async () => {
+    const r = await pedir('/inicio', await cookieDe('comum.rota@teste.local'))
+    expect(r.status).toBe(307)
+    expect(r.headers.get('location')).toMatch(/\/$/)
+  })
+
+  it('cookie presente mas inválido não mostra a apresentação: cai no login', async () => {
+    const r = await pedir('/', `${COOKIE_SESSAO}=lixo`)
+    expect(r.status).toBe(307)
+    expect(r.headers.get('location')).toContain('/entrar')
+  })
+})
+
+describe('a área Família (FT-10)', () => {
+  it('o responsável abre a família com todo mundo desenhado e os cartões; o adulto é negado sem dado no corpo', async () => {
+    const r = await pedir('/familia', await cookieDe('admin.rota@teste.local'))
+    const html = await r.text()
+    expect(r.status).toBe(200)
+    expect(html).toContain('Nossa família')
+    expect(html).toContain('Admin de Rota')
+    expect(html).toContain('Comum de Rota')
+    expect(html).toMatch(/class="personagem"/)
+    expect(html).toMatch(/<a[^>]*href="\/familia"[^>]*>Família<\/a>/)
+
+    const negado = await pedir('/familia', await cookieDe('comum.rota@teste.local'))
+    const corpo = await negado.text()
+    const redirecionou = negado.status === 307 || /<meta[^>]*http-equiv="refresh"[^>]*content="[^"]*url=\/"/.test(corpo)
+    expect(redirecionou).toBe(true)
+    expect(corpo).not.toContain('Nossa família')
+    expect(corpo).not.toContain('admin.rota@teste.local')
+  })
+
+  it('a página do adulto traz dados, acesso e o editor de avatar; o perfil traz o editor para qualquer um', async () => {
+    const admin = await prisma.usuario.findUniqueOrThrow({ where: { email: 'comum.rota@teste.local' } })
+    const html = await (await pedir(`/familia/adultos/${admin.id}`, await cookieDe('admin.rota@teste.local'))).text()
+    expect(html).toContain('comum.rota@teste.local')
+    expect(html).toMatch(/<select[^>]*name="papel"/)
+    expect(html).toMatch(/<input[^>]*name="avatarFigura"/)
+
+    const perfil = await (await pedir('/perfil', await cookieDe('filho.rota@teste.local'))).text()
+    expect(perfil).toContain('Meu avatar')
+    expect(perfil).toMatch(/value="menino"/)
+    expect(perfil).not.toMatch(/value="pai"/)
+  })
+
+  it('sem sessão, a família manda para o login', async () => {
+    const r = await pedir('/familia')
+    expect(r.status).toBe(307)
+    expect(r.headers.get('location')).toContain('/entrar')
   })
 })

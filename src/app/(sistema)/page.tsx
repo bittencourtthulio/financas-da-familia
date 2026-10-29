@@ -3,16 +3,15 @@ import { exigirUsuario } from '@/app/sessao-servidor'
 import { mesAtualEmSaoPaulo } from '@/lib/datas'
 import { papelPodeLancar } from '@/servicos/autenticacao'
 import { resumoDoMes } from '@/servicos/resumo'
+import { membrosDoPainel } from '@/servicos/avatares'
 import { ResumoDoMes } from '@/componentes/ResumoDoMes'
 import { SeletorDeMes } from '@/componentes/SeletorDeMes'
+import { FamiliaDesenhada } from '@/componentes/ilustracoes/Familia'
 
 /**
- * O painel da família — a tela inicial (P-9, E-1). Título e subtítulo valem
- * para todo papel. O resumo do mês (FT-04) é só do responsável e do adulto:
- * quem tem outro papel, como o filho de amanhã, não dispara a consulta e não
- * recebe dado financeiro; `resumoDoMes` verifica o papel de novo. O mês vem de
- * `?mes=AAAA-MM`, validado no servidor; inválido vale o mês corrente. Carregando
- * e erro vêm do `loading.tsx` e do `error.tsx` do grupo (sistema).
+ * O painel da família — a tela inicial (P-9, E-1). A família desenhada é a
+ * real (FT-10): o filho vê só a si mesmo e o cachorro. O resumo do mês (FT-04)
+ * é só do responsável e do adulto; `resumoDoMes` verifica o papel de novo.
  */
 export default async function Painel({
   searchParams,
@@ -21,16 +20,17 @@ export default async function Painel({
 }) {
   const usuario = await exigirUsuario()
   const consulta = await searchParams
+  const membros = await membrosDoPainel(usuario)
 
   const cabecalho = (
-    <>
-      <h1 className="titulo-da-tela">Painel da família</h1>
-      <p className="subtitulo-da-tela">
-        Bem-vindo, {usuario.nome}. Aqui você acompanha as finanças da casa.
-      </p>
-    </>
+    <header className="boas-vindas">
+      <div>
+        <h1 className="titulo-da-tela">Painel da família</h1>
+        <p className="subtitulo-da-tela">Bem-vindo, {usuario.nome}. Aqui você acompanha as finanças da casa.</p>
+      </div>
+      <FamiliaDesenhada membros={membros} />
+    </header>
   )
-
   if (!papelPodeLancar(usuario.papel)) {
     return (
       <>

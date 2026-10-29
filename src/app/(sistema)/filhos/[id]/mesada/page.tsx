@@ -42,7 +42,7 @@ export default async function MesadaDeUmFilho({
     <>
       <h1 className="titulo-da-tela">Mesada de {extrato.filho.nome}</h1>
       <p className="subtitulo-da-tela">
-        Registre créditos e gastos e acompanhe o saldo. <Link href="/filhos">Voltar para os filhos</Link>
+        Registre créditos e gastos e acompanhe o saldo. <Link href="/familia">Voltar para a família</Link>
       </p>
       <p className="mesada-referencia">
         Mesada combinada: {descricaoDaMesada(extrato.filho.mesadaCentavos, extrato.filho.periodicidade)}. É só
