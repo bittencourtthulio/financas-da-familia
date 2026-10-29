@@ -7,6 +7,9 @@ import type { PrismaClient } from '../src/gerado/prisma/client.js'
 import { hashDeSenha } from '../src/lib/senha.js'
 import { hojeEmSaoPaulo, mesAnterior, mesDaData } from '../src/lib/datas.js'
 
+/** A família da demonstração: todas as contas e dados fictícios são dela. */
+export const FAMILIA_DA_DEMONSTRACAO = 'demonstracao-familia'
+
 export const DEMONSTRACAO = [
   {
     nome: 'Responsável de demonstração',
@@ -51,7 +54,7 @@ export const DEMONSTRACAO_FILHOS = [
  * as contas têm senha conhecida.
  */
 export async function semearDemonstracao(
-  prisma: Pick<PrismaClient, 'usuario' | 'atividade' | 'categoria' | 'lancamento' | 'filho' | 'movimentoDeMesada'>,
+  prisma: Pick<PrismaClient, 'familia' | 'usuario' | 'atividade' | 'categoria' | 'lancamento' | 'filho' | 'movimentoDeMesada'>,
   agora: Date = new Date(),
 ): Promise<void> {
   if (process.env.NODE_ENV === 'production') {
@@ -60,6 +63,12 @@ export async function semearDemonstracao(
         'Ela cria contas com senha conhecida.',
     )
   }
+
+  await prisma.familia.upsert({
+    where: { id: FAMILIA_DA_DEMONSTRACAO },
+    update: {},
+    create: { id: FAMILIA_DA_DEMONSTRACAO, nome: 'Família de demonstração' },
+  })
 
   for (const conta of DEMONSTRACAO) {
     await prisma.usuario.upsert({
@@ -70,6 +79,7 @@ export async function semearDemonstracao(
         email: conta.email,
         senhaHash: await hashDeSenha(conta.senha),
         papel: conta.papel,
+        familiaId: FAMILIA_DA_DEMONSTRACAO,
       },
     })
   }
@@ -102,6 +112,7 @@ async function semearAtividade(
     atorNome: responsavel.nome,
     entidade: 'usuario',
     entidadeId: adulto.id,
+    familiaId: FAMILIA_DA_DEMONSTRACAO,
   }
 
   await prisma.atividade.upsert({
@@ -191,7 +202,7 @@ async function semearLancamentos(
     await prisma.categoria.upsert({
       where: { id: `demonstracao-categoria-${c.slug}` },
       update: {},
-      create: { id: `demonstracao-categoria-${c.slug}`, nome: c.nome, tipo: c.tipo },
+      create: { id: `demonstracao-categoria-${c.slug}`, nome: c.nome, tipo: c.tipo, familiaId: FAMILIA_DA_DEMONSTRACAO },
     })
   }
 
@@ -206,6 +217,7 @@ async function semearLancamentos(
         data: `${mesAtras(l.meses ?? 0)}-${String(l.dia).padStart(2, '0')}`,
         descricao: l.descricao,
         categoriaId: `demonstracao-categoria-${l.categoria}`,
+        familiaId: FAMILIA_DA_DEMONSTRACAO,
       },
     })
   }
@@ -220,13 +232,20 @@ async function semearFilhos(prisma: Pick<PrismaClient, 'usuario' | 'filho'>): Pr
     const usuario = await prisma.usuario.upsert({
       where: { email: f.email },
       update: {},
-      create: { nome: f.nome, email: f.email, senhaHash: await hashDeSenha(f.senha), papel: 'filho' },
+      create: {
+        nome: f.nome,
+        email: f.email,
+        senhaHash: await hashDeSenha(f.senha),
+        papel: 'filho',
+        familiaId: FAMILIA_DA_DEMONSTRACAO,
+      },
     })
     await prisma.filho.upsert({
       where: { id: `demonstracao-filho-${f.slug}` },
       update: {},
       create: {
         id: `demonstracao-filho-${f.slug}`,
+        familiaId: FAMILIA_DA_DEMONSTRACAO,
         nome: f.nome,
         nascimento: f.nascimento,
         mesadaCentavos: f.mesadaCentavos,
@@ -284,6 +303,7 @@ async function semearMesada(
       update: {},
       create: {
         id: `demonstracao-mesada-${m.n}`,
+        familiaId: FAMILIA_DA_DEMONSTRACAO,
         filhoId: `demonstracao-filho-${m.filho}`,
         tipo: m.tipo,
         valorCentavos: m.valorCentavos,

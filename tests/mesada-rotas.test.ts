@@ -12,7 +12,7 @@ import { entrar } from '@/servicos/autenticacao'
 import { COOKIE_SESSAO } from '@/lib/sessao'
 import { prisma } from '@/lib/prisma'
 import { hashDeSenha } from '@/lib/senha'
-import { limparBanco } from './ajuda'
+import { limparBanco, familiaPadrao } from './ajuda'
 
 const PORTA = 3181
 const BASE = `http://localhost:${PORTA}`
@@ -55,7 +55,7 @@ const principal = (html: string) => html.slice(Math.max(0, html.indexOf('<main c
 beforeAll(async () => {
   await limparBanco()
   await prisma.usuario.create({
-    data: { nome: 'Responsável da Mesada', email: 'admin.mesadaf@teste.local', senhaHash: await hashDeSenha(SENHA), papel: 'admin' },
+    data: { familiaId: await familiaPadrao(), nome: 'Responsável da Mesada', email: 'admin.mesadaf@teste.local', senhaHash: await hashDeSenha(SENHA), papel: 'admin' },
   })
   const admin = await prisma.usuario.findUniqueOrThrow({ where: { email: 'admin.mesadaf@teste.local' } })
   const ana = await cadastrarFilho(admin, { nome: 'Ana de Rota', nascimento: '2015-03-20', valor: '50,00', periodicidade: 'semanal' })
@@ -72,6 +72,7 @@ beforeAll(async () => {
   idDoGastoDaBia = (await registrarMovimento(admin, bia.id, { tipo: 'gasto', valor: '25,50', data: '2026-10-06', descricao: 'Segredo da Bia' })).movimento.id
   await prisma.movimentoDeMesada.createMany({
     data: Array.from({ length: 40 }, (_, i) => ({
+      familiaId: admin.familiaId,
       filhoId: ana.id,
       tipo: 'credito',
       valorCentavos: 1,

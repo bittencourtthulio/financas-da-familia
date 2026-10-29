@@ -42,9 +42,14 @@ export function Apresentacao() {
           <Logotipo />
           <span>{NOME_DO_SISTEMA}</span>
         </div>
-        <Link href="/entrar" className="botao primario">
-          Entrar
-        </Link>
+        <nav className="acoes" aria-label="Acesso">
+          <Link href="/entrar" className="botao secundario">
+            Entrar
+          </Link>
+          <Link href="/cadastrar" className="botao primario">
+            Criar minha família
+          </Link>
+        </nav>
       </header>
 
       <section className="heroi" aria-labelledby="titulo-da-apresentacao">
@@ -59,8 +64,11 @@ export function Apresentacao() {
             das crianças — com cada um vendo só o que é seu.
           </p>
           <div className="acoes">
-            <Link href="/entrar" className="botao primario grande">
-              Entrar no sistema
+            <Link href="/cadastrar" className="botao primario grande">
+              Criar minha família
+            </Link>
+            <Link href="/entrar" className="botao secundario grande">
+              Já tenho conta
             </Link>
             <a href="#como-funciona" className="botao secundario grande">
               Como funciona
@@ -115,10 +123,15 @@ export function Apresentacao() {
       <section className="chamada" aria-labelledby="titulo-da-chamada">
         <Cachorro className="avatar" />
         <h2 id="titulo-da-chamada">Pronto para cuidar das contas juntos?</h2>
-        <p>Entre com o e-mail e a senha que o responsável da família criou para você.</p>
-        <Link href="/entrar" className="botao primario grande">
-          Entrar
-        </Link>
+        <p>Crie a sua família em um minuto, ou entre com o e-mail e a senha que o responsável criou para você.</p>
+        <div className="acoes">
+          <Link href="/cadastrar" className="botao primario grande">
+            Criar minha família
+          </Link>
+          <Link href="/entrar" className="botao secundario grande">
+            Entrar
+          </Link>
+        </div>
       </section>
 
       <footer className="rodape-da-apresentacao">

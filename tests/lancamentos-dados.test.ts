@@ -8,7 +8,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { prisma } from '@/lib/prisma'
 import { ACOES, rotuloDaAcao } from '@/lib/atividade'
-import { limparBanco } from './ajuda'
+import { limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
@@ -18,9 +18,9 @@ const esquema = readFileSync(path.join(RAIZ, 'prisma/schema.prisma'), 'utf8').re
 
 describe('tabelas de categorias e lançamentos', () => {
   it('guarda o lançamento com valor inteiro em centavos, dia como texto e a categoria', async () => {
-    const categoria = await prisma.categoria.create({ data: { nome: 'Mercado', tipo: 'despesa' } })
+    const categoria = await prisma.categoria.create({ data: { familiaId: await familiaPadrao(), nome: 'Mercado', tipo: 'despesa' } })
     const criado = await prisma.lancamento.create({
-      data: {
+      data: { familiaId: await familiaPadrao(),
         tipo: 'despesa',
         valorCentavos: 123456,
         data: '2026-10-27',
@@ -57,27 +57,27 @@ describe('tabelas de categorias e lançamentos', () => {
   })
 
   it('a descrição tem padrão vazio', async () => {
-    const categoria = await prisma.categoria.create({ data: { nome: 'Salário', tipo: 'receita' } })
+    const categoria = await prisma.categoria.create({ data: { familiaId: await familiaPadrao(), nome: 'Salário', tipo: 'receita' } })
     const criado = await prisma.lancamento.create({
-      data: { tipo: 'receita', valorCentavos: 500000, data: '2026-10-05', categoriaId: categoria.id },
+      data: { familiaId: await familiaPadrao(), tipo: 'receita', valorCentavos: 500000, data: '2026-10-05', categoriaId: categoria.id },
     })
     expect(criado.descricao).toBe('')
   })
 
   it('o nome da categoria é único dentro do tipo, e repetido em outro tipo vale', async () => {
-    await prisma.categoria.create({ data: { nome: 'Outros', tipo: 'despesa' } })
+    await prisma.categoria.create({ data: { familiaId: await familiaPadrao(), nome: 'Outros', tipo: 'despesa' } })
     await expect(
-      prisma.categoria.create({ data: { nome: 'Outros', tipo: 'despesa' } }),
+      prisma.categoria.create({ data: { familiaId: await familiaPadrao(), nome: 'Outros', tipo: 'despesa' } }),
     ).rejects.toThrow()
     await expect(
-      prisma.categoria.create({ data: { nome: 'Outros', tipo: 'receita' } }),
+      prisma.categoria.create({ data: { familiaId: await familiaPadrao(), nome: 'Outros', tipo: 'receita' } }),
     ).resolves.toMatchObject({ nome: 'Outros', tipo: 'receita' })
   })
 
   it('categoria com lançamento não pode ser apagada', async () => {
-    const categoria = await prisma.categoria.create({ data: { nome: 'Lazer', tipo: 'despesa' } })
+    const categoria = await prisma.categoria.create({ data: { familiaId: await familiaPadrao(), nome: 'Lazer', tipo: 'despesa' } })
     await prisma.lancamento.create({
-      data: { tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: categoria.id },
+      data: { familiaId: await familiaPadrao(), tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: categoria.id },
     })
     await expect(prisma.categoria.delete({ where: { id: categoria.id } })).rejects.toThrow()
   })
@@ -85,7 +85,7 @@ describe('tabelas de categorias e lançamentos', () => {
   it('lançamento não aceita categoria que não existe', async () => {
     await expect(
       prisma.lancamento.create({
-        data: { tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: 'nao-existe' },
+        data: { familiaId: await familiaPadrao(), tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: 'nao-existe' },
       }),
     ).rejects.toThrow()
   })
@@ -94,14 +94,14 @@ describe('tabelas de categorias e lançamentos', () => {
     const chaves = await prisma.$queryRawUnsafe<Array<{ table: string }>>(
       `SELECT ccu.table_name AS "table" FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name AND ccu.constraint_schema = tc.table_schema WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public' AND tc.table_name = 'lancamentos'`,
     )
-    // Categoria e recorrência (o mês de uma recorrência); nenhuma para usuários.
-    expect(chaves.map((c) => c.table).sort()).toEqual(['categorias', 'recorrencias'])
+    // Categoria, família e recorrência (o mês de uma recorrência); nenhuma para usuários.
+    expect(chaves.map((c) => c.table).sort()).toEqual(['categorias', 'familias', 'recorrencias'])
   })
 
   it('limparBanco esvazia lançamentos e categorias', async () => {
-    const categoria = await prisma.categoria.create({ data: { nome: 'Saúde', tipo: 'despesa' } })
+    const categoria = await prisma.categoria.create({ data: { familiaId: await familiaPadrao(), nome: 'Saúde', tipo: 'despesa' } })
     await prisma.lancamento.create({
-      data: { tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: categoria.id },
+      data: { familiaId: await familiaPadrao(), tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: categoria.id },
     })
     await limparBanco()
     expect(await prisma.lancamento.count()).toBe(0)

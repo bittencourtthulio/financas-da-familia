@@ -56,17 +56,20 @@ export async function exportarDadosDaFamilia(
   exigirAdmin(autor)
 
   // Uma leitura só, para o arquivo mostrar um instante coerente do banco.
+  // Só os dados da família de quem exporta: nenhuma leitura atravessa para outra.
+  const daFamilia = { familiaId: autor.familiaId }
   const [usuarios, categorias, lancamentos, recorrencias, filhos, movimentos, atividades] = await prisma.$transaction([
     prisma.usuario.findMany({
+      where: daFamilia,
       select: { id: true, nome: true, email: true, papel: true, ativo: true, criadoEm: true, avatar: true },
       orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }],
     }),
-    prisma.categoria.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
-    prisma.lancamento.findMany({ orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }, { id: 'asc' }] }),
-    prisma.recorrencia.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
-    prisma.filho.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
-    prisma.movimentoDeMesada.findMany({ orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }, { id: 'asc' }] }),
-    prisma.atividade.findMany({ orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
+    prisma.categoria.findMany({ where: daFamilia, orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
+    prisma.lancamento.findMany({ where: daFamilia, orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }, { id: 'asc' }] }),
+    prisma.recorrencia.findMany({ where: daFamilia, orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
+    prisma.filho.findMany({ where: daFamilia, orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
+    prisma.movimentoDeMesada.findMany({ where: daFamilia, orderBy: [{ data: 'asc' }, { criadoEm: 'asc' }, { id: 'asc' }] }),
+    prisma.atividade.findMany({ where: daFamilia, orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }] }),
   ])
   const saldos = await saldosDosFilhos(autor)
 
@@ -191,11 +194,13 @@ type ClienteDaTrilha = Pick<PrismaClient, 'atividade'>
  */
 async function anonimizarTrilha(
   tx: ClienteDaTrilha,
+  familiaId: string,
   filhoId: string,
   usuarioId: string | null,
 ): Promise<number> {
   const linhas = await tx.atividade.findMany({
     where: {
+      familiaId,
       OR: [
         { entidade: 'filho', entidadeId: filhoId },
         { detalhe: { contains: `"filhoId":"${filhoId}"` } },
@@ -254,8 +259,8 @@ export async function excluirFilho(
     throw entradaInvalida(dados.error.issues[0]?.message ?? 'Digite o nome do filho para confirmar.')
   }
 
-  const filho = await prisma.filho.findUnique({
-    where: { id },
+  const filho = await prisma.filho.findFirst({
+    where: { id, familiaId: autor.familiaId },
     include: { usuario: { select: { id: true, email: true } } },
   })
   if (!filho) throw naoEncontrado('Filho não encontrado.')
@@ -265,7 +270,7 @@ export async function excluirFilho(
 
   const usuarioId = filho.usuario?.id ?? null
   const resultado = await prisma.$transaction(async (tx) => {
-    const linhasAnonimizadas = await anonimizarTrilha(tx, filho.id, usuarioId)
+    const linhasAnonimizadas = await anonimizarTrilha(tx, autor.familiaId, filho.id, usuarioId)
     await tx.filho.delete({ where: { id: filho.id } })
     if (usuarioId) await tx.usuario.delete({ where: { id: usuarioId } })
     await registrarAtividade(

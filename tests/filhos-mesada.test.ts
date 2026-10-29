@@ -14,7 +14,7 @@ import { COOKIE_SESSAO } from '@/lib/sessao'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { prisma } from '@/lib/prisma'
 import { hashDeSenha } from '@/lib/senha'
-import { limparBanco } from './ajuda'
+import { familiaPadrao, limparBanco } from './ajuda'
 
 const PORTA = 3179
 const BASE = `http://localhost:${PORTA}`
@@ -58,10 +58,11 @@ const foiBarrado = (r: { status: number; html: string }, destino = '/') =>
 
 beforeAll(async () => {
   await limparBanco()
+  const familiaId = await familiaPadrao()
   await prisma.usuario.createMany({
     data: [
-      { nome: 'Responsável da Mesada', email: 'admin.mesada@teste.local', senhaHash: await hashDeSenha(SENHA), papel: 'admin' },
-      { nome: 'Adulto da Mesada', email: 'adulto.mesada@teste.local', senhaHash: await hashDeSenha(SENHA), papel: 'usuario' },
+      { nome: 'Responsável da Mesada', email: 'admin.mesada@teste.local', senhaHash: await hashDeSenha(SENHA), papel: 'admin', familiaId },
+      { nome: 'Adulto da Mesada', email: 'adulto.mesada@teste.local', senhaHash: await hashDeSenha(SENHA), papel: 'usuario', familiaId },
     ],
   })
   const admin = await prisma.usuario.findUniqueOrThrow({ where: { email: 'admin.mesada@teste.local' } })

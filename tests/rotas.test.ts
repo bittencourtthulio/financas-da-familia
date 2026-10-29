@@ -45,6 +45,8 @@ beforeAll(async () => {
   await prisma.categoria.deleteMany()
   await prisma.atividade.deleteMany()
   await prisma.usuario.deleteMany()
+  await prisma.familia.deleteMany()
+  const familiaId = (await prisma.familia.create({ data: { nome: 'Família de Rota' } })).id
   await prisma.usuario.createMany({
     data: [
       {
@@ -52,12 +54,14 @@ beforeAll(async () => {
         email: 'admin.rota@teste.local',
         senhaHash: await hashDeSenha('senha-de-rota-123'),
         papel: 'admin',
+        familiaId,
       },
       {
         nome: 'Comum de Rota',
         email: 'comum.rota@teste.local',
         senhaHash: await hashDeSenha('senha-de-rota-123'),
         papel: 'usuario',
+        familiaId,
       },
       {
         // Filho sem registro ligado: prova que o servidor real nega o papel;
@@ -66,6 +70,7 @@ beforeAll(async () => {
         email: 'filho.rota@teste.local',
         senhaHash: await hashDeSenha('senha-de-rota-123'),
         papel: 'filho',
+        familiaId,
       },
     ],
   })
@@ -145,6 +150,29 @@ describe('sem sessão', () => {
     const r = await pedir('/entrar')
     expect(r.status).toBe(200)
     expect(await r.text()).toContain('Entrar')
+  })
+
+  it('a tela de cadastro abre sem sessão, com os campos da família e do responsável, e leva ao login', async () => {
+    const r = await pedir('/cadastrar')
+    const html = await r.text()
+    expect(r.status).toBe(200)
+    expect(html).toContain('Criar minha família')
+    for (const nome of ['familia', 'nome', 'email', 'senha', 'confirmacao']) {
+      expect(html).toContain(`name="${nome}"`)
+    }
+    expect(html).toMatch(/<a[^>]*href="\/entrar"/)
+    expect(html).not.toContain('Marcador de')
+  })
+
+  it('o login leva ao cadastro', async () => {
+    expect(await (await pedir('/entrar')).text()).toMatch(/<a[^>]*href="\/cadastrar"/)
+  })
+
+  it('quem já tem sessão não vê o cadastro: vai para o painel', async () => {
+    const r = await pedir('/cadastrar', await cookieDe('admin.rota@teste.local'))
+    const html = await r.text()
+    expect(r.status === 307 || /<meta[^>]*http-equiv="refresh"[^>]*content="[^"]*url=\/"/.test(html)).toBe(true)
+    expect(html).not.toContain('name="confirmacao"')
   })
 
   it('uma rota inexistente responde 404 com a página em português', async () => {
@@ -603,6 +631,7 @@ describe('a apresentação na raiz (visual família)', () => {
     expect(html).toContain('Bufi')
     expect(html).toContain('em família')
     expect(html).toMatch(/<a[^>]*href="\/entrar"/)
+    expect(html).toMatch(/<a[^>]*href="\/cadastrar"/)
     expect(html).not.toContain('Painel da família')
     expect(html).not.toContain('Marcador de')
     expect(html).not.toContain('class="conteudo"')

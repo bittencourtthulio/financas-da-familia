@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { prisma } from '@/lib/prisma'
 import { ACOES, descreverAtividade, rotuloDaAcao } from '@/lib/atividade'
-import { criarUsuario, limparBanco } from './ajuda'
+import { criarUsuario, limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
@@ -17,7 +17,7 @@ const esquema = readFileSync(path.join(process.cwd(), 'prisma/schema.prisma'), '
 describe('tabela de filhos', () => {
   it('guarda nome, nascimento opcional, mesada em centavos inteiros e periodicidade', async () => {
     const criado = await prisma.filho.create({
-      data: { nome: 'Ana', mesadaCentavos: 12345, periodicidade: 'semanal' },
+      data: { familiaId: await familiaPadrao(), nome: 'Ana', mesadaCentavos: 12345, periodicidade: 'semanal' },
     })
     const lido = await prisma.filho.findUniqueOrThrow({ where: { id: criado.id } })
     expect(lido).toMatchObject({
@@ -46,39 +46,39 @@ describe('tabela de filhos', () => {
       `SELECT column_name AS name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'filhos'`,
     )
     expect(colunas.map((c) => c.name).sort()).toEqual(
-      ['atualizadoEm', 'avatar', 'criadoEm', 'id', 'mesadaCentavos', 'nascimento', 'nome', 'periodicidade', 'usuarioId'].sort(),
+      ['atualizadoEm', 'avatar', 'criadoEm', 'familiaId', 'id', 'mesadaCentavos', 'nascimento', 'nome', 'periodicidade', 'usuarioId'].sort(),
     )
   })
 
   it('um usuário não pode estar ligado a dois filhos (vínculo 1 para 1)', async () => {
     const usuario = await criarUsuario({ papel: 'filho' })
     await prisma.filho.create({
-      data: { nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal', usuarioId: usuario.id },
+      data: { familiaId: await familiaPadrao(), nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal', usuarioId: usuario.id },
     })
     await expect(
       prisma.filho.create({
-        data: { nome: 'Bia', mesadaCentavos: 1000, periodicidade: 'mensal', usuarioId: usuario.id },
+        data: { familiaId: await familiaPadrao(), nome: 'Bia', mesadaCentavos: 1000, periodicidade: 'mensal', usuarioId: usuario.id },
       }),
     ).rejects.toThrow()
   })
 
   it('vários filhos sem login convivem (o vínculo único aceita nulo repetido)', async () => {
-    await prisma.filho.create({ data: { nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal' } })
-    await prisma.filho.create({ data: { nome: 'Bia', mesadaCentavos: 1000, periodicidade: 'mensal' } })
+    await prisma.filho.create({ data: { familiaId: await familiaPadrao(), nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal' } })
+    await prisma.filho.create({ data: { familiaId: await familiaPadrao(), nome: 'Bia', mesadaCentavos: 1000, periodicidade: 'mensal' } })
     expect(await prisma.filho.count()).toBe(2)
   })
 
   it('apagar o usuário desliga o vínculo e preserva o registro do filho', async () => {
     const usuario = await criarUsuario({ papel: 'filho' })
     const filho = await prisma.filho.create({
-      data: { nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal', usuarioId: usuario.id },
+      data: { familiaId: await familiaPadrao(), nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal', usuarioId: usuario.id },
     })
     await prisma.usuario.delete({ where: { id: usuario.id } })
     expect((await prisma.filho.findUniqueOrThrow({ where: { id: filho.id } })).usuarioId).toBeNull()
   })
 
   it('limparBanco esvazia os filhos', async () => {
-    await prisma.filho.create({ data: { nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal' } })
+    await prisma.filho.create({ data: { familiaId: await familiaPadrao(), nome: 'Ana', mesadaCentavos: 1000, periodicidade: 'mensal' } })
     await limparBanco()
     expect(await prisma.filho.count()).toBe(0)
   })

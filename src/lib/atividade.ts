@@ -24,6 +24,7 @@ export const ACOES: Record<string, string> = {
   'mesada.alterada': 'Alterou movimento de mesada de',
   'mesada.apagada': 'Apagou movimento de mesada de',
   'familia.exportada': 'Exportou os dados da família',
+  'familia.criada': 'Criou a família',
   'filho.excluido': 'Excluiu a conta de um filho',
 }
 

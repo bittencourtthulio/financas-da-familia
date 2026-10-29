@@ -178,7 +178,8 @@ describe('nunca exporta segredo nem dado de sessão', () => {
   it('a exportação não lê o registro inteiro do usuário: a consulta lista os campos um a um', () => {
     const fonte = readFileSync(path.join(process.cwd(), 'src/servicos/privacidade.ts'), 'utf8')
     expect(fonte).not.toMatch(/senhaHash|sessoesValidasDesde/)
-    expect(fonte).toMatch(/usuario\.findMany\(\{\s*select:/)
+    // Só a família de quem exporta (`where`), e os campos listados um a um (`select`).
+    expect(fonte).toMatch(/usuario\.findMany\(\{\s*where: daFamilia,\s*select:/)
   })
 })
 
@@ -238,6 +239,7 @@ describe('volume razoável', () => {
     const filho = await cadastrarFilho(admin, { nome: 'Volume', valor: '1,00', periodicidade: 'mensal' })
     await prisma.lancamento.createMany({
       data: Array.from({ length: 5000 }, (_, i) => ({
+        familiaId: admin.familiaId,
         tipo: 'despesa',
         valorCentavos: (i % 997) + 1,
         data: `2026-${String((i % 12) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
@@ -247,6 +249,7 @@ describe('volume razoável', () => {
     })
     await prisma.movimentoDeMesada.createMany({
       data: Array.from({ length: 3000 }, (_, i) => ({
+        familiaId: admin.familiaId,
         filhoId: filho.id,
         tipo: i % 3 === 0 ? 'credito' : 'gasto',
         valorCentavos: 1,

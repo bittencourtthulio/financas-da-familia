@@ -40,11 +40,12 @@ export async function familiaDe(autor: UsuarioAutenticado): Promise<MembroDaFami
   exigirAdultoOuResponsavel(autor)
   const [adultos, filhos] = await Promise.all([
     prisma.usuario.findMany({
-      where: { papel: { in: ['admin', 'usuario'] } },
+      where: { papel: { in: ['admin', 'usuario'] }, familiaId: autor.familiaId },
       select: { id: true, nome: true, papel: true, ativo: true, avatar: true },
       orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }],
     }),
     prisma.filho.findMany({
+      where: { familiaId: autor.familiaId },
       select: { id: true, nome: true, avatar: true },
       orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }],
     }),
@@ -123,7 +124,7 @@ export async function definirAvatarDoFilho(
 ): Promise<Avatar> {
   exigirAdmin(autor)
   const avatar = validar(entrada)
-  const filho = await prisma.filho.findUnique({ where: { id: filhoId }, select: { id: true } })
+  const filho = await prisma.filho.findFirst({ where: { id: filhoId, familiaId: autor.familiaId }, select: { id: true } })
   if (!filho) throw naoEncontrado('Filho não encontrado.')
   await prisma.filho.update({ where: { id: filhoId }, data: { avatar: avatarParaJson(avatar) } })
   return avatar
@@ -137,7 +138,10 @@ export async function definirAvatarDoUsuario(
 ): Promise<Avatar> {
   exigirAdmin(autor)
   const avatar = validar(entrada)
-  const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId }, select: { id: true, papel: true } })
+  const usuario = await prisma.usuario.findFirst({
+    where: { id: usuarioId, familiaId: autor.familiaId },
+    select: { id: true, papel: true },
+  })
   if (!usuario || usuario.papel === 'filho') throw naoEncontrado('Usuário não encontrado.')
   await prisma.usuario.update({ where: { id: usuarioId }, data: { avatar: avatarParaJson(avatar) } })
   return avatar
@@ -146,15 +150,15 @@ export async function definirAvatarDoUsuario(
 /** O avatar de cada filho, por id, para a lista de filhos. */
 export async function avataresDosFilhos(autor: UsuarioAutenticado): Promise<Record<string, Avatar | null>> {
   exigirAdmin(autor)
-  const filhos = await prisma.filho.findMany({ select: { id: true, avatar: true } })
+  const filhos = await prisma.filho.findMany({ where: { familiaId: autor.familiaId }, select: { id: true, avatar: true } })
   return Object.fromEntries(filhos.map((f) => [f.id, avatarDoJson(f.avatar)]))
 }
 
 /** Um adulto da família, para a página de edição do responsável. */
 export async function adultoDaFamilia(autor: UsuarioAutenticado, id: string): Promise<MembroDaFamilia & { email: string }> {
   exigirAdmin(autor)
-  const u = await prisma.usuario.findUnique({
-    where: { id },
+  const u = await prisma.usuario.findFirst({
+    where: { id, familiaId: autor.familiaId },
     select: { id: true, nome: true, email: true, papel: true, ativo: true, avatar: true },
   })
   if (!u || u.papel === 'filho') throw naoEncontrado('Usuário não encontrado.')

@@ -1315,3 +1315,7 @@ input[type='date'] { color-scheme: light; }
 .campo-de-marca input { width: 20px; height: 20px; flex: none; }
 .campo-de-marca span { margin: 0; color: var(--fg-default); font-size: 15px; }
 .tela-de-formulario fieldset.campo-de-opcao legend { font-weight: 600; }
+
+/* Acesso na apresentação: entrar e criar a família lado a lado. */
+.apresentacao-topo .acoes { margin-top: 0; flex-wrap: nowrap; }
+.chamada .acoes { justify-content: center; margin-top: 8px; }

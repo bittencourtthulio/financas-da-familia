@@ -14,7 +14,7 @@ import { camposProibidosEm } from '@/lib/privacidade'
 import { COOKIE_SESSAO } from '@/lib/sessao'
 import { prisma } from '@/lib/prisma'
 import { hashDeSenha } from '@/lib/senha'
-import { limparBanco } from './ajuda'
+import { limparBanco, familiaPadrao } from './ajuda'
 
 const PORTA = 3182
 const BASE = `http://localhost:${PORTA}`
@@ -66,8 +66,8 @@ const levaPara = (r: { status: number; local: string; corpo: string }, destino: 
 beforeAll(async () => {
   await limparBanco()
   const senhaHash = await hashDeSenha(SENHA)
-  await prisma.usuario.create({ data: { nome: 'Responsável da Privacidade', email: ADMIN, senhaHash, papel: 'admin' } })
-  await prisma.usuario.create({ data: { nome: 'Adulto da Privacidade', email: ADULTO, senhaHash, papel: 'usuario' } })
+  await prisma.usuario.create({ data: { familiaId: await familiaPadrao(), nome: 'Responsável da Privacidade', email: ADMIN, senhaHash, papel: 'admin' } })
+  await prisma.usuario.create({ data: { familiaId: await familiaPadrao(), nome: 'Adulto da Privacidade', email: ADULTO, senhaHash, papel: 'usuario' } })
   const admin = await prisma.usuario.findUniqueOrThrow({ where: { email: ADMIN } })
   hashDoAdmin = admin.senhaHash
   const ana = await cadastrarFilho(admin, { nome: 'Ana Rota', nascimento: '2015-03-20', valor: '50,00', periodicidade: 'semanal' })

@@ -77,7 +77,7 @@ describe('criar um lançamento recorrente', () => {
     expect(meses.at(-1)?.data).toBe('2027-03-05')
     expect(meses).toHaveLength(8)
 
-    await garantirRecorrencias('2035-01', AGORA)
+    await garantirRecorrencias(admin.familiaId, '2035-01', AGORA)
     meses = await doMes(primeiro.recorrenciaId as string)
     expect(meses.at(-1)?.data).toBe('2027-10-05')
   })
@@ -124,7 +124,7 @@ describe('editar: só este mês ou este e os próximos', () => {
       ['2026-10-10', 30000, 'Conta de luz', false],
     ])
     expect(agosto!.id).toBe(meses[0]!.id)
-    await garantirRecorrencias('2026-12', AGORA)
+    await garantirRecorrencias(admin.familiaId, '2026-12', AGORA)
     const novos = await doMes(id)
     expect(novos.at(-1)).toMatchObject({ data: '2026-12-10', valorCentavos: 30000, pago: false })
   })
@@ -168,7 +168,7 @@ describe('apagar: só este mês ou este e os próximos', () => {
     await apagarLancamento(admin, setembro!.id, 'proximos')
     expect((await doMes(id)).map((m) => m.data)).toEqual(['2026-08-05'])
     expect((await prisma.recorrencia.findUniqueOrThrow({ where: { id } })).fim).toBe('2026-08')
-    await garantirRecorrencias('2027-06', AGORA)
+    await garantirRecorrencias(admin.familiaId, '2027-06', AGORA)
     expect(await doMes(id)).toHaveLength(1)
   })
 

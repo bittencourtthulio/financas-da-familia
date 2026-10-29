@@ -168,10 +168,11 @@ describe('as confirmações sem volta surgem na mesma caixa', () => {
 describe('a apresentação pública', () => {
   const html = renderizar(Apresentacao, {})
 
-  it('diz o nome do sistema, leva ao login e à âncora de como funciona', () => {
+  it('diz o nome do sistema, leva ao cadastro e ao login e à âncora de como funciona', () => {
     expect(html).toContain('Bufi')
     expect(html).toMatch(/<a[^>]*href="\/entrar"[^>]*>Entrar<\/a>/)
-    expect(html).toMatch(/<a[^>]*href="\/entrar"[^>]*>Entrar no sistema<\/a>/)
+    expect(html).toMatch(/<a[^>]*href="\/cadastrar"[^>]*>Criar minha família<\/a>/)
+    expect(html).toMatch(/<a[^>]*href="\/entrar"[^>]*>Já tenho conta<\/a>/)
     expect(html).toContain('id="como-funciona"')
   })
 

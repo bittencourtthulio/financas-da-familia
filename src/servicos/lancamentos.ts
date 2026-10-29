@@ -69,7 +69,7 @@ export async function listarCategorias(
 ): Promise<CategoriaListada[]> {
   exigirAdultoOuResponsavel(autor)
   const categorias = await prisma.categoria.findMany({
-    where: opcoes.tipo ? { tipo: opcoes.tipo } : {},
+    where: { familiaId: autor.familiaId, ...(opcoes.tipo && { tipo: opcoes.tipo }) },
   })
   return categorias.sort((a, b) => comparar(a.nome, b.nome))
 }
@@ -88,13 +88,13 @@ export async function criarCategoria(
 
   // O nome é único dentro do tipo sem diferenciar maiúscula (PR-27); o
   // índice do banco só pega o nome idêntico.
-  const doTipo = await prisma.categoria.findMany({ where: { tipo } })
+  const doTipo = await prisma.categoria.findMany({ where: { tipo, familiaId: autor.familiaId } })
   if (doTipo.some((c) => semCaixa(c.nome) === semCaixa(nome))) {
     throw conflito('Já existe uma categoria com este nome.')
   }
 
   return prisma.$transaction(async (tx) => {
-    const criada = await tx.categoria.create({ data: { nome, tipo } })
+    const criada = await tx.categoria.create({ data: { nome, tipo, familiaId: autor.familiaId } })
     await registrarAtividade(
       {
         ator: autor,
@@ -124,7 +124,7 @@ export async function obterOuCriarCategoria(
     throw entradaInvalida(dados.error.issues[0]?.message ?? 'Categoria inválida.')
   }
   const { nome, tipo } = dados.data
-  const doTipo = await prisma.categoria.findMany({ where: { tipo } })
+  const doTipo = await prisma.categoria.findMany({ where: { tipo, familiaId: autor.familiaId } })
   const existente = doTipo.find((c) => semCaixa(c.nome) === semCaixa(nome))
   return existente ?? criarCategoria(autor, { nome, tipo })
 }
@@ -137,7 +137,7 @@ export async function apagarCategoria(autor: UsuarioAutenticado, id: string): Pr
   exigirAdultoOuResponsavel(autor)
 
   await prisma.$transaction(async (tx) => {
-    const categoria = await tx.categoria.findUnique({ where: { id } })
+    const categoria = await tx.categoria.findFirst({ where: { id, familiaId: autor.familiaId } })
     if (!categoria) throw naoEncontrado('Categoria não encontrada.')
     const emUso =
       (await tx.lancamento.count({ where: { categoriaId: id } })) +
@@ -251,10 +251,11 @@ function validarLancamento(entrada: unknown): DadosDoLancamento {
 
 /** A categoria existe e é do mesmo tipo do lançamento (PR-27). */
 async function exigirCategoriaDoTipo(
+  familiaId: string,
   categoriaId: string,
   tipo: TipoDeLancamento,
 ): Promise<void> {
-  const categoria = await prisma.categoria.findUnique({ where: { id: categoriaId } })
+  const categoria = await prisma.categoria.findFirst({ where: { id: categoriaId, familiaId } })
   if (!categoria) throw entradaInvalida('A categoria escolhida não existe.')
   if (categoria.tipo !== tipo) {
     throw entradaInvalida(
@@ -283,7 +284,7 @@ const diaDaData = (data: string) => Number(data.slice(8, 10))
  */
 async function iniciarRecorrencia(
   tx: Transacao,
-  lancamento: { id: string; tipo: string; valorCentavos: number; data: string; descricao: string; categoriaId: string; pessoaId: string | null },
+  lancamento: { id: string; tipo: string; valorCentavos: number; data: string; descricao: string; categoriaId: string; pessoaId: string | null; familiaId: string },
 ): Promise<string> {
   const mes = mesDaData(lancamento.data)
   const recorrencia = await tx.recorrencia.create({
@@ -296,6 +297,7 @@ async function iniciarRecorrencia(
       pessoaId: lancamento.pessoaId,
       inicio: mes,
       geradoAte: mes,
+      familiaId: lancamento.familiaId,
     },
   })
   await tx.lancamento.update({ where: { id: lancamento.id }, data: { recorrenciaId: recorrencia.id } })
@@ -309,7 +311,7 @@ export async function criarLancamento(
   exigirAdultoOuResponsavel(autor)
 
   const dados = validarLancamento(entrada)
-  await exigirCategoriaDoTipo(dados.categoriaId, dados.tipo)
+  await exigirCategoriaDoTipo(autor.familiaId, dados.categoriaId, dados.tipo)
   await exigirPessoaDaFamilia(autor, dados.pessoaId)
 
   // O lançamento e o rastro nascem juntos (PR-10). O detalhe leva o tipo e a
@@ -324,6 +326,7 @@ export async function criarLancamento(
         categoriaId: dados.categoriaId,
         pessoaId: dados.pessoaId,
         pago: dados.pago,
+        familiaId: autor.familiaId,
       },
     })
     if (dados.repete) await iniciarRecorrencia(tx, novo)
@@ -341,7 +344,7 @@ export async function criarLancamento(
   })
 
   // Uma recorrência que começa no passado já tem os meses até hoje.
-  if (dados.repete) await garantirRecorrencias(mesAtualEmSaoPaulo())
+  if (dados.repete) await garantirRecorrencias(autor.familiaId, mesAtualEmSaoPaulo())
   return criado
 }
 
@@ -350,8 +353,8 @@ export async function obterLancamento(
   id: string,
 ): Promise<LancamentoListado> {
   exigirAdultoOuResponsavel(autor)
-  const lancamento = await prisma.lancamento.findUnique({
-    where: { id },
+  const lancamento = await prisma.lancamento.findFirst({
+    where: { id, familiaId: autor.familiaId },
     include: incluirCategoria,
   })
   if (!lancamento) throw naoEncontrado('Lançamento não encontrado.')
@@ -366,9 +369,9 @@ export async function editarLancamento(
   exigirAdultoOuResponsavel(autor)
 
   const dados = validarLancamento(entrada)
-  const atual = await prisma.lancamento.findUnique({ where: { id } })
+  const atual = await prisma.lancamento.findFirst({ where: { id, familiaId: autor.familiaId } })
   if (!atual) throw naoEncontrado('Lançamento não encontrado.')
-  await exigirCategoriaDoTipo(dados.categoriaId, dados.tipo)
+  await exigirCategoriaDoTipo(autor.familiaId, dados.categoriaId, dados.tipo)
   await exigirPessoaDaFamilia(autor, dados.pessoaId)
 
   // Cada mês de uma recorrência existe uma vez: não dá para empurrar este
@@ -475,7 +478,7 @@ export async function editarLancamento(
     throw erro
   }
 
-  if (viraRecorrente) await garantirRecorrencias(mesAtualEmSaoPaulo())
+  if (viraRecorrente) await garantirRecorrencias(autor.familiaId, mesAtualEmSaoPaulo())
   return atualizado
 }
 
@@ -487,7 +490,7 @@ export async function alternarPago(autor: UsuarioAutenticado, id: string): Promi
   exigirAdultoOuResponsavel(autor)
 
   return prisma.$transaction(async (tx) => {
-    const atual = await tx.lancamento.findUnique({ where: { id } })
+    const atual = await tx.lancamento.findFirst({ where: { id, familiaId: autor.familiaId } })
     if (!atual) throw naoEncontrado('Lançamento não encontrado.')
     const atualizado = await tx.lancamento.update({
       where: { id },
@@ -523,7 +526,7 @@ export async function apagarLancamento(
   exigirAdultoOuResponsavel(autor)
 
   await prisma.$transaction(async (tx) => {
-    const existente = await tx.lancamento.findUnique({ where: { id } })
+    const existente = await tx.lancamento.findFirst({ where: { id, familiaId: autor.familiaId } })
     if (!existente) throw naoEncontrado('Lançamento não encontrado.')
 
     const recorrenciaId = existente.recorrenciaId
@@ -593,8 +596,8 @@ export async function listarLancamentos(
   const mes = mesValido(opcoes.mes) ? opcoes.mes : mesAtualEmSaoPaulo(agora)
   const tipo = ehTipo(opcoes.tipo) ? opcoes.tipo : null
   const { de, ate } = intervaloDoMes(mes)
-  await garantirRecorrencias(mes, agora)
-  const where = { data: { gte: de, lt: ate }, ...(tipo && { tipo }) }
+  await garantirRecorrencias(autor.familiaId, mes, agora)
+  const where = { familiaId: autor.familiaId, data: { gte: de, lt: ate }, ...(tipo && { tipo }) }
 
   const total = await prisma.lancamento.count({ where })
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA_DE_LANCAMENTOS))

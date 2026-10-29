@@ -9,21 +9,21 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { prisma } from '@/lib/prisma'
 import { ACOES, descreverAtividade, rotuloDaAcao, rotuloDoTipo } from '@/lib/atividade'
-import { limparBanco } from './ajuda'
+import { limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
 const esquema = readFileSync(path.join(process.cwd(), 'prisma/schema.prisma'), 'utf8').replace(/\/\/.*$/gm, '')
 
 async function criarFilho(nome = 'Ana') {
-  return prisma.filho.create({ data: { nome, mesadaCentavos: 5000, periodicidade: 'semanal' } })
+  return prisma.filho.create({ data: { familiaId: await familiaPadrao(), nome, mesadaCentavos: 5000, periodicidade: 'semanal' } })
 }
 
 describe('tabela de movimentos de mesada', () => {
   it('guarda filho, tipo, valor em centavos inteiros, data civil e descrição', async () => {
     const filho = await criarFilho()
     const criado = await prisma.movimentoDeMesada.create({
-      data: { filhoId: filho.id, tipo: 'credito', valorCentavos: 12345, data: '2026-10-05', descricao: 'Mesada da semana' },
+      data: { familiaId: await familiaPadrao(), filhoId: filho.id, tipo: 'credito', valorCentavos: 12345, data: '2026-10-05', descricao: 'Mesada da semana' },
     })
     const lido = await prisma.movimentoDeMesada.findUniqueOrThrow({ where: { id: criado.id } })
     expect(lido).toMatchObject({
@@ -40,7 +40,7 @@ describe('tabela de movimentos de mesada', () => {
   it('a descrição tem padrão vazio', async () => {
     const filho = await criarFilho()
     const criado = await prisma.movimentoDeMesada.create({
-      data: { filhoId: filho.id, tipo: 'gasto', valorCentavos: 100, data: '2026-10-05' },
+      data: { familiaId: await familiaPadrao(), filhoId: filho.id, tipo: 'gasto', valorCentavos: 100, data: '2026-10-05' },
     })
     expect(criado.descricao).toBe('')
   })
@@ -66,7 +66,7 @@ describe('tabela de movimentos de mesada', () => {
       `SELECT column_name AS name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'movimentos_de_mesada'`,
     )
     expect(colunas.map((c) => c.name).sort()).toEqual(
-      ['atualizadoEm', 'criadoEm', 'data', 'descricao', 'filhoId', 'id', 'tipo', 'valorCentavos'].sort(),
+      ['atualizadoEm', 'criadoEm', 'data', 'descricao', 'familiaId', 'filhoId', 'id', 'tipo', 'valorCentavos'].sort(),
     )
   })
 
@@ -80,7 +80,7 @@ describe('tabela de movimentos de mesada', () => {
   it('movimento de filho que não existe é recusado pela chave estrangeira', async () => {
     await expect(
       prisma.movimentoDeMesada.create({
-        data: { filhoId: 'nao-existe', tipo: 'credito', valorCentavos: 100, data: '2026-10-05' },
+        data: { familiaId: await familiaPadrao(), filhoId: 'nao-existe', tipo: 'credito', valorCentavos: 100, data: '2026-10-05' },
       }),
     ).rejects.toThrow()
   })
@@ -90,7 +90,7 @@ describe('tabela de movimentos de mesada', () => {
     const bia = await criarFilho('Bia')
     for (const f of [ana, bia, ana]) {
       await prisma.movimentoDeMesada.create({
-        data: { filhoId: f.id, tipo: 'credito', valorCentavos: 100, data: '2026-10-05' },
+        data: { familiaId: await familiaPadrao(), filhoId: f.id, tipo: 'credito', valorCentavos: 100, data: '2026-10-05' },
       })
     }
     await prisma.filho.delete({ where: { id: ana.id } })
@@ -102,7 +102,7 @@ describe('tabela de movimentos de mesada', () => {
   it('limparBanco esvazia os movimentos', async () => {
     const filho = await criarFilho()
     await prisma.movimentoDeMesada.create({
-      data: { filhoId: filho.id, tipo: 'credito', valorCentavos: 100, data: '2026-10-05' },
+      data: { familiaId: await familiaPadrao(), filhoId: filho.id, tipo: 'credito', valorCentavos: 100, data: '2026-10-05' },
     })
     await limparBanco()
     expect(await prisma.movimentoDeMesada.count()).toBe(0)

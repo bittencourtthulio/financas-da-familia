@@ -2,7 +2,9 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { entrar } from '@/servicos/autenticacao'
+import { cadastrarFamilia } from '@/servicos/familias'
 import { excluirFilho } from '@/servicos/privacidade'
 import { criar, editar, desativar, redefinirSenha } from '@/servicos/usuarios'
 import { atualizarPerfil, trocarSenha } from '@/servicos/perfil'
@@ -71,6 +73,34 @@ export async function autenticar(
       email: form.get('email'),
       senha: form.get('senha'),
     })
+    await gravarCookieDeSessao(token)
+  } catch (erro) {
+    return { erro: mensagemDe(erro) }
+  }
+  redirect('/')
+}
+
+/**
+ * Autocadastro: cria a família e a conta de responsável de quem chega, abre a
+ * sessão e leva ao painel. A origem (IP) entra só no limite de cadastros.
+ */
+export async function cadastrarConta(
+  _estado: EstadoDoFormulario,
+  form: FormData,
+): Promise<EstadoDoFormulario> {
+  try {
+    const cabecalhos = await headers()
+    const origem = cabecalhos.get('x-forwarded-for')?.split(',')[0]?.trim() || 'desconhecida'
+    const { token } = await cadastrarFamilia(
+      {
+        familia: form.get('familia'),
+        nome: form.get('nome'),
+        email: form.get('email'),
+        senha: form.get('senha'),
+        confirmacao: form.get('confirmacao'),
+      },
+      origem,
+    )
     await gravarCookieDeSessao(token)
   } catch (erro) {
     return { erro: mensagemDe(erro) }

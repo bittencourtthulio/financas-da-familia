@@ -39,7 +39,9 @@ export default async function Entrar() {
         </Formulario>
 
         <p className="rodape-da-entrada">
-          Ainda não conhece o sistema? <Link href="/inicio">Veja como ele funciona</Link>.
+          Ainda não tem conta? <Link href="/cadastrar">Crie a sua família</Link>.
+          <br />
+          Quer conhecer antes? <Link href="/inicio">Veja como ele funciona</Link>.
         </p>
       </section>
     </main>

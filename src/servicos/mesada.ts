@@ -121,7 +121,7 @@ export async function registrarMovimento(
   exigirAdmin(autor)
 
   const dados = validarMovimento(entrada)
-  const filho = await prisma.filho.findUnique({ where: { id: filhoId } })
+  const filho = await prisma.filho.findFirst({ where: { id: filhoId, familiaId: autor.familiaId } })
   if (!filho) throw naoEncontrado('Filho não encontrado.')
 
   // O movimento e o rastro nascem juntos (PR-10). O detalhe leva o tipo, o
@@ -129,6 +129,7 @@ export async function registrarMovimento(
   return prisma.$transaction(async (tx) => {
     const movimento = await tx.movimentoDeMesada.create({
       data: {
+        familiaId: autor.familiaId,
         filhoId: filho.id,
         tipo: dados.tipo,
         valorCentavos: dados.valor,
@@ -159,8 +160,8 @@ export async function editarMovimento(
   exigirAdmin(autor)
 
   const dados = validarMovimento(entrada)
-  const atual = await prisma.movimentoDeMesada.findUnique({
-    where: { id },
+  const atual = await prisma.movimentoDeMesada.findFirst({
+    where: { id, familiaId: autor.familiaId },
     include: { filho: { select: { nome: true } } },
   })
   if (!atual) throw naoEncontrado('Movimento não encontrado.')
@@ -210,8 +211,8 @@ export async function apagarMovimento(
   exigirAdmin(autor)
 
   return prisma.$transaction(async (tx) => {
-    const existente = await tx.movimentoDeMesada.findUnique({
-      where: { id },
+    const existente = await tx.movimentoDeMesada.findFirst({
+      where: { id, familiaId: autor.familiaId },
       include: { filho: { select: { nome: true } } },
     })
     if (!existente) throw naoEncontrado('Movimento não encontrado.')
@@ -241,8 +242,8 @@ export async function obterMovimento(
   id: string,
 ): Promise<MovimentoComFilho> {
   exigirAdmin(autor)
-  const linha = await prisma.movimentoDeMesada.findUnique({
-    where: { id },
+  const linha = await prisma.movimentoDeMesada.findFirst({
+    where: { id, familiaId: autor.familiaId },
     include: { filho: { select: { nome: true } } },
   })
   if (!linha) throw naoEncontrado('Movimento não encontrado.')
@@ -288,7 +289,7 @@ export async function extratoDoFilho(
   opcoes: { pagina?: number } = {},
 ): Promise<ExtratoDeMesada> {
   exigirAdmin(autor)
-  const filho = await prisma.filho.findUnique({ where: { id: filhoId }, select: dadosDoFilho })
+  const filho = await prisma.filho.findFirst({ where: { id: filhoId, familiaId: autor.familiaId }, select: dadosDoFilho })
   if (!filho) throw naoEncontrado('Filho não encontrado.')
   return montarExtrato(filho, opcoes.pagina)
 }
@@ -296,9 +297,10 @@ export async function extratoDoFilho(
 /** O saldo de cada filho, por id, para a lista do responsável. */
 export async function saldosDosFilhos(autor: UsuarioAutenticado): Promise<Record<string, number>> {
   exigirAdmin(autor)
-  const filhos = await prisma.filho.findMany({ select: { id: true } })
+  const filhos = await prisma.filho.findMany({ where: { familiaId: autor.familiaId }, select: { id: true } })
   const grupos = await prisma.movimentoDeMesada.groupBy({
     by: ['filhoId', 'tipo'],
+    where: { familiaId: autor.familiaId },
     _sum: { valorCentavos: true },
   })
   const saldos: Record<string, number> = Object.fromEntries(filhos.map((f) => [f.id, 0]))

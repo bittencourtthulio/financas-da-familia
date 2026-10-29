@@ -12,7 +12,7 @@ import { entrar } from '@/servicos/autenticacao'
 import { COOKIE_SESSAO } from '@/lib/sessao'
 import { prisma } from '@/lib/prisma'
 import { hashDeSenha } from '@/lib/senha'
-import { limparBanco } from './ajuda'
+import { familiaPadrao, limparBanco } from './ajuda'
 
 const PORTA = 3180
 const BASE = `http://localhost:${PORTA}`
@@ -61,10 +61,11 @@ const ANA = 'ana.mesadar@teste.local'
 
 beforeAll(async () => {
   await limparBanco()
+  const familiaId = await familiaPadrao()
   await prisma.usuario.createMany({
     data: [
-      { nome: 'Responsável da Rota', email: ADMIN, senhaHash: await hashDeSenha(SENHA), papel: 'admin' },
-      { nome: 'Adulto da Rota', email: ADULTO, senhaHash: await hashDeSenha(SENHA), papel: 'usuario' },
+      { nome: 'Responsável da Rota', email: ADMIN, senhaHash: await hashDeSenha(SENHA), papel: 'admin', familiaId },
+      { nome: 'Adulto da Rota', email: ADULTO, senhaHash: await hashDeSenha(SENHA), papel: 'usuario', familiaId },
     ],
   })
   const admin = await prisma.usuario.findUniqueOrThrow({ where: { email: ADMIN } })
@@ -82,6 +83,7 @@ beforeAll(async () => {
   // Extrato longo para a Ana: 65 créditos de R$ 0,01 a mais, em dias distintos.
   await prisma.movimentoDeMesada.createMany({
     data: Array.from({ length: 65 }, (_, i) => ({
+      familiaId: admin.familiaId,
       filhoId: ana.id,
       tipo: 'credito',
       valorCentavos: 1,

@@ -10,23 +10,45 @@ datasource db {
   provider = "postgresql"
 }
 
-model Usuario {
-  id        String   @id @default(cuid())
-  nome      String
-  email     String   @unique
-  senhaHash String
-  papel     String   @default("usuario") // "admin" | "usuario"
-  ativo     Boolean  @default(true)
+// A família é o dono dos dados: toda linha de negócio pertence a uma família, e
+// nenhuma consulta atravessa de uma para outra. Quem se cadastra cria a sua.
+model Familia {
+  id       String   @id @default(cuid())
+  nome     String
+  criadoEm DateTime @default(now())
 
-  avatar    String? // JSON do avatar desenhado (src/lib/avatar.ts); nulo até a pessoa escolher
+  usuarios     Usuario[]
+  atividades   Atividade[]
+  categorias   Categoria[]
+  lancamentos  Lancamento[]
+  recorrencias Recorrencia[]
+  filhos       Filho[]
+  movimentos   MovimentoDeMesada[]
+
+  @@map("familias")
+}
+
+model Usuario {
+  id        String  @id @default(cuid())
+  nome      String
+  email     String  @unique
+  senhaHash String
+  papel     String  @default("usuario") // "admin" | "usuario"
+  ativo     Boolean @default(true)
+
+  avatar              String? // JSON do avatar desenhado (src/lib/avatar.ts); nulo até a pessoa escolher
   // Toda sessão emitida depois deste instante é válida; é assim que a troca de senha derruba as outras (L4).
   sessoesValidasDesde DateTime @default(now())
+
+  familiaId String
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  filho Filho?
+  familia Familia @relation(fields: [familiaId], references: [id], onDelete: Restrict)
+  filho   Filho?
 
+  @@index([familiaId])
   @@map("usuarios")
 }
 
@@ -43,9 +65,13 @@ model Atividade {
   entidade   String // "usuario", e depois "lancamento", "mesada"...
   entidadeId String
   detalhe    String? // JSON plano, ver acima
+  familiaId  String
   criadoEm   DateTime @default(now())
 
+  familia Familia @relation(fields: [familiaId], references: [id], onDelete: Restrict)
+
   @@index([criadoEm])
+  @@index([familiaId])
   @@map("atividades")
 }
 
@@ -54,17 +80,19 @@ model Atividade {
 // `data` é o dia civil da família como texto AAAA-MM-DD, não um instante
 // (PR-16, PR-26). Quem lançou fica na trilha de atividade, não aqui.
 model Categoria {
-  id       String   @id @default(cuid())
-  nome     String
-  tipo     String // "receita" | "despesa"
-  criadoEm DateTime @default(now())
+  id        String   @id @default(cuid())
+  nome      String
+  tipo      String // "receita" | "despesa"
+  familiaId String
+  criadoEm  DateTime @default(now())
 
+  familia      Familia       @relation(fields: [familiaId], references: [id], onDelete: Restrict)
   lancamentos  Lancamento[]
   recorrencias Recorrencia[]
 
-  // Nome único dentro do tipo; a comparação sem diferenciar maiúscula é do
-  // serviço (PR-27).
-  @@unique([tipo, nome])
+  // Nome único dentro do tipo e da família; a comparação sem diferenciar
+  // maiúscula é do serviço (PR-27).
+  @@unique([familiaId, tipo, nome])
   @@map("categorias")
 }
 
@@ -83,16 +111,18 @@ model Lancamento {
   // Se este lançamento é um mês de uma recorrência, qual. Apagar a recorrência
   // solta os lançamentos em vez de apagá-los.
   recorrenciaId String?
+  familiaId     String
   criadoEm      DateTime @default(now())
   atualizadoEm  DateTime @updatedAt
 
+  familia     Familia      @relation(fields: [familiaId], references: [id], onDelete: Restrict)
   categoria   Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
   recorrencia Recorrencia? @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
 
   // Um mês de uma recorrência só existe uma vez, mesmo com duas telas
   // gerando ao mesmo tempo. Nulo não conta: lançamento avulso repete à vontade.
   @@unique([recorrenciaId, data])
-  @@index([data])
+  @@index([familiaId, data])
   @@index([pessoaId])
   @@index([recorrenciaId])
   @@map("lancamentos")
@@ -115,10 +145,13 @@ model Filho {
   criadoEm       DateTime @default(now())
   atualizadoEm   DateTime @updatedAt
   avatar         String? // JSON do avatar desenhado (src/lib/avatar.ts); nulo até o responsável escolher
-  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  familiaId      String
+  familia        Familia  @relation(fields: [familiaId], references: [id], onDelete: Restrict)
+  usuario        Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
 
   movimentos MovimentoDeMesada[]
 
+  @@index([familiaId])
   @@map("filhos")
 }
 
@@ -136,12 +169,15 @@ model MovimentoDeMesada {
   valorCentavos Int // inteiro positivo, em centavos de real
   data          String // AAAA-MM-DD no fuso America/Sao_Paulo
   descricao     String   @default("")
+  familiaId     String
   criadoEm      DateTime @default(now())
   atualizadoEm  DateTime @updatedAt
 
-  filho Filho @relation(fields: [filhoId], references: [id], onDelete: Cascade)
+  familia Familia @relation(fields: [familiaId], references: [id], onDelete: Restrict)
+  filho   Filho   @relation(fields: [filhoId], references: [id], onDelete: Cascade)
 
   @@index([filhoId, data])
+  @@index([familiaId])
   @@map("movimentos_de_mesada")
 }
 
@@ -160,10 +196,13 @@ model Recorrencia {
   inicio        String // AAAA-MM
   fim           String? // AAAA-MM
   geradoAte     String // AAAA-MM
+  familiaId     String
   criadoEm      DateTime @default(now())
 
+  familia     Familia      @relation(fields: [familiaId], references: [id], onDelete: Restrict)
   categoria   Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
   lancamentos Lancamento[]
 
+  @@index([familiaId])
   @@map("recorrencias")
 }

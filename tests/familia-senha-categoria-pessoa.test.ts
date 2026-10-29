@@ -17,7 +17,7 @@ import {
   obterOuCriarCategoria,
 } from '@/servicos/lancamentos'
 import { financasDoMes, resumoDoMes } from '@/servicos/resumo'
-import { criarAdmin, criarCategoriaNoBanco, criarUsuario, limparBanco } from './ajuda'
+import { criarAdmin, criarCategoriaNoBanco, criarUsuario, limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
@@ -80,7 +80,7 @@ describe('categoria no campo do lançamento', () => {
     const admin = await criarAdmin()
     const livre = await criarCategoriaNoBanco('despesa', 'Livre')
     const usada = await criarCategoriaNoBanco('despesa', 'Usada')
-    await prisma.lancamento.create({ data: { tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: usada.id } })
+    await prisma.lancamento.create({ data: { familiaId: await familiaPadrao(), tipo: 'despesa', valorCentavos: 100, data: '2026-10-01', categoriaId: usada.id } })
 
     await apagarCategoria(admin, livre.id)
     expect(await prisma.categoria.findUnique({ where: { id: livre.id } })).toBeNull()

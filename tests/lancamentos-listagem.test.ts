@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { prisma } from '@/lib/prisma'
 import { listarLancamentos, POR_PAGINA_DE_LANCAMENTOS } from '@/servicos/lancamentos'
-import { criarAdmin, criarUsuario, criarCategoriaNoBanco, limparBanco } from './ajuda'
+import { criarAdmin, criarUsuario, criarCategoriaNoBanco, limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
@@ -18,7 +18,7 @@ async function semear(
   for (const linha of linhas) {
     const tipo = linha.tipo ?? 'despesa'
     await prisma.lancamento.create({
-      data: {
+      data: { familiaId: await familiaPadrao(),
         tipo,
         valorCentavos: linha.valorCentavos ?? 1000,
         data: linha.data,
@@ -65,7 +65,7 @@ describe('listarLancamentos', () => {
     const categoria = await criarCategoriaNoBanco('despesa', 'Dia')
     for (const [i, descricao] of ['primeiro', 'segundo', 'terceiro'].entries()) {
       await prisma.lancamento.create({
-        data: {
+        data: { familiaId: await familiaPadrao(),
           tipo: 'despesa',
           valorCentavos: 100,
           data: dia(10),

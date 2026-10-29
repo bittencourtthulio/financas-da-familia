@@ -31,7 +31,7 @@ async function irmaos() {
   await criarLoginDoFilho(admin, bia.id, { email: 'bia@exemplo.local', senha: SENHA })
   const usuario = async (email: string) => {
     const u = await prisma.usuario.findUniqueOrThrow({ where: { email } })
-    return { id: u.id, nome: u.nome, email: u.email, papel: u.papel }
+    return { id: u.id, nome: u.nome, email: u.email, papel: u.papel, familiaId: u.familiaId }
   }
   const deAna = await registrarMovimento(admin, ana.id, { tipo: 'credito', valor: '11,11', data: '2026-10-01', descricao: 'Da Ana' })
   const deBia = await registrarMovimento(admin, bia.id, { tipo: 'credito', valor: '222,22', data: '2026-10-02', descricao: 'Segredo da Bia' })
@@ -78,7 +78,7 @@ describe('o filho lê só o próprio extrato', () => {
     await irmaos()
     await prisma.filho.updateMany({ data: { usuarioId: null } })
     const orfao = await prisma.usuario.findUniqueOrThrow({ where: { email: 'ana@exemplo.local' } })
-    const erro = await erroDe(meuExtrato({ id: orfao.id, nome: orfao.nome, email: orfao.email, papel: orfao.papel }))
+    const erro = await erroDe(meuExtrato({ id: orfao.id, nome: orfao.nome, email: orfao.email, papel: orfao.papel, familiaId: orfao.familiaId }))
     expect(erro.status).toBe(404)
   })
 })

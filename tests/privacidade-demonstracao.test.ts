@@ -18,7 +18,7 @@ beforeEach(async () => {
 
 async function responsavel() {
   const admin = await prisma.usuario.findUniqueOrThrow({ where: { email: 'responsavel@exemplo.local' } })
-  return { id: admin.id, nome: admin.nome, email: admin.email, papel: admin.papel }
+  return { id: admin.id, nome: admin.nome, email: admin.email, papel: admin.papel, familiaId: admin.familiaId }
 }
 
 describe('a exportação dos dados de demonstração', () => {

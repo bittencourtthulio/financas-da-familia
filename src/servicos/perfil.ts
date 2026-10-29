@@ -58,6 +58,7 @@ export async function atualizarPerfil(
     nome: atualizado.nome,
     email: atualizado.email,
     papel: atualizado.papel,
+    familiaId: atualizado.familiaId,
   }
 }
 

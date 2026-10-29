@@ -39,6 +39,8 @@ export interface UsuarioAutenticado {
   nome: string
   email: string
   papel: string
+  /** A família de quem pergunta: toda consulta de negócio fica dentro dela. */
+  familiaId: string
 }
 
 /**
@@ -80,6 +82,7 @@ export async function entrar(entrada: unknown): Promise<{
       nome: usuario.nome,
       email: usuario.email,
       papel: usuario.papel,
+      familiaId: usuario.familiaId,
     },
   }
 }
@@ -107,6 +110,7 @@ export async function usuarioDaSessao(token: string): Promise<UsuarioAutenticado
     nome: usuario.nome,
     email: usuario.email,
     papel: usuario.papel,
+    familiaId: usuario.familiaId,
   }
 }
 

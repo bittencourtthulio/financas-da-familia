@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { prisma } from '@/lib/prisma'
 import { ACOES, rotuloDaAcao } from '@/lib/atividade'
-import { limparBanco } from './ajuda'
+import { limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
@@ -14,7 +14,7 @@ describe('tabela de atividades', () => {
   it('grava quem, o quê e quando, e o banco preenche o instante', async () => {
     const antes = Date.now()
     const criada = await prisma.atividade.create({
-      data: {
+      data: { familiaId: await familiaPadrao(),
         atorId: 'ator-1',
         atorNome: 'Fulana',
         acao: 'usuario.criado',
@@ -39,7 +39,8 @@ describe('tabela de atividades', () => {
     const colunas = await prisma.$queryRawUnsafe<Array<{ table: string }>>(
       `SELECT ccu.table_name AS "table" FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name AND ccu.constraint_schema = tc.table_schema WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public' AND tc.table_name = 'atividades'`,
     )
-    expect(colunas).toEqual([])
+    // A única chave é para a família (de quem a trilha é); nenhuma para usuários.
+    expect(colunas).toEqual([{ table: 'familias' }])
     const tabelas = await prisma.$queryRawUnsafe<Array<{ name: string }>>(
       `SELECT tablename AS name FROM pg_tables WHERE schemaname = 'public' AND tablename = 'atividades'`,
     )
@@ -48,7 +49,7 @@ describe('tabela de atividades', () => {
 
   it('o detalhe é opcional', async () => {
     const criada = await prisma.atividade.create({
-      data: { atorId: 'a', atorNome: 'A', acao: 'usuario.desativado', entidade: 'usuario', entidadeId: 'b' },
+      data: { familiaId: await familiaPadrao(), atorId: 'a', atorNome: 'A', acao: 'usuario.desativado', entidade: 'usuario', entidadeId: 'b' },
     })
     expect(criada.detalhe).toBeNull()
   })
@@ -59,6 +60,7 @@ describe('catálogo de ações', () => {
     expect(Object.keys(ACOES).sort()).toEqual([
       'categoria.apagada',
       'categoria.criada',
+      'familia.criada',
       'familia.exportada',
       'filho.alterado',
       'filho.cadastrado',

@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { prisma } from '@/lib/prisma'
 import { resumoDoMes } from '@/servicos/resumo'
-import { criarAdmin, criarCategoriaNoBanco, criarUsuario, limparBanco } from './ajuda'
+import { criarAdmin, criarCategoriaNoBanco, criarUsuario, limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
@@ -19,7 +19,7 @@ async function lancar(
   valorCentavos: number,
   data: string,
 ) {
-  return prisma.lancamento.create({ data: { tipo, valorCentavos, data, categoriaId } })
+  return prisma.lancamento.create({ data: { familiaId: await familiaPadrao(), tipo, valorCentavos, data, categoriaId } })
 }
 
 const AGORA = new Date('2026-10-28T15:00:00Z')
@@ -65,6 +65,7 @@ describe('resumoDoMes: totais e saldo', () => {
     const c = await criarCategoriaNoBanco('despesa', 'Miudezas')
     await prisma.lancamento.createMany({
       data: Array.from({ length: 100 }, () => ({
+        familiaId: admin.familiaId,
         tipo: 'despesa',
         valorCentavos: 10,
         data: '2026-10-10',

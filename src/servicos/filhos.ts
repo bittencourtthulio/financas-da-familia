@@ -105,6 +105,7 @@ function paraListado(l: LinhaDeFilho): FilhoListado {
 export async function listarFilhos(autor: UsuarioAutenticado): Promise<FilhoListado[]> {
   exigirAdmin(autor)
   const linhas = await prisma.filho.findMany({
+    where: { familiaId: autor.familiaId },
     include: incluirLogin,
     orderBy: [{ criadoEm: 'asc' }, { id: 'asc' }],
   })
@@ -113,7 +114,7 @@ export async function listarFilhos(autor: UsuarioAutenticado): Promise<FilhoList
 
 export async function obterFilho(autor: UsuarioAutenticado, id: string): Promise<FilhoListado> {
   exigirAdmin(autor)
-  const linha = await prisma.filho.findUnique({ where: { id }, include: incluirLogin })
+  const linha = await prisma.filho.findFirst({ where: { id, familiaId: autor.familiaId }, include: incluirLogin })
   if (!linha) throw naoEncontrado('Filho não encontrado.')
   return paraListado(linha)
 }
@@ -135,7 +136,7 @@ export async function cadastrarFilho(
   // é desfeito. O detalhe leva só o nome (PR-25).
   const criado = await prisma.$transaction(async (tx) => {
     const filho = await tx.filho.create({
-      data: { nome, nascimento, mesadaCentavos: valor, periodicidade },
+      data: { nome, nascimento, mesadaCentavos: valor, periodicidade, familiaId: autor.familiaId },
       include: incluirLogin,
     })
     await registrarAtividade(
@@ -167,8 +168,8 @@ export async function editarFilho(
   }
   const { nome, nascimento, valor, periodicidade } = dados.data
 
-  const atual = await prisma.filho.findUnique({
-    where: { id },
+  const atual = await prisma.filho.findFirst({
+    where: { id, familiaId: autor.familiaId },
     include: { usuario: { select: { nome: true } } },
   })
   if (!atual) throw naoEncontrado('Filho não encontrado.')
@@ -241,7 +242,7 @@ export async function criarLoginDoFilho(
   }
   const { email, senha } = dados.data
 
-  const filho = await prisma.filho.findUnique({ where: { id } })
+  const filho = await prisma.filho.findFirst({ where: { id, familiaId: autor.familiaId } })
   if (!filho) throw naoEncontrado('Filho não encontrado.')
   if (filho.usuarioId) throw conflito('Este filho já tem login.')
   if (await prisma.usuario.findUnique({ where: { email } })) {
@@ -254,7 +255,7 @@ export async function criarLoginDoFilho(
   // nome do filho: nunca o e-mail nem a senha (PR-25).
   const atualizado = await prisma.$transaction(async (tx) => {
     const usuario = await tx.usuario.create({
-      data: { nome: filho.nome, email, senhaHash, papel: 'filho' },
+      data: { nome: filho.nome, email, senhaHash, papel: 'filho', familiaId: autor.familiaId },
       select: { id: true },
     })
     const ligado = await tx.filho.update({
@@ -288,7 +289,7 @@ export async function desativarLoginDoFilho(
 ): Promise<FilhoListado> {
   exigirAdmin(autor)
 
-  const filho = await prisma.filho.findUnique({ where: { id }, include: incluirLogin })
+  const filho = await prisma.filho.findFirst({ where: { id, familiaId: autor.familiaId }, include: incluirLogin })
   if (!filho) throw naoEncontrado('Filho não encontrado.')
   if (!filho.usuarioId || !filho.usuario) throw naoEncontrado('Este filho não tem login.')
   if (!filho.usuario.ativo) return paraListado(filho)
@@ -340,7 +341,7 @@ export async function redefinirSenhaDoFilho(
   entrada: unknown,
 ): Promise<void> {
   exigirAdmin(autor)
-  const filho = await prisma.filho.findUnique({ where: { id } })
+  const filho = await prisma.filho.findFirst({ where: { id, familiaId: autor.familiaId } })
   if (!filho) throw naoEncontrado('Filho não encontrado.')
   if (!filho.usuarioId) throw naoEncontrado('Este filho não tem login.')
   await redefinirSenha(autor, filho.usuarioId, entrada)

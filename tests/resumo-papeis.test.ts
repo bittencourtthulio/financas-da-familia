@@ -9,7 +9,7 @@ import * as servico from '@/servicos/resumo'
 import { ErroDeAplicacao } from '@/lib/erros'
 import { prisma } from '@/lib/prisma'
 import { type UsuarioAutenticado } from '@/servicos/autenticacao'
-import { criarAdmin, criarCategoriaNoBanco, criarUsuario, limparBanco } from './ajuda'
+import { criarAdmin, criarCategoriaNoBanco, criarUsuario, limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
@@ -36,7 +36,7 @@ describe('todas as funções do serviço de resumo negam papel que não é admin
       const admin = await criarAdmin()
       const categoria = await criarCategoriaNoBanco('despesa', 'Mercado')
       await prisma.lancamento.create({
-        data: { tipo: 'despesa', valorCentavos: 4242, data: '2026-10-05', categoriaId: categoria.id },
+        data: { familiaId: await familiaPadrao(), tipo: 'despesa', valorCentavos: 4242, data: '2026-10-05', categoriaId: categoria.id },
       })
       const alguem = { ...(await criarUsuario()), papel }
 

@@ -142,9 +142,9 @@ describe('quem não é o responsável não grava nada por nenhuma ação sensív
     ['redefinirSenhaDeUsuario', acoes.redefinirSenhaDeUsuario, { id: ID, senha: 'senha-nova-123', confirmacao: 'senha-nova-123' }],
     ['redefinirSenhaDeFilho', acoes.redefinirSenhaDeFilho, { id: ID, senha: 'senha-nova-123', confirmacao: 'senha-nova-123' }],
   ]
-  const LIVRES = ['autenticar', 'sair', 'salvarPerfil', 'salvarSenha']
+  const LIVRES = ['autenticar', 'cadastrarConta', 'sair', 'salvarPerfil', 'salvarSenha']
 
-  it('a tabela cobre toda ação exportada (as livres são login, sair, perfil e senha)', () => {
+  it('a tabela cobre toda ação exportada (as livres são login, cadastro, sair, perfil e senha)', () => {
     const exportadas = Object.keys(acoes).sort()
     expect([...sensiveis.map(([n]) => n), ...LIVRES].sort()).toEqual(exportadas)
   })

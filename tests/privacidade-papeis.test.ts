@@ -70,7 +70,7 @@ describe('toda função do serviço de privacidade nega quem não é admin', () 
       const login = await prisma.usuario.findUniqueOrThrow({ where: { email: 'bia@exemplo.local' } })
       const antes = await prisma.atividade.count()
       await expect(
-        chamar({ id: login.id, nome: login.nome, email: login.email, papel: login.papel }, { filho: filho.id }),
+        chamar({ id: login.id, nome: login.nome, email: login.email, papel: login.papel, familiaId: login.familiaId }, { filho: filho.id }),
       ).rejects.toMatchObject({ status: 403 })
       expect(await prisma.atividade.count()).toBe(antes)
       // O filho não apaga nem a si mesmo.

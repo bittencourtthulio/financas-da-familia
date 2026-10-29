@@ -5,14 +5,16 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { prisma } from '@/lib/prisma'
 import { listarAtividade, POR_PAGINA } from '@/servicos/atividade'
-import { criarAdmin, criarUsuario, limparBanco } from './ajuda'
+import { criarAdmin, criarUsuario, limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(limparBanco)
 
 async function semear(quantidade: number) {
   const inicio = Date.UTC(2026, 0, 1)
+  const fam = await familiaPadrao()
   await prisma.atividade.createMany({
     data: Array.from({ length: quantidade }, (_, i) => ({
+      familiaId: fam,
       atorId: 'a',
       atorNome: 'Ator',
       acao: 'usuario.criado',
@@ -86,10 +88,10 @@ describe('o que volta', () => {
 
   it('detalhe corrompido no banco volta como objeto vazio, sem lançar', async () => {
     await prisma.atividade.create({
-      data: { atorId: 'a', atorNome: 'A', acao: 'usuario.criado', entidade: 'usuario', entidadeId: 'b', detalhe: '{não é json' },
+      data: { familiaId: await familiaPadrao(), atorId: 'a', atorNome: 'A', acao: 'usuario.criado', entidade: 'usuario', entidadeId: 'b', detalhe: '{não é json' },
     })
     await prisma.atividade.create({
-      data: { atorId: 'a', atorNome: 'A', acao: 'usuario.criado', entidade: 'usuario', entidadeId: 'c', detalhe: '[1,2]' },
+      data: { familiaId: await familiaPadrao(), atorId: 'a', atorNome: 'A', acao: 'usuario.criado', entidade: 'usuario', entidadeId: 'c', detalhe: '[1,2]' },
     })
     const admin = await criarAdmin()
     const { itens } = await listarAtividade(admin)

@@ -59,6 +59,7 @@ describe('o saldo é exato em centavos inteiros', () => {
     const linhas = []
     for (let i = 0; i < 1000; i += 1) {
       linhas.push({
+        familiaId: admin.familiaId,
         filhoId: filho.id,
         tipo: i % 3 === 0 ? 'gasto' : 'credito',
         valorCentavos: i % 3 === 0 ? 7 : 1,
@@ -86,7 +87,7 @@ describe('o saldo é exato em centavos inteiros', () => {
   it('o valor máximo repetido muitas vezes não perde precisão', async () => {
     const { admin, filho } = await cenario()
     await prisma.movimentoDeMesada.createMany({
-      data: Array.from({ length: 50 }, () => ({ filhoId: filho.id, tipo: 'credito', valorCentavos: 100_000_000, data: '2026-10-05' })),
+      data: Array.from({ length: 50 }, () => ({ familiaId: admin.familiaId, filhoId: filho.id, tipo: 'credito', valorCentavos: 100_000_000, data: '2026-10-05' })),
     })
     expect((await extratoDoFilho(admin, filho.id)).saldoCentavos).toBe(5_000_000_000)
   })

@@ -25,6 +25,8 @@ export type ClienteDeAtividade = Pick<PrismaClient, 'atividade'>
 export interface QuemAgiu {
   id: string
   nome: string
+  /** A trilha é da família de quem agiu. */
+  familiaId: string
 }
 
 export interface EntradaDeAtividade {
@@ -65,6 +67,7 @@ const entradaDeAtividade = z.object({
   ator: z.object({
     id: z.string().min(1, 'Informe quem agiu.'),
     nome: z.string().min(1, 'Informe quem agiu.'),
+    familiaId: z.string().min(1, 'Informe a família de quem agiu.'),
   }),
   acao: z.string().refine((a) => a in ACOES, 'Ação fora do catálogo da trilha.'),
   entidade: z.string().min(1, 'Informe a entidade.'),
@@ -86,6 +89,7 @@ export async function registrarAtividade(
     data: {
       atorId: ator.id,
       atorNome: ator.nome,
+      familiaId: ator.familiaId,
       acao,
       entidade,
       entidadeId,
@@ -137,12 +141,13 @@ export async function listarAtividade(
 ): Promise<PaginaDeAtividades> {
   exigirAdmin(autor)
 
-  const total = await prisma.atividade.count()
+  const total = await prisma.atividade.count({ where: { familiaId: autor.familiaId } })
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA))
   const pedida = Number.isInteger(opcoes.pagina) ? (opcoes.pagina as number) : 1
   const pagina = Math.min(Math.max(1, pedida), paginas)
 
   const linhas = await prisma.atividade.findMany({
+    where: { familiaId: autor.familiaId },
     orderBy: [{ criadoEm: 'desc' }, { id: 'desc' }],
     skip: (pagina - 1) * POR_PAGINA,
     take: POR_PAGINA,

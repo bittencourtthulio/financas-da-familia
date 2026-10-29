@@ -6,12 +6,33 @@ export const SENHA_PADRAO = 'senha-de-teste-123'
 
 let contador = 0
 
+/**
+ * A família que os testes usam quando não dizem qual: criada uma vez por teste
+ * (o `limparBanco` esvazia tudo, inclusive ela). Para provar isolamento, crie
+ * outra com `criarFamilia` e passe o `familiaId`.
+ */
+export async function familiaPadrao(): Promise<string> {
+  const existente = await prisma.familia.findFirst({ where: { nome: 'Família de teste' } })
+  if (existente) return existente.id
+  return (await prisma.familia.create({ data: { nome: 'Família de teste' } })).id
+}
+
+let contadorDeFamilia = 0
+
+/** Cria outra família, para os testes de isolamento entre famílias. */
+export async function criarFamilia(nome?: string): Promise<string> {
+  contadorDeFamilia += 1
+  return (await prisma.familia.create({ data: { nome: nome ?? `Outra família ${contadorDeFamilia}` } })).id
+}
+
 /** Cria um usuário no banco e devolve a forma autenticada dele. */
 export async function criarUsuario(opcoes?: {
   papel?: string
   ativo?: boolean
   senha?: string
   email?: string
+  /** Sem ele, vale a família padrão do teste. */
+  familiaId?: string
 }): Promise<UsuarioAutenticado & { senha: string }> {
   contador += 1
   const senha = opcoes?.senha ?? SENHA_PADRAO
@@ -22,6 +43,7 @@ export async function criarUsuario(opcoes?: {
       senhaHash: await hashDeSenha(senha),
       papel: opcoes?.papel ?? 'usuario',
       ativo: opcoes?.ativo ?? true,
+      familiaId: opcoes?.familiaId ?? (await familiaPadrao()),
     },
   })
   return {
@@ -29,6 +51,7 @@ export async function criarUsuario(opcoes?: {
     nome: usuario.nome,
     email: usuario.email,
     papel: usuario.papel,
+    familiaId: usuario.familiaId,
     senha,
   }
 }
@@ -44,6 +67,7 @@ export async function limparBanco(): Promise<void> {
   await prisma.categoria.deleteMany()
   await prisma.atividade.deleteMany()
   await prisma.usuario.deleteMany()
+  await prisma.familia.deleteMany()
 }
 
 let contadorDeCategoria = 0
@@ -52,9 +76,10 @@ let contadorDeCategoria = 0
 export async function criarCategoriaNoBanco(
   tipo: 'receita' | 'despesa' = 'despesa',
   nome?: string,
+  familiaId?: string,
 ) {
   contadorDeCategoria += 1
   return prisma.categoria.create({
-    data: { tipo, nome: nome ?? `Categoria ${contadorDeCategoria}` },
+    data: { tipo, nome: nome ?? `Categoria ${contadorDeCategoria}`, familiaId: familiaId ?? (await familiaPadrao()) },
   })
 }

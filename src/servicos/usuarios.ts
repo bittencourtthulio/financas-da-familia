@@ -53,6 +53,7 @@ const camposListados = {
 export async function listar(autor: UsuarioAutenticado): Promise<UsuarioListado[]> {
   exigirAdmin(autor)
   return prisma.usuario.findMany({
+    where: { familiaId: autor.familiaId },
     select: camposListados,
     orderBy: { criadoEm: 'asc' },
   })
@@ -80,7 +81,7 @@ export async function criar(
   // criação é desfeita. O detalhe leva o nome e o papel, nunca a senha.
   return prisma.$transaction(async (tx) => {
     const criado = await tx.usuario.create({
-      data: { nome: dados.data.nome, email, papel: dados.data.papel, senhaHash },
+      data: { nome: dados.data.nome, email, papel: dados.data.papel, senhaHash, familiaId: autor.familiaId },
       select: camposListados,
     })
     await registrarAtividade(
@@ -109,7 +110,7 @@ export async function editar(
     throw entradaInvalida(dados.error.issues[0]?.message ?? 'Entrada inválida.')
   }
 
-  const alvo = await prisma.usuario.findUnique({ where: { id } })
+  const alvo = await prisma.usuario.findFirst({ where: { id, familiaId: autor.familiaId } })
   if (!alvo) throw naoEncontrado('Usuário não encontrado.')
 
   // O papel do filho é do cadastro do filho (PR-31): trocá-lo aqui deixaria
@@ -125,7 +126,7 @@ export async function editar(
   const perdeAcesso = dados.data.ativo === false
   if (alvo.papel === 'admin' && (perdePapel || perdeAcesso)) {
     const outrosAdmins = await prisma.usuario.count({
-      where: { papel: 'admin', ativo: true, id: { not: id } },
+      where: { papel: 'admin', ativo: true, id: { not: id }, familiaId: autor.familiaId },
     })
     if (outrosAdmins === 0) {
       throw conflito('Este é o último administrador ativo. Promova outro antes.')
@@ -221,7 +222,7 @@ export async function redefinirSenha(
   if (id === autor.id) {
     throw conflito('Para trocar a sua própria senha, use Meu perfil.')
   }
-  const alvo = await prisma.usuario.findUnique({ where: { id } })
+  const alvo = await prisma.usuario.findFirst({ where: { id, familiaId: autor.familiaId } })
   if (!alvo) throw naoEncontrado('Usuário não encontrado.')
 
   const senhaHash = await hashDeSenha(dados.data.senha)

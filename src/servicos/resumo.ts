@@ -78,11 +78,11 @@ export async function resumoDoMes(
 
   const mes = lerMes(consulta, agora)
   const { de, ate } = intervaloDoMes(mes)
-  await garantirRecorrencias(mes, agora)
+  await garantirRecorrencias(autor.familiaId, mes, agora)
 
   const grupos = await prisma.lancamento.groupBy({
     by: ['tipo', 'categoriaId'],
-    where: { data: { gte: de, lt: ate } },
+    where: { familiaId: autor.familiaId, data: { gte: de, lt: ate } },
     _sum: { valorCentavos: true },
     _count: { _all: true },
   })
@@ -144,7 +144,7 @@ async function despesasPorPessoaNoIntervalo(
 ): Promise<PessoaDoResumo[]> {
   const grupos = await prisma.lancamento.groupBy({
     by: ['pessoaId'],
-    where: { tipo: 'despesa', data: { gte: de, lt: ate } },
+    where: { familiaId: autor.familiaId, tipo: 'despesa', data: { gte: de, lt: ate } },
     _sum: { valorCentavos: true },
     _count: { _all: true },
   })
@@ -190,7 +190,7 @@ export async function financasDoMes(
 
   const mes = lerMes(consulta, agora)
   const { de, ate } = intervaloDoMes(mes)
-  await garantirRecorrencias(mes, agora)
+  await garantirRecorrencias(autor.familiaId, mes, agora)
   const objeto =
     typeof consulta === 'object' && consulta !== null && !Array.isArray(consulta)
       ? (consulta as Record<string, unknown>)
@@ -203,7 +203,12 @@ export async function financasDoMes(
 
   const grupos = await prisma.lancamento.groupBy({
     by: ['categoriaId'],
-    where: { tipo: 'despesa', data: { gte: de, lt: ate }, ...(pessoa && { pessoaId: pessoa.id }) },
+    where: {
+      familiaId: autor.familiaId,
+      tipo: 'despesa',
+      data: { gte: de, lt: ate },
+      ...(pessoa && { pessoaId: pessoa.id }),
+    },
     _sum: { valorCentavos: true },
     _count: { _all: true },
   })

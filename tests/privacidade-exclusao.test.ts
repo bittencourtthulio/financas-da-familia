@@ -21,7 +21,7 @@ import {
 import { MARCADOR_DO_FILHO_REMOVIDO } from '@/lib/privacidade'
 import { ErroDeAplicacao } from '@/lib/erros'
 import { prisma } from '@/lib/prisma'
-import { criarAdmin, criarUsuario, limparBanco } from './ajuda'
+import { criarAdmin, criarUsuario, limparBanco, familiaPadrao } from './ajuda'
 
 beforeEach(async () => {
   await limparBanco()
@@ -187,10 +187,10 @@ describe('a trilha é anonimizada, não apagada (PR-10, PR-25, PR-35)', () => {
     const { admin, ana } = await cenario()
     const login = await prisma.usuario.findUniqueOrThrow({ where: { email: 'ana@exemplo.local' } })
     await prisma.atividade.create({
-      data: { atorId: admin.id, atorNome: admin.nome, acao: 'usuario.desativado', entidade: 'usuario', entidadeId: login.id, detalhe: JSON.stringify({ alvoNome: 'Ana Nome Novo' }) },
+      data: { familiaId: await familiaPadrao(), atorId: admin.id, atorNome: admin.nome, acao: 'usuario.desativado', entidade: 'usuario', entidadeId: login.id, detalhe: JSON.stringify({ alvoNome: 'Ana Nome Novo' }) },
     })
     await prisma.atividade.create({
-      data: { atorId: login.id, atorNome: 'Ana Nome Novo', acao: 'usuario.criado', entidade: 'usuario', entidadeId: 'outro', detalhe: JSON.stringify({ alvoNome: 'Outro' }) },
+      data: { familiaId: await familiaPadrao(), atorId: login.id, atorNome: 'Ana Nome Novo', acao: 'usuario.criado', entidade: 'usuario', entidadeId: 'outro', detalhe: JSON.stringify({ alvoNome: 'Outro' }) },
     })
     await excluirFilho(admin, ana.id, CONFIRMA_ANA)
     const todas = await prisma.atividade.findMany()
